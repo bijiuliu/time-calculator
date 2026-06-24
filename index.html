@@ -1369,22 +1369,6 @@
       color: #cbd5e1;
     }
 
-    .version-line {
-      margin: -2px 0 8px;
-      text-align: center;
-      color: #94a3b8;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 0.2px;
-      line-height: 1;
-      user-select: none;
-    }
-
-    body.appearance-dark .version-line,
-    body.appearance-system .version-line {
-      color: #64748b;
-    }
-
     .settings-page {
       display: none;
     }
@@ -1600,6 +1584,43 @@
       color: #cbd5e1;
     }
 
+
+    /* 统一数字输入模式下时间/日期主界面从输入区开始的高度 */
+    .time-box,
+    .date-box {
+      height: 72px;
+      min-height: 72px;
+      box-sizing: border-box;
+    }
+
+    #panelDiff,
+    #datePanelDiff {
+      min-height: 262px;
+    }
+
+    #panelDiff .field,
+    #datePanelDiff .field {
+      margin-bottom: 18px;
+    }
+
+    #panelDiff .actions,
+    #datePanelDiff .actions {
+      margin-top: 8px;
+    }
+
+    @media (max-width: 430px) {
+      .time-box,
+      .date-box {
+        height: 68px;
+        min-height: 68px;
+      }
+
+      #panelDiff,
+      #datePanelDiff {
+        min-height: 250px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -1612,7 +1633,6 @@
     </div>
     <section id="timeCalculatorPanel" class="calculator-panel active">
       <h1 class="title">时间计算器</h1>
-      <div class="version-line">v1.2.0</div>
       <p class="subtitle">支持时间差计算，也支持前移/后退指定时长</p>
 
       <div class="tabs">
@@ -1708,8 +1728,7 @@
 
       <section id="dateCalculatorPanel" class="calculator-panel">
         <h1 class="title">日期计算器</h1>
-        <div class="version-line">v1.2.0</div>
-        <p class="subtitle">支持日期差计算，也支持日期前移/后退指定天数</p>
+          <p class="subtitle">支持日期差计算，也支持日期前移/后退指定天数</p>
 
         <div class="tabs">
           <button id="dateTabDiff" class="tab active" type="button">日期差</button>
