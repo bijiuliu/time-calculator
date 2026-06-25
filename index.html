@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>时间计算器 Pro</title>
+  <!-- 拆分版：页面结构在这里，样式在 css/style.css，逻辑在 js/app.js -->
+  <link rel="stylesheet" href="./css/style.css?v=1.2.0-opt1">
+</head>
+<body>
+  <main class="shell">
+    <section class="card">
+      <div class="app-switch-wrap"><button id="appSwitchBtn" class="app-switch-btn" type="button">日期计算器</button></div>
+      <div class="top-actions">
+      <button id="settingsBtn" class="notice-open settings-open" type="button" aria-label="设置" title="设置">⚙</button>
+      <button id="noticeBtn" class="notice-open" type="button">公告</button>
+    </div>
+    <section id="timeCalculatorPanel" class="calculator-panel active">
+      <h1 class="title">时间计算器</h1>
+      <p class="subtitle">支持时间差计算，也支持前移/后退指定时长</p>
+
+      <div class="tabs">
+        <button id="tabDiff" class="tab active" type="button">时间差</button>
+        <button id="tabShift" class="tab" type="button">前移/后退</button>
+      </div>
+
+      <section id="panelDiff" class="panel active">
+        <div class="field">
+          <label class="label">开始时间</label>
+          <div class="time-box">
+            <input id="startNative" class="native-picker" type="time" aria-label="开始时间">
+            <input id="startH" class="time-num" type="number" inputmode="numeric" min="0" max="23" placeholder="00" aria-label="开始小时">
+            <span class="colon">:</span>
+            <input id="startM" class="time-num" type="number" inputmode="numeric" min="0" max="59" placeholder="00" aria-label="开始分钟">
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">结束时间</label>
+          <div class="time-box">
+            <input id="endNative" class="native-picker" type="time" aria-label="结束时间">
+            <input id="endH" class="time-num" type="number" inputmode="numeric" min="0" max="23" placeholder="00" aria-label="结束小时">
+            <span class="colon">:</span>
+            <input id="endM" class="time-num" type="number" inputmode="numeric" min="0" max="59" placeholder="00" aria-label="结束分钟">
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="calcDiffBtn" class="btn-primary" type="button">计算</button>
+          <button id="resetDiffBtn" class="btn-secondary" type="button">清空</button>
+        </div>
+      </section>
+
+      <section id="panelShift" class="panel">
+        <div class="field">
+          <label class="label">基准时间</label>
+          <div class="time-box">
+            <input id="baseNative" class="native-picker" type="time" aria-label="基准时间">
+            <input id="baseH" class="time-num" type="number" inputmode="numeric" min="0" max="23" placeholder="00" aria-label="基准小时">
+            <span class="colon">:</span>
+            <input id="baseM" class="time-num" type="number" inputmode="numeric" min="0" max="59" placeholder="00" aria-label="基准分钟">
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label direction-label">计算方向</label>
+          <input id="direction" type="hidden" value="back">
+          <div class="direction-tabs" role="tablist" aria-label="方向选择">
+            <button id="directionBack" class="direction-tab active" type="button" aria-pressed="true">前移</button>
+            <button id="directionForward" class="direction-tab" type="button" aria-pressed="false">后退</button>
+          </div>
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label class="label">小时</label>
+            <div class="mini-box">
+              <input id="shiftH" class="mini-input" type="number" inputmode="numeric" min="0" placeholder="0">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">分钟</label>
+            <div class="mini-box">
+              <input id="shiftM" class="mini-input" type="number" inputmode="numeric" min="0" placeholder="0">
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="calcShiftBtn" class="btn-primary" type="button">计算</button>
+          <button id="resetShiftBtn" class="btn-secondary" type="button">清空</button>
+        </div>
+        <div id="shiftAccumHint" class="accum-hint">连续点“计算”会在上一次结果上继续累计</div>
+      </section>
+
+      <section id="resultBox" class="result-box" role="button" tabindex="0">
+        <div class="result-label">计算结果</div>
+        <div id="resultValue" class="result-value">结果会显示在这里</div>
+        <div id="resultTip" class="result-tip">时间差结果可点击切换：小时+分钟 / 总分钟</div>
+      </section>
+
+      <section class="history">
+        <div class="history-head">
+          <h2 class="history-title">计算记录</h2>
+          <button id="clearHistoryBtn" class="clear-btn" type="button">清空记录</button>
+        </div>
+        <ul id="historyList" class="history-list"></ul>
+      </section>
+
+      </section>
+
+      <section id="dateCalculatorPanel" class="calculator-panel">
+        <h1 class="title">日期计算器</h1>
+          <p class="subtitle">支持日期差计算，也支持日期前移/后退指定天数</p>
+
+        <div class="tabs">
+          <button id="dateTabDiff" class="tab active" type="button">日期差</button>
+          <button id="dateTabShift" class="tab" type="button">前移/后退</button>
+        </div>
+
+        <section id="datePanelDiff" class="panel active">
+          <div class="field"><label class="label">开始日期</label><div class="date-box date-native-wrap">
+            <input id="dateStartNative" class="native-picker date-native-picker" type="date" aria-label="开始日期">
+            <span class="date-native-placeholder">年 / 月 / 日</span>
+            <input id="dateStartY" class="date-num" type="number" inputmode="numeric" placeholder="年"><span class="date-sep">年</span>
+            <input id="dateStartM" class="date-num" type="number" inputmode="numeric" placeholder="月"><span class="date-sep">月</span>
+            <input id="dateStartD" class="date-num" type="number" inputmode="numeric" placeholder="日">
+          </div></div>
+          <div class="field"><label class="label">结束日期</label><div class="date-box date-native-wrap">
+            <input id="dateEndNative" class="native-picker date-native-picker" type="date" aria-label="结束日期">
+            <span class="date-native-placeholder">年 / 月 / 日</span>
+            <input id="dateEndY" class="date-num" type="number" inputmode="numeric" placeholder="年"><span class="date-sep">年</span>
+            <input id="dateEndM" class="date-num" type="number" inputmode="numeric" placeholder="月"><span class="date-sep">月</span>
+            <input id="dateEndD" class="date-num" type="number" inputmode="numeric" placeholder="日">
+          </div></div>
+          <div class="actions"><button id="calcDateDiffBtn" class="btn-primary" type="button">计算</button><button id="resetDateDiffBtn" class="btn-secondary" type="button">清空</button></div>
+        </section>
+
+        <section id="datePanelShift" class="panel">
+          <div class="field"><label class="label">基准日期</label><div class="date-box date-native-wrap">
+            <input id="dateBaseNative" class="native-picker date-native-picker" type="date" aria-label="基准日期">
+            <span class="date-native-placeholder">年 / 月 / 日</span>
+            <input id="dateBaseY" class="date-num" type="number" inputmode="numeric" placeholder="年"><span class="date-sep">年</span>
+            <input id="dateBaseM" class="date-num" type="number" inputmode="numeric" placeholder="月"><span class="date-sep">月</span>
+            <input id="dateBaseD" class="date-num" type="number" inputmode="numeric" placeholder="日">
+          </div></div>
+          <div class="field"><label class="label direction-label">计算方向</label><input id="dateDirection" type="hidden" value="back"><div class="direction-tabs">
+            <button id="dateDirectionBack" class="direction-tab active" type="button">前移</button><button id="dateDirectionForward" class="direction-tab" type="button">后退</button>
+          </div></div>
+          <div class="field"><label class="label">天数</label><div class="mini-box"><input id="dateShiftDays" class="mini-input" type="number" inputmode="numeric" placeholder="0"></div></div>
+          <div class="actions"><button id="calcDateShiftBtn" class="btn-primary" type="button">计算</button><button id="resetDateShiftBtn" class="btn-secondary" type="button">清空</button></div>
+          <div id="dateAccumHint" class="accum-hint">连续点“计算”会在上一次结果上继续累计</div>
+        </section>
+
+        <section id="dateResultBox" class="result-box"><div class="result-label">计算结果</div><div id="dateResultValue" class="result-value">结果会显示在这里</div><div id="dateResultTip" class="result-tip">日期差会显示相差天数</div></section>
+        <section class="history"><div class="history-head"><h2 class="history-title">日期记录</h2><button id="clearDateHistoryBtn" class="clear-btn" type="button">清空记录</button></div><ul id="dateHistoryList" class="history-list"></ul></section>
+      </section>
+    </section>
+  </main>
+
+  
+
+
+  <div id="clearConfirmOverlay" class="confirm-overlay" aria-hidden="true">
+    <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="clearConfirmTitle">
+      <input id="clearConfirmType" type="hidden" value="time">
+      <h2 id="clearConfirmTitle" class="confirm-title">清空记录？</h2>
+      <p id="clearConfirmText" class="confirm-text">清空后无法恢复，请确认是否继续。</p>
+      <div class="confirm-actions">
+        <button id="clearConfirmCancel" class="confirm-cancel" type="button">取消</button>
+        <button id="clearConfirmOk" class="confirm-ok" type="button">确认清空</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="settingsOverlay" class="settings-overlay" aria-hidden="true">
+    <div class="settings-dialog" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <div class="settings-header">
+        <button id="settingsBack" class="settings-back" type="button" aria-label="返回">‹</button>
+        <div class="settings-header-title-wrap">
+          <h2 id="settingsTitle">设置</h2>
+          <div id="settingsSubtitle" class="settings-subtitle">选择要调整的设置分类</div>
+        </div>
+        <button id="settingsClose" class="notice-x" type="button" aria-label="关闭">×</button>
+      </div>
+
+      <div class="settings-content">
+        <div id="settingsPageMain" class="settings-page active">
+          <div class="settings-menu">
+            <button class="settings-menu-item" type="button" data-settings-page="input">
+              <span>
+                <span class="settings-menu-main">输入设置</span>
+                <span class="settings-menu-sub">输入方式、默认打开页面、默认模式</span>
+              </span>
+              <span class="settings-menu-arrow">›</span>
+            </button>
+
+            <button class="settings-menu-item" type="button" data-settings-page="appearance">
+              <span>
+                <span class="settings-menu-main">外观设置</span>
+                <span class="settings-menu-sub">显示模式、界面密度</span>
+              </span>
+              <span class="settings-menu-arrow">›</span>
+            </button>
+
+            <button class="settings-menu-item" type="button" data-settings-page="calculation">
+              <span>
+                <span class="settings-menu-main">计算设置</span>
+                <span class="settings-menu-sub">连续累计、记录条数</span>
+              </span>
+              <span class="settings-menu-arrow">›</span>
+            </button>
+
+            <button class="settings-menu-item" type="button" data-settings-page="interaction">
+              <span>
+                <span class="settings-menu-main">交互设置</span>
+                <span class="settings-menu-sub">应用后行为、震动反馈、更新日志弹窗</span>
+              </span>
+              <span class="settings-menu-arrow">›</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="settingsPageInput" class="settings-page">
+          <section class="settings-block">
+            <h3>输入设置</h3>
+
+            <div class="setting-row">
+              <div class="setting-label">输入方式</div>
+              <div class="setting-options">
+                <label class="setting-option"><input type="radio" name="settingInputMode" value="numeric">数字输入</label>
+                <label class="setting-option"><input type="radio" name="settingInputMode" value="native">系统选择器</label>
+              </div>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-label">默认打开</div>
+              <div class="setting-options">
+                <label class="setting-option"><input type="radio" name="settingDefaultCalculator" value="time">时间计算器</label>
+                <label class="setting-option"><input type="radio" name="settingDefaultCalculator" value="date">日期计算器</label>
+                <label class="setting-option"><input type="radio" name="settingDefaultCalculator" value="remember">记住上次使用页面</label>
+              </div>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-label">默认模式</div>
+              <div class="setting-options">
+                <label class="setting-option"><input type="radio" name="settingDefaultMode" value="diff">时间差 / 日期差</label>
+                <label class="setting-option"><input type="radio" name="settingDefaultMode" value="shift">前移 / 后退</label>
+                <label class="setting-option"><input type="radio" name="settingDefaultMode" value="remember">记住上次模式</label>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div id="settingsPageAppearance" class="settings-page">
+          <section class="settings-block">
+            <h3>外观设置</h3>
+
+            <div class="setting-row">
+              <div class="setting-label">显示模式</div>
+              <div class="setting-options">
+                <label class="setting-option"><input type="radio" name="settingAppearance" value="light">浅色</label>
+                <label class="setting-option"><input type="radio" name="settingAppearance" value="dark">深色</label>
+                <label class="setting-option"><input type="radio" name="settingAppearance" value="system">跟随系统</label>
+              </div>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-label">界面密度</div>
+              <div class="setting-options">
+                <label class="setting-option"><input type="radio" name="settingDensity" value="standard">标准</label>
+                <label class="setting-option"><input type="radio" name="settingDensity" value="compact">紧凑</label>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div id="settingsPageCalculation" class="settings-page">
+          <section class="settings-block">
+            <h3>计算设置</h3>
+
+            <div class="setting-row">
+              <div class="setting-label">前移/后退连续累计</div>
+              <div class="setting-options">
+                <label class="setting-option"><input type="radio" name="settingAccumulation" value="on">开启</label>
+                <label class="setting-option"><input type="radio" name="settingAccumulation" value="off">关闭</label>
+              </div>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-label">记录条数</div>
+              <div class="setting-options">
+                <label class="setting-option"><input type="radio" name="settingHistoryLimit" value="10">10 条</label>
+                <label class="setting-option"><input type="radio" name="settingHistoryLimit" value="20">20 条</label>
+                <label class="setting-option"><input type="radio" name="settingHistoryLimit" value="30">30 条</label>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div id="settingsPageInteraction" class="settings-page">
+          <section class="settings-block">
+            <h3>交互设置</h3>
+
+            <div class="setting-row">
+              <div class="setting-label">应用后行为</div>
+              <div class="setting-options">
+                <label class="setting-option"><input type="radio" name="settingApplyBehavior" value="close">应用后退出设置界面</label>
+                <label class="setting-option"><input type="radio" name="settingApplyBehavior" value="stay">应用后不退出设置界面</label>
+              </div>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-label">按钮震动反馈</div>
+              <div class="setting-options">
+                <label class="setting-option"><input type="radio" name="settingVibration" value="on">开启</label>
+                <label class="setting-option"><input type="radio" name="settingVibration" value="off">关闭</label>
+              </div>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-label">更新日志弹窗</div>
+              <div class="setting-options">
+                <label class="setting-option"><input type="radio" name="settingChangelogPopup" value="on">每次打开都弹窗</label>
+                <label class="setting-option"><input type="radio" name="settingChangelogPopup" value="off">不再自动弹窗</label>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div class="settings-actions">
+        <button id="settingsReset" class="confirm-cancel" type="button">恢复默认</button>
+        <button id="settingsDone" class="btn-primary" type="button">应用</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="changelogOverlay" class="changelog-overlay" aria-hidden="true">
+    <div class="changelog-dialog" role="dialog" aria-modal="true" aria-labelledby="changelogTitle">
+      <div class="changelog-header">
+        <div>
+          <h2 id="changelogTitle" class="changelog-title">更新日志</h2>
+          <div id="changelogVersion" class="changelog-version">v1.2.0</div>
+        </div>
+        <button id="changelogNever" class="changelog-never" type="button">不再弹窗</button>
+      </div>
+
+      <div class="changelog-content">
+        <ul class="changelog-list">
+          <li>新增设置页</li>
+          <li>新增数字输入 / 系统选择器切换</li>
+          <li>新增应用后退出 / 不退出设置选项</li>
+          <li>新增计算记录条数设置</li>
+          <li>新增外观设置</li>
+          <li>新增累计计算设置</li>
+          <li>优化界面布局与细节调整</li>
+          <li>优化恢复默认按钮反馈</li>
+        </ul>
+      </div>
+
+      <div class="changelog-actions">
+        <button id="changelogOk" class="changelog-ok" type="button">知道了</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="noticeOverlay" class="notice-overlay" aria-hidden="true">
+    <div class="notice-dialog" role="dialog" aria-modal="true" aria-labelledby="noticeTitle">
+      <div class="notice-header">
+        <button id="noticeBack" class="notice-back" type="button" aria-label="返回">‹</button>
+        <div class="notice-header-title-wrap">
+          <h2 id="noticeTitle">使用公告</h2>
+          <div id="noticeSubtitle" class="notice-subtitle">选择要查看的说明内容</div>
+        </div>
+        <button id="noticeClose" class="notice-x" type="button" aria-label="关闭">×</button>
+      </div>
+
+      <div class="notice-content">
+        <div id="noticePageMain" class="notice-page active">
+          <div class="notice-menu">
+            <button class="notice-menu-item" type="button" data-notice-page="time">
+              <span>
+                <span class="notice-menu-main">时间计算器说明</span>
+                <span class="notice-menu-sub">时间差、前移/后退、连续累计和输入方式</span>
+              </span>
+              <span class="notice-menu-arrow">›</span>
+            </button>
+
+            <button class="notice-menu-item" type="button" data-notice-page="date">
+              <span>
+                <span class="notice-menu-main">日期计算器说明</span>
+                <span class="notice-menu-sub">日期差、日期前移/后退、连续累计和输入方式</span>
+              </span>
+              <span class="notice-menu-arrow">›</span>
+            </button>
+
+            <button class="notice-menu-item" type="button" data-notice-page="settings">
+              <span>
+                <span class="notice-menu-main">设置功能说明</span>
+                <span class="notice-menu-sub">输入设置、外观设置、计算设置和交互设置</span>
+              </span>
+              <span class="notice-menu-arrow">›</span>
+            </button>
+
+            <button class="notice-menu-item" type="button" data-notice-page="records">
+              <span>
+                <span class="notice-menu-main">记录与本地保存</span>
+                <span class="notice-menu-sub">记录保存、复制、删除、清空和本地存储</span>
+              </span>
+              <span class="notice-menu-arrow">›</span>
+            </button>
+
+            <button class="notice-menu-item" type="button" data-notice-page="notes">
+              <span>
+                <span class="notice-menu-main">注意事项</span>
+                <span class="notice-menu-sub">跨天规则、有效日期和正式用途提醒</span>
+              </span>
+              <span class="notice-menu-arrow">›</span>
+            </button>
+
+            <button class="notice-menu-item" type="button" data-notice-page="version">
+              <span>
+                <span class="notice-menu-main">版本信息</span>
+                <span class="notice-menu-sub">当前版本与更新日志</span>
+              </span>
+              <span class="notice-menu-arrow">›</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="noticePageTime" class="notice-page">
+          <p class="notice-intro">时间计算器说明</p>
+          <p>时间计算器用于处理日常时间换算、时间间隔、前移/后退推算和计算记录保存，适合工作、生活、值班、设备运行、提醒安排等场景。</p>
+
+          <section class="notice-block">
+            <h3>一、时间差计算</h3>
+            <p>用于计算两个时间点之间相差多久。</p>
+            <div class="notice-example">例：08:30 到 17:45 = 9小时15分。</div>
+            <div class="notice-example">例：22:00 到 06:30，系统会自动按跨天计算，结果为 8小时30分。</div>
+            <p>计算结果支持点击切换显示方式，可在“小时+分钟”和“总分钟”之间切换。</p>
+          </section>
+
+          <section class="notice-block">
+            <h3>二、前移 / 后退计算</h3>
+            <p>用于根据一个基准时间，向前或向后推算目标时间。</p>
+            <div class="notice-example">前移：08:30 前移 1小时20分 = 07:10。</div>
+            <div class="notice-example">后退：08:30 后退 1小时20分 = 09:50。</div>
+            <div class="notice-example">跨天：00:30 前移 1小时 = 23:30。</div>
+            <p>适合倒推开始时间、安排提醒时间、推算结束时间、巡检节点或检修节点。</p>
+          </section>
+
+          <section class="notice-block">
+            <h3>三、连续累计计算</h3>
+            <p>前移 / 后退模式支持连续累计。</p>
+            <div class="notice-example">开启时：08:00 后退15分钟 = 08:15，结果会自动回填为新的基准时间，再点一次 = 08:30。</div>
+            <div class="notice-example">关闭时：计算后只显示结果，不会自动修改基准时间。</div>
+            <p>可在右上角“⚙ 设置”中开启或关闭连续累计。</p>
+          </section>
+
+          <section class="notice-block">
+            <h3>四、时间输入方式</h3>
+            <p>支持数字输入和系统选择器两种输入方式。</p>
+            <div class="notice-example">数字输入：手动输入小时和分钟，适合快速键入。</div>
+            <div class="notice-example">系统选择器：调用浏览器或手机自带时间选择器，适合点选时间。</div>
+          </section>
+        </div>
+
+        <div id="noticePageDate" class="notice-page">
+          <p class="notice-intro">日期计算器说明</p>
+          <p>日期计算器用于处理日期间隔、日期前移/后退、周期推算和日期记录保存，适合计划安排、假期计算、项目周期、到期日和提醒日推算。</p>
+
+          <section class="notice-block">
+            <h3>一、日期差计算</h3>
+            <p>用于计算两个日期之间相差多少天。</p>
+            <div class="notice-example">例：2026年1月1日 到 2026年1月31日 = 相差30天。</div>
+            <div class="notice-example">例：2026年6月1日 到 2026年6月10日 = 相差9天。</div>
+            <p>适合计算距离某天还有多久、项目周期、假期天数或两个日期之间的间隔。</p>
+          </section>
+
+          <section class="notice-block">
+            <h3>二、日期前移 / 后退</h3>
+            <p>用于根据一个基准日期，向前或向后推算目标日期。</p>
+            <div class="notice-example">前移：2026年6月10日 前移7天 = 2026年6月3日。</div>
+            <div class="notice-example">后退：2026年6月10日 后退30天 = 2026年7月10日。</div>
+            <div class="notice-example">跨年：2026年1月1日 前移1天 = 2025年12月31日。</div>
+            <p>适合推算到期日、提醒日、复查日、计划开始日或计划结束日。</p>
+          </section>
+
+          <section class="notice-block">
+            <h3>三、连续累计计算</h3>
+            <p>日期前移 / 后退模式支持连续累计。</p>
+            <div class="notice-example">开启时：2026年6月10日 后退7天 = 2026年6月17日，结果会自动回填为新的基准日期，再点一次 = 2026年6月24日。</div>
+            <div class="notice-example">关闭时：计算后只显示结果，不会自动修改基准日期。</div>
+            <p>可在右上角“⚙ 设置”中开启或关闭连续累计。</p>
+          </section>
+
+          <section class="notice-block">
+            <h3>四、日期输入方式</h3>
+            <p>支持数字输入和系统选择器两种日期输入方式。</p>
+            <div class="notice-example">数字输入：分别输入年、月、日，适合精确输入。</div>
+            <div class="notice-example">系统选择器：调用浏览器或手机自带日期选择器，适合快速点选日期。</div>
+            <p>切换输入方式时，已填写的有效日期会尽量同步到另一种输入方式。</p>
+          </section>
+        </div>
+
+        <div id="noticePageSettings" class="notice-page">
+          <p class="notice-intro">设置功能说明</p>
+          <p>右上角“⚙ 设置”中可以调整工具的输入、外观、计算、交互和记录相关选项。设置采用二级菜单结构，进入对应分类后修改，最后点击“应用”生效。</p>
+
+          <section class="notice-block">
+            <h3>一、输入设置</h3>
+            <p>可设置输入方式、默认打开页面和默认计算模式。</p>
+            <div class="notice-example">默认打开可选择时间计算器、日期计算器，或记住上次使用页面。</div>
+            <div class="notice-example">默认模式可选择时间差/日期差、前移/后退，或记住上次模式。</div>
+          </section>
+
+          <section class="notice-block">
+            <h3>二、外观设置</h3>
+            <p>支持浅色、深色、跟随系统三种显示模式，也支持标准和紧凑两种界面密度。</p>
+          </section>
+
+          <section class="notice-block">
+            <h3>三、计算设置</h3>
+            <p>可设置前移/后退是否连续累计，也可以设置计算记录保留条数。</p>
+            <div class="notice-example">记录条数支持 10 条、20 条或 30 条。</div>
+          </section>
+
+          <section class="notice-block">
+            <h3>四、交互设置</h3>
+            <p>可设置应用后的行为、按钮震动反馈和更新日志弹窗。</p>
+            <div class="notice-example">应用后退出设置界面：点击应用后直接返回主界面。</div>
+            <div class="notice-example">应用后不退出设置界面：点击应用后保留在当前二级菜单页。</div>
+          </section>
+
+          <section class="notice-block">
+            <h3>五、恢复默认与应用</h3>
+            <p>点击“恢复默认”只会先把设置项填成默认选项，需要再点击“应用”后才会真正保存并生效。</p>
+          </section>
+        </div>
+
+        <div id="noticePageRecords" class="notice-page">
+          <p class="notice-intro">记录与本地保存</p>
+          <p>计算记录会保存在当前浏览器本地，时间记录和日期记录分开保存，互不影响。</p>
+
+          <section class="notice-block">
+            <h3>一、记录保存</h3>
+            <p>每次成功计算后，会自动保存一条对应记录。</p>
+            <div class="notice-example">时间计算结果会进入时间记录，日期计算结果会进入日期记录。</div>
+          </section>
+
+          <section class="notice-block">
+            <h3>二、记录操作</h3>
+            <p>记录支持复制、删除和一键清空。</p>
+            <div class="notice-example">清空记录前会弹出确认窗口，避免误删。</div>
+          </section>
+
+          <section class="notice-block">
+            <h3>三、记录条数</h3>
+            <p>可在“设置 → 计算设置”中选择记录保留条数。</p>
+            <div class="notice-example">支持 10 条、20 条或 30 条。</div>
+          </section>
+
+          <section class="notice-block">
+            <h3>四、本地保存说明</h3>
+            <p>设置、计算记录和部分页面状态保存在当前浏览器本地。更换浏览器、清除浏览器数据、使用无痕模式或更换打开环境后，数据可能会丢失或无法同步。</p>
+          </section>
+        </div>
+
+        <div id="noticePageNotes" class="notice-page">
+          <p class="notice-intro">注意事项</p>
+
+          <section class="notice-block">
+            <h3>一、时间跨天规则</h3>
+            <p>时间差计算中，如果结束时间小于开始时间，系统会自动认为是跨天计算。</p>
+            <div class="notice-example">例：22:00 到 06:30，会按第二天 06:30 计算。</div>
+          </section>
+
+          <section class="notice-block">
+            <h3>二、日期有效性</h3>
+            <p>请输入有效日期。例如闰年 2024年2月29日 是有效日期，但 2026年2月29日 不是有效日期。</p>
+          </section>
+
+          <section class="notice-block">
+            <h3>三、震动反馈</h3>
+            <p>按钮震动反馈仅在支持震动 API 的设备和浏览器中生效，iPhone 通常不支持网页震动。</p>
+          </section>
+
+          <section class="notice-block">
+            <h3>四、正式用途提醒</h3>
+            <p>涉及考勤、工资、生产记录、设备运行记录、合同期限、项目周期等正式用途时，请以实际记录、公司制度、合同条款或官方系统数据为准。</p>
+          </section>
+        </div>
+
+        <div id="noticePageVersion" class="notice-page">
+          <p class="notice-intro">版本信息</p>
+
+          <section class="notice-block">
+            <h3>当前版本</h3>
+            <div class="notice-example">v1.2.0</div>
+          </section>
+
+          <section class="notice-block">
+            <h3>更新日志</h3>
+            <ul class="notice-list">
+              <li>新增设置页</li>
+              <li>新增数字输入 / 系统选择器切换</li>
+              <li>新增应用后退出 / 不退出设置选项</li>
+              <li>新增计算记录条数设置</li>
+              <li>新增外观设置</li>
+              <li>新增累计计算设置</li>
+              <li>优化界面布局与细节调整</li>
+              <li>优化恢复默认按钮反馈</li>
+            </ul>
+          </section>
+        </div>
+      </div>
+
+      <button id="noticeOk" class="notice-ok" type="button">知道了</button>
+    </div>
+  </div>
+
+  <script src="./js/app.js?v=1.2.0-opt1"></script>
+</body>
+</html>
