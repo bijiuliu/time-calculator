@@ -1621,6 +1621,179 @@
       }
     }
 
+    /* 深色模式：公告 / 更新日志对比度优化 */
+    body.appearance-dark .notice-dialog,
+    body.appearance-system .notice-dialog {
+      background: rgba(15, 23, 42, 0.98);
+      border-color: rgba(100, 116, 139, 0.55);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.48);
+      color: #e5e7eb;
+    }
+
+    body.appearance-dark .notice-header h2,
+    body.appearance-system .notice-header h2,
+    body.appearance-dark .notice-title,
+    body.appearance-system .notice-title {
+      color: #f8fafc;
+    }
+
+    body.appearance-dark .notice-subtitle,
+    body.appearance-system .notice-subtitle {
+      color: #94a3b8;
+    }
+
+    body.appearance-dark .notice-content,
+    body.appearance-system .notice-content {
+      color: #dbe4ef;
+    }
+
+    body.appearance-dark .notice-content p,
+    body.appearance-system .notice-content p {
+      color: #dbe4ef;
+    }
+
+    body.appearance-dark .notice-intro,
+    body.appearance-system .notice-intro {
+      color: #bfdbfe;
+    }
+
+    body.appearance-dark .notice-block,
+    body.appearance-system .notice-block {
+      background: rgba(30, 41, 59, 0.92);
+      border-color: rgba(71, 85, 105, 0.78);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+    body.appearance-dark .notice-block h3,
+    body.appearance-system .notice-block h3 {
+      color: #93c5fd;
+    }
+
+    body.appearance-dark .notice-example,
+    body.appearance-system .notice-example {
+      background: rgba(37, 99, 235, 0.16);
+      border: 1px solid rgba(96, 165, 250, 0.24);
+      color: #bfdbfe;
+    }
+
+    body.appearance-dark .notice-menu-item,
+    body.appearance-system .notice-menu-item {
+      background: rgba(30, 41, 59, 0.92);
+      border-color: rgba(71, 85, 105, 0.78);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.20);
+    }
+
+    body.appearance-dark .notice-menu-main,
+    body.appearance-system .notice-menu-main {
+      color: #f8fafc;
+    }
+
+    body.appearance-dark .notice-menu-sub,
+    body.appearance-system .notice-menu-sub {
+      color: #94a3b8;
+    }
+
+    body.appearance-dark .notice-menu-arrow,
+    body.appearance-system .notice-menu-arrow {
+      color: #64748b;
+    }
+
+    body.appearance-dark .notice-back,
+    body.appearance-system .notice-back,
+    body.appearance-dark .notice-x,
+    body.appearance-system .notice-x {
+      background: rgba(30, 41, 59, 0.96);
+      border: 1px solid rgba(71, 85, 105, 0.70);
+      color: #e2e8f0;
+    }
+
+    body.appearance-dark .notice-list li,
+    body.appearance-system .notice-list li {
+      color: #dbe4ef;
+    }
+
+    body.appearance-dark .changelog-dialog,
+    body.appearance-system .changelog-dialog {
+      background: rgba(15, 23, 42, 0.98);
+      border-color: rgba(100, 116, 139, 0.55);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.48);
+    }
+
+    body.appearance-dark .changelog-header,
+    body.appearance-system .changelog-header {
+      border-bottom-color: rgba(71, 85, 105, 0.78);
+    }
+
+    body.appearance-dark .changelog-title,
+    body.appearance-system .changelog-title {
+      color: #f8fafc;
+    }
+
+    body.appearance-dark .changelog-version,
+    body.appearance-system .changelog-version {
+      background: rgba(37, 99, 235, 0.18);
+      color: #bfdbfe;
+    }
+
+    body.appearance-dark .changelog-list li,
+    body.appearance-system .changelog-list li {
+      color: #dbe4ef;
+    }
+
+    body.appearance-dark .changelog-never,
+    body.appearance-system .changelog-never {
+      background: rgba(30, 41, 59, 0.96);
+      border: 1px solid rgba(71, 85, 105, 0.70);
+      color: #cbd5e1;
+    }
+
+
+    /* 深色模式：顶部切换/设置/公告按钮配色优化 */
+    body.appearance-dark .app-switch-btn,
+    body.appearance-system .app-switch-btn,
+    body.appearance-dark .notice-open,
+    body.appearance-system .notice-open,
+    body.appearance-dark .settings-open,
+    body.appearance-system .settings-open {
+      background: linear-gradient(180deg, rgba(30, 41, 59, 0.96), rgba(15, 23, 42, 0.96));
+      border: 1px solid rgba(71, 85, 105, 0.78);
+      color: #dbeafe;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.05),
+        0 10px 22px rgba(0, 0, 0, 0.28);
+    }
+
+    body.appearance-dark .app-switch-btn.active,
+    body.appearance-system .app-switch-btn.active {
+      background: linear-gradient(180deg, rgba(59, 130, 246, 0.92), rgba(37, 99, 235, 0.92));
+      border-color: rgba(96, 165, 250, 0.55);
+      color: #eff6ff;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.12),
+        0 12px 24px rgba(37, 99, 235, 0.22);
+    }
+
+    body.appearance-dark .app-switch-btn:not(.active),
+    body.appearance-system .app-switch-btn:not(.active),
+    body.appearance-dark .notice-open,
+    body.appearance-system .notice-open {
+      color: #c7d2fe;
+    }
+
+    body.appearance-dark .settings-open,
+    body.appearance-system .settings-open {
+      color: #cbd5e1;
+    }
+
+    body.appearance-dark .top-actions .notice-open:hover,
+    body.appearance-system .top-actions .notice-open:hover,
+    body.appearance-dark .top-actions .settings-open:hover,
+    body.appearance-system .top-actions .settings-open:hover,
+    body.appearance-dark .app-switch-btn:hover,
+    body.appearance-system .app-switch-btn:hover {
+      filter: brightness(1.05);
+    }
+
   </style>
 </head>
 <body>
