@@ -6,7 +6,7 @@
       var DATE_STORAGE_KEY = "dateCalculatorHistoryV1";
       var INPUT_MODE_KEY = "calculatorInputModeV1";
       var SETTINGS_KEY = "calculatorSettingsV1";
-      var APP_VERSION = "v1.2.0";
+      var APP_VERSION = "v1.3.0";
       var CHANGELOG_SEEN_VERSION_KEY = "calculatorChangelogSeenVersionV1";
       var LAST_CALCULATOR_KEY = "calculatorLastCalculatorV1";
       var LAST_MODE_KEY = "calculatorLastModeV1";
@@ -30,6 +30,9 @@
         historyLimit: 10
       };
       var pendingSettings = null;
+      var historyToastTimer = null;
+      var dateHistoryToastTimer = null;
+      var copyFeedbackTimers = new WeakMap();
 
       function el(id) { return document.getElementById(id); }
       function pad(n) { return String(n).padStart(2, "0"); }
@@ -280,6 +283,7 @@
 
         renderHistory();
         renderDateHistory();
+        updateHistoryLimitTips();
 
         // 先把“应用”按钮变成成功状态，再按用户设置决定是否关闭设置界面。
         // 应用时不切换设置页：退出就直接回主界面，不退出就保留当前二级菜单。
@@ -342,6 +346,74 @@
       function getHistoryLimit() {
         var limit = Number(appSettings.historyLimit || 10);
         return [10, 20, 30].indexOf(limit) !== -1 ? limit : 10;
+      }
+
+      function historyLimitText() {
+        return "最多保留 " + getHistoryLimit() + " 条记录";
+      }
+
+      function getHistoryArea(listId) {
+        var list = el(listId);
+        if (!list) return null;
+        return list.closest(".history") || list.parentElement;
+      }
+
+      function showHistoryToast(type, text) {
+        var oldToast = document.querySelector(".history-toast");
+        if (oldToast) oldToast.remove();
+
+        var toast = document.createElement("div");
+        toast.className = "history-toast";
+        toast.innerText = text;
+        toast.setAttribute("role", "status");
+
+        document.body.appendChild(toast);
+
+        clearTimeout(historyToastTimer);
+        clearTimeout(dateHistoryToastTimer);
+        historyToastTimer = setTimeout(function () {
+          toast.classList.add("hide");
+          setTimeout(function () {
+            toast.remove();
+          }, 180);
+        }, 1600);
+      }
+
+      function showCopyButtonFeedback(btn) {
+        if (!btn) return;
+
+        if (copyFeedbackTimers.has(btn)) {
+          clearTimeout(copyFeedbackTimers.get(btn));
+        }
+
+        btn.classList.add("copied");
+        btn.innerText = "✓";
+
+        var timer = setTimeout(function () {
+          btn.classList.remove("copied");
+          btn.innerText = "复制";
+          copyFeedbackTimers.delete(btn);
+        }, 700);
+
+        copyFeedbackTimers.set(btn, timer);
+      }
+
+      function updateHistoryLimitTips() {
+        var text = historyLimitText();
+
+        ["historyList", "dateHistoryList"].forEach(function (listId) {
+          var area = getHistoryArea(listId);
+          if (!area) return;
+
+          var tip = area.nextElementSibling;
+          if (!tip || !tip.classList || !tip.classList.contains("history-limit-tip")) {
+            tip = document.createElement("div");
+            tip.className = "history-limit-tip";
+            area.insertAdjacentElement("afterend", tip);
+          }
+
+          tip.innerText = text;
+        });
       }
 
       function trimHistoryToLimit() {
@@ -706,24 +778,32 @@
 
       function addHistory(record) {
         var history = loadHistory();
-        history.unshift(record);
-        saveHistory(history.slice(0, getHistoryLimit()));
-        renderHistory();
-      }
+        var limit = getHistoryLimit();
+        var willRemoveOldest = history.length >= limit;
 
-      function copyText(text) {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(text).then(function () {
-            setMessage("已复制到剪贴板", text.replace(/\n/g, "  "));
-          }).catch(function () {
-            fallbackCopyText(text);
-          });
-        } else {
-          fallbackCopyText(text);
+        history.unshift(record);
+        saveHistory(history.slice(0, limit));
+        renderHistory();
+        updateHistoryLimitTips();
+
+        if (willRemoveOldest) {
+          showHistoryToast("time", "已保留最近 " + limit + " 条，最早记录已移除");
         }
       }
 
-      function fallbackCopyText(text) {
+      function copyText(text, btn) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(function () {
+            showCopyButtonFeedback(btn);
+          }).catch(function () {
+            fallbackCopyText(text, btn);
+          });
+        } else {
+          fallbackCopyText(text, btn);
+        }
+      }
+
+      function fallbackCopyText(text, btn) {
         var textarea = document.createElement("textarea");
         textarea.value = text;
         textarea.style.position = "fixed";
@@ -734,9 +814,13 @@
 
         try {
           document.execCommand("copy");
-          setMessage("已复制到剪贴板", text.replace(/\n/g, "  "));
+          showCopyButtonFeedback(btn);
         } catch (e) {
-          setMessage("复制失败", "请手动长按选择文字复制");
+          if (activeCalculator === "date") {
+            setDateMessage("复制失败", "请手动长按选择文字复制");
+          } else {
+            setMessage("复制失败", "请手动长按选择文字复制");
+          }
         }
 
         document.body.removeChild(textarea);
@@ -853,7 +937,18 @@
       function renderDateResult(){if(!currentDateResult){el("dateResultValue").innerText="结果会显示在这里";el("dateResultTip").innerText=activeDateTab==="diff"?"日期差会显示相差天数":"示例：2026年6月10日 前移7天 = 2026年6月3日";return;}if(currentDateResult.type==="dateDiff"){el("dateResultValue").innerText=currentDateResult.days+"天";el("dateResultTip").innerText=currentDateResult.start+" 到 "+currentDateResult.end;}else{el("dateResultValue").innerText=currentDateResult.resultDate;el("dateResultTip").innerText=currentDateResult.baseDate+" "+currentDateResult.directionText+currentDateResult.days+"天 = "+currentDateResult.resultDate+"，再点计算可继续累计";}}
       function loadDateHistory(){try{var d=JSON.parse(localStorage.getItem(DATE_STORAGE_KEY)||"[]");return Array.isArray(d)?d:[]}catch(e){return[]}}
       function saveDateHistory(h){localStorage.setItem(DATE_STORAGE_KEY,JSON.stringify(h));}
-      function addDateHistory(r){var h=loadDateHistory();h.unshift(r);saveDateHistory(h.slice(0,getHistoryLimit()));renderDateHistory();}
+      function addDateHistory(r){
+        var h=loadDateHistory();
+        var limit=getHistoryLimit();
+        var willRemoveOldest=h.length>=limit;
+        h.unshift(r);
+        saveDateHistory(h.slice(0,limit));
+        renderDateHistory();
+        updateHistoryLimitTips();
+        if(willRemoveOldest){
+          showHistoryToast("date","已保留最近 "+limit+" 条，最早记录已移除");
+        }
+      }
       function renderDateHistory(){var h=loadDateHistory(),list=el("dateHistoryList");if(!h.length){list.innerHTML='<li class="empty">暂无日期记录，先去算一条吧</li>';return;}list.innerHTML=h.map(function(item,index){var main="",sub="";if(item.type==="dateDiff"){main=item.start+" → "+item.end;sub="日期差："+item.days+"天";}else{main=item.baseDate+" "+item.directionText+item.days+"天";sub="结果日期："+item.resultDate;}var copy=main+"\n"+sub;return '<li class="history-item"><div class="history-top"><span>记录 '+(h.length-index)+'</span><span>'+escapeHtml(formatNow(item.timestamp))+'</span></div><div class="history-main">'+escapeHtml(main)+'</div><div class="history-sub">'+escapeHtml(sub)+'</div><div class="history-actions"><button class="history-action-btn history-copy-btn" type="button" data-action="copy" data-text="'+escapeHtml(copy)+'">复制</button><button class="history-action-btn history-delete-btn" type="button" data-action="delete-date" data-index="'+index+'">删除</button></div></li>';}).join("");}
       function calcDateDiff(){var s=getDateInput("dateStartY","dateStartM","dateStartD","开始日期"),e=getDateInput("dateEndY","dateEndM","dateEndD","结束日期");if(!s.ok)return setDateMessage(s.msg,"例如填写 2026 年 06 月 10 日");if(!e.ok)return setDateMessage(e.msg,"例如填写 2026 年 06 月 20 日");var diff=dateDiffDays(s.date,e.date),rev=diff<0;currentDateResult={type:"dateDiff",start:rev?e.text:s.text,end:rev?s.text:e.text,days:Math.abs(diff),timestamp:Date.now()};renderDateResult();addDateHistory(currentDateResult);}
       function calcDateShift(){var b=getDateInput("dateBaseY","dateBaseM","dateBaseD","基准日期");if(!b.ok)return setDateMessage(b.msg,"例如填写 2026 年 06 月 10 日");var days=Number(el("dateShiftDays").value||0);if(days<=0)return setDateMessage("请输入前移/后退天数","例如 7 天 或 30 天");var dir=el("dateDirection").value,txt=dir==="back"?"前移":"后退",res=addDays(b.date,dir==="back"?-days:days),rt=formatDate(res);currentDateResult={type:"dateShift",baseDate:b.text,directionText:txt,days:days,resultDate:rt,timestamp:Date.now()};renderDateResult();addDateHistory(currentDateResult);var hint=el("dateAccumHint");if(appSettings.accumulation!=="off"){dateToInput(res,"dateBaseY","dateBaseM","dateBaseD");if(hint)hint.innerText="已自动把基准日期更新为 "+rt+"，再点计算会继续累计";}else if(hint){hint.innerText="连续累计已关闭：基准日期保持为 "+b.text;}}
@@ -1034,7 +1129,7 @@
           settings: "设置功能说明",
           records: "记录与本地保存",
           notes: "注意事项",
-          version: "版本信息"
+          version: "历史更新日志"
         };
 
         var subtitles = {
@@ -1044,7 +1139,7 @@
           settings: "输入设置、外观设置、计算设置和交互设置",
           records: "记录保存、复制、删除、清空和本地存储",
           notes: "跨天规则、有效日期和正式用途提醒",
-          version: "当前版本与更新日志"
+          version: "查看各版本更新内容"
         };
 
         ["Main", "Time", "Date", "Settings", "Records", "Notes", "Version"].forEach(function (name) {
@@ -1238,13 +1333,13 @@
         el("historyList").addEventListener("click", function (e) {
           var btn = e.target.closest(".history-action-btn"); if (!btn) return;
           e.preventDefault(); e.stopPropagation(); var action = btn.getAttribute("data-action");
-          if (action === "copy") return copyText(btn.getAttribute("data-text") || "");
+          if (action === "copy") return copyText(btn.getAttribute("data-text") || "", btn);
           if (action === "delete") deleteHistoryItem(Number(btn.getAttribute("data-index")));
         });
         el("dateHistoryList").addEventListener("click", function (e) {
           var btn = e.target.closest(".history-action-btn"); if (!btn) return;
           e.preventDefault(); e.stopPropagation(); var action = btn.getAttribute("data-action");
-          if (action === "copy") return copyText(btn.getAttribute("data-text") || "");
+          if (action === "copy") return copyText(btn.getAttribute("data-text") || "", btn);
           if (action === "delete-date") deleteDateHistoryItem(Number(btn.getAttribute("data-index")));
         });
 bindTap(el("resultBox"), function () {
@@ -1354,6 +1449,7 @@ bindTap(el("resultBox"), function () {
         renderHistory();
         renderDateResult();
         renderDateHistory();
+        updateHistoryLimitTips();
         showChangelogOnStartup();
       });
     })();
