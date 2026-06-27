@@ -196,6 +196,7 @@
       var settingsCloseAnimationTimer = null;
       var settingsResetFeedbackTimer = null;
       var currentSettingsPage = "main";
+      var settingsScrollPositions = { main: 0 };
       var lastSettingsPageBeforeClose = "main";
       var lastSettingsClosedAt = 0;
       var SETTINGS_RESTORE_WINDOW = 15000;
@@ -518,8 +519,49 @@
       }
 
 
+      function getSettingsScrollContainer() {
+        return document.querySelector(".settings-content");
+      }
+
+      function normalizeSettingsPage(page) {
+        return ["main", "input", "appearance", "calculation", "interaction"].indexOf(page) !== -1 ? page : "main";
+      }
+
+      function saveCurrentSettingsScroll() {
+        var content = getSettingsScrollContainer();
+        if (!content) return;
+        settingsScrollPositions[normalizeSettingsPage(currentSettingsPage)] = content.scrollTop || 0;
+      }
+
+      function restoreSettingsScroll(page) {
+        var content = getSettingsScrollContainer();
+        if (!content) return;
+
+        var targetPage = normalizeSettingsPage(page);
+        var top = settingsScrollPositions[targetPage] || 0;
+
+        // 同一个滚动容器会被一级/二级页面复用；切页后必须恢复目标页自己的位置，
+        // 避免二级菜单的 scrollTop 污染一级菜单。
+        content.scrollTop = top;
+        requestAnimationFrame(function () {
+          content.scrollTop = top;
+        });
+      }
+
+      function resetSettingsScrollPositions() {
+        settingsScrollPositions = { main: 0 };
+      }
+
+      function shouldRestoreSettingsPageOnOpen() {
+        return Date.now() - lastSettingsClosedAt <= SETTINGS_RESTORE_WINDOW &&
+          lastSettingsPageBeforeClose &&
+          lastSettingsPageBeforeClose !== "main";
+      }
+
       function showSettingsPage(page) {
-        currentSettingsPage = page || "main";
+        saveCurrentSettingsScroll();
+
+        currentSettingsPage = normalizeSettingsPage(page || "main");
         page = currentSettingsPage;
 
         var labels = {
@@ -542,6 +584,8 @@
 
         el("settingsSubtitle").innerText = labels[page] || labels.main;
         el("settingsBack").classList.toggle("show", page !== "main");
+
+        restoreSettingsScroll(page);
       }
 
 
@@ -553,11 +597,11 @@
       function clearSettingsPageRestore() {
         lastSettingsPageBeforeClose = "main";
         lastSettingsClosedAt = 0;
+        resetSettingsScrollPositions();
       }
 
       function getSettingsPageForOpen() {
-        var withinRestoreWindow = Date.now() - lastSettingsClosedAt <= SETTINGS_RESTORE_WINDOW;
-        if (withinRestoreWindow && lastSettingsPageBeforeClose && lastSettingsPageBeforeClose !== "main") {
+        if (shouldRestoreSettingsPageOnOpen()) {
           return lastSettingsPageBeforeClose;
         }
         return "main";
@@ -572,7 +616,11 @@
         resetSettingsTip();
 
         pendingSettings = cloneSettings(appSettings);
-        showSettingsPage(getSettingsPageForOpen());
+        var pageForOpen = getSettingsPageForOpen();
+        if (pageForOpen === "main" && !shouldRestoreSettingsPageOnOpen()) {
+          resetSettingsScrollPositions();
+        }
+        showSettingsPage(pageForOpen);
         syncSettingsForm();
 
         var overlay = el("settingsOverlay");
@@ -583,6 +631,8 @@
       }
 
       function closeSettings(rememberPage) {
+        saveCurrentSettingsScroll();
+
         if (rememberPage === false) {
           clearSettingsPageRestore();
         } else {
