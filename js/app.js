@@ -196,11 +196,47 @@
       var settingsCloseAnimationTimer = null;
       var settingsResetFeedbackTimer = null;
       var currentSettingsPage = "main";
-      var settingsScrollPositions = { main: 0 };
       var lastSettingsPageBeforeClose = "main";
       var lastSettingsClosedAt = 0;
       var SETTINGS_RESTORE_WINDOW = 15000;
       var SETTINGS_DEFAULT_TIP = "修改设置后，请点击“应用”生效；点击“恢复默认”只会先填入默认设置，需要再点击“应用”保存。";
+
+      var currentNoticePage = "main";
+      var noticeScrollPositions = { main: 0 };
+
+      function getNoticeContent() {
+        return document.querySelector(".notice-content");
+      }
+
+      function saveCurrentNoticeScroll() {
+        var content = getNoticeContent();
+        if (!content || !currentNoticePage) return;
+        noticeScrollPositions[currentNoticePage] = content.scrollTop || 0;
+      }
+
+      function restoreNoticeScroll(y) {
+        var content = getNoticeContent();
+        if (!content) return;
+        var targetY = Math.max(0, Number(y) || 0);
+        content.scrollTop = targetY;
+
+        // iOS / 微信 WebView 在 display 切换后可能会再次结算滚动位置，
+        // 因此延迟两帧并增加一次短延迟兜底，避免一级和二级页面互相继承 scrollTop。
+        requestAnimationFrame(function () {
+          content.scrollTop = targetY;
+          requestAnimationFrame(function () {
+            content.scrollTop = targetY;
+            setTimeout(function () {
+              content.scrollTop = targetY;
+            }, 60);
+          });
+        });
+      }
+
+      function resetNoticeScrollState() {
+        currentNoticePage = "main";
+        noticeScrollPositions = { main: 0 };
+      }
 
       function resetApplyButtonState() {
         var btn = el("settingsDone");
@@ -519,49 +555,8 @@
       }
 
 
-      function getSettingsScrollContainer() {
-        return document.querySelector(".settings-content");
-      }
-
-      function normalizeSettingsPage(page) {
-        return ["main", "input", "appearance", "calculation", "interaction"].indexOf(page) !== -1 ? page : "main";
-      }
-
-      function saveCurrentSettingsScroll() {
-        var content = getSettingsScrollContainer();
-        if (!content) return;
-        settingsScrollPositions[normalizeSettingsPage(currentSettingsPage)] = content.scrollTop || 0;
-      }
-
-      function restoreSettingsScroll(page) {
-        var content = getSettingsScrollContainer();
-        if (!content) return;
-
-        var targetPage = normalizeSettingsPage(page);
-        var top = settingsScrollPositions[targetPage] || 0;
-
-        // 同一个滚动容器会被一级/二级页面复用；切页后必须恢复目标页自己的位置，
-        // 避免二级菜单的 scrollTop 污染一级菜单。
-        content.scrollTop = top;
-        requestAnimationFrame(function () {
-          content.scrollTop = top;
-        });
-      }
-
-      function resetSettingsScrollPositions() {
-        settingsScrollPositions = { main: 0 };
-      }
-
-      function shouldRestoreSettingsPageOnOpen() {
-        return Date.now() - lastSettingsClosedAt <= SETTINGS_RESTORE_WINDOW &&
-          lastSettingsPageBeforeClose &&
-          lastSettingsPageBeforeClose !== "main";
-      }
-
       function showSettingsPage(page) {
-        saveCurrentSettingsScroll();
-
-        currentSettingsPage = normalizeSettingsPage(page || "main");
+        currentSettingsPage = page || "main";
         page = currentSettingsPage;
 
         var labels = {
@@ -584,8 +579,6 @@
 
         el("settingsSubtitle").innerText = labels[page] || labels.main;
         el("settingsBack").classList.toggle("show", page !== "main");
-
-        restoreSettingsScroll(page);
       }
 
 
@@ -597,11 +590,11 @@
       function clearSettingsPageRestore() {
         lastSettingsPageBeforeClose = "main";
         lastSettingsClosedAt = 0;
-        resetSettingsScrollPositions();
       }
 
       function getSettingsPageForOpen() {
-        if (shouldRestoreSettingsPageOnOpen()) {
+        var withinRestoreWindow = Date.now() - lastSettingsClosedAt <= SETTINGS_RESTORE_WINDOW;
+        if (withinRestoreWindow && lastSettingsPageBeforeClose && lastSettingsPageBeforeClose !== "main") {
           return lastSettingsPageBeforeClose;
         }
         return "main";
@@ -616,11 +609,7 @@
         resetSettingsTip();
 
         pendingSettings = cloneSettings(appSettings);
-        var pageForOpen = getSettingsPageForOpen();
-        if (pageForOpen === "main" && !shouldRestoreSettingsPageOnOpen()) {
-          resetSettingsScrollPositions();
-        }
-        showSettingsPage(pageForOpen);
+        showSettingsPage(getSettingsPageForOpen());
         syncSettingsForm();
 
         var overlay = el("settingsOverlay");
@@ -631,8 +620,6 @@
       }
 
       function closeSettings(rememberPage) {
-        saveCurrentSettingsScroll();
-
         if (rememberPage === false) {
           clearSettingsPageRestore();
         } else {
@@ -1169,8 +1156,16 @@
         }
       }
 
-      function showNoticePage(page) {
+      function showNoticePage(page, options) {
+        options = options || {};
         page = page || "main";
+
+        var validPages = ["main", "time", "date", "settings", "records", "notes", "version"];
+        if (validPages.indexOf(page) === -1) page = "main";
+
+        if (!options.skipSave) {
+          saveCurrentNoticeScroll();
+        }
 
         var titles = {
           main: "使用公告",
@@ -1192,6 +1187,9 @@
           version: "查看各版本更新内容"
         };
 
+        var targetScroll = page === "main" ? (noticeScrollPositions.main || 0) : 0;
+        currentNoticePage = page;
+
         ["Main", "Time", "Date", "Settings", "Records", "Notes", "Version"].forEach(function (name) {
           var pageEl = el("noticePage" + name);
           if (pageEl) pageEl.classList.toggle("active", name.toLowerCase() === page);
@@ -1200,17 +1198,21 @@
         el("noticeTitle").innerText = titles[page] || titles.main;
         el("noticeSubtitle").innerText = subtitles[page] || subtitles.main;
         el("noticeBack").classList.toggle("show", page !== "main");
+
+        restoreNoticeScroll(targetScroll);
       }
 
       function openNotice() {
-        showNoticePage("main");
+        resetNoticeScrollState();
+        showNoticePage("main", { skipSave: true });
         el("noticeOverlay").classList.add("show");
         el("noticeOverlay").setAttribute("aria-hidden", "false");
         document.body.classList.add("notice-lock");
       }
 
       function closeNotice() {
-        showNoticePage("main");
+        resetNoticeScrollState();
+        showNoticePage("main", { skipSave: true });
         el("noticeOverlay").classList.remove("show");
         el("noticeOverlay").setAttribute("aria-hidden", "true");
         document.body.classList.remove("notice-lock");
