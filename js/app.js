@@ -321,7 +321,7 @@
         var subtitles = {
           main: "选择要查看的说明内容",
           time: "时间差、前移/后退、连续累计和输入方式",
-          date: "日期差、日期前移/后退、连续累计和输入方式",
+          date: "日期差、前移/后退、连续累计和输入方式",
           settings: "输入设置、外观设置、计算设置和交互设置",
           records: "记录保存、复制、删除、清空和本地存储",
           notes: "跨天规则、有效日期和正式用途提醒",
@@ -416,6 +416,12 @@
         currentNoticePage = "main";
       }
 
+      function resetVersionAccordion() {
+        document.querySelectorAll(".version-item").forEach(function (item) {
+          item.open = false;
+        });
+      }
+
       function resetSettingsPageStack() {
         settingsPageStack = [{ page: "main", scrollTop: 0 }];
         currentSettingsPage = "main";
@@ -424,6 +430,7 @@
       function openNoticeSubPage(page) {
         page = normalizePage(page, NOTICE_PAGES);
         if (page === "main") return backNoticePage();
+        if (page === "version") resetVersionAccordion();
         var nextStack = captureNoticeStack();
         nextStack.push({ page: page, scrollTop: 0 });
         switchNoticeStack(nextStack);
@@ -1398,6 +1405,7 @@
 
       function openNotice() {
         resetNoticePageStack();
+        resetVersionAccordion();
         var overlay = el("noticeOverlay");
         overlay.classList.add("show");
         overlay.setAttribute("aria-hidden", "false");
@@ -1413,6 +1421,7 @@
           stopMomentumScroll(content);
         }
         resetNoticePageStack();
+        resetVersionAccordion();
         renderNoticePageDirect("main");
         restoreScrollStable(getNoticeContent, 0);
         el("noticeOverlay").classList.remove("show");

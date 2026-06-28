@@ -1395,6 +1395,18 @@
       text-align: left;
     }
 
+    .settings-menu-item > span:first-child {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      min-width: 0;
+    }
+
+    .settings-menu-main,
+    .settings-menu-sub {
+      display: block;
+    }
+
     .settings-menu-main {
       font-size: 17px;
       font-weight: 950;
