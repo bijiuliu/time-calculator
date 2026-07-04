@@ -1384,6 +1384,7 @@
     }
 
     .settings-menu-main {
+      display: block;
       font-size: 17px;
       font-weight: 950;
       color: #1f2937;
@@ -1391,6 +1392,7 @@
     }
 
     .settings-menu-sub {
+      display: block;
       margin-top: 4px;
       font-size: 13px;
       font-weight: 700;
