@@ -227,17 +227,27 @@
         return document.querySelector(".settings-content");
       }
 
-      function stopMomentumScroll(scrollEl) {
-        if (!scrollEl) return;
+      function lockMomentumScroll(scrollEl) {
+        if (!scrollEl) return function () {};
         var y = scrollEl.scrollTop || 0;
         var previousOverflowY = scrollEl.style.overflowY;
+        var previousMomentum = scrollEl.style.webkitOverflowScrolling;
 
+        scrollEl.style.webkitOverflowScrolling = "auto";
         scrollEl.style.overflowY = "hidden";
         scrollEl.scrollTop = y;
         scrollEl.offsetHeight;
 
-        requestAnimationFrame(function () {
+        return function () {
+          scrollEl.style.webkitOverflowScrolling = previousMomentum || "";
           scrollEl.style.overflowY = previousOverflowY || "";
+        };
+      }
+
+      function stopMomentumScroll(scrollEl) {
+        var release = lockMomentumScroll(scrollEl);
+        requestAnimationFrame(function () {
+          release();
         });
       }
 
@@ -358,13 +368,19 @@
         var content = getNoticeContent();
 
         noticePageSwitching = true;
-        stopMomentumScroll(content);
+        var releaseMomentum = lockMomentumScroll(content);
 
         requestAnimationFrame(function () {
           requestAnimationFrame(function () {
             noticePageStack = nextStack;
             renderNoticePageDirect(target.page);
             restoreScrollStable(getNoticeContent, target.scrollTop);
+
+            requestAnimationFrame(function () {
+              requestAnimationFrame(function () {
+                releaseMomentum();
+              });
+            });
 
             setTimeout(function () {
               noticePageSwitching = false;
@@ -380,13 +396,19 @@
         var content = getSettingsContent();
 
         settingsPageSwitching = true;
-        stopMomentumScroll(content);
+        var releaseMomentum = lockMomentumScroll(content);
 
         requestAnimationFrame(function () {
           requestAnimationFrame(function () {
             settingsPageStack = nextStack;
             renderSettingsPageDirect(target.page);
             restoreScrollStable(getSettingsContent, target.scrollTop);
+
+            requestAnimationFrame(function () {
+              requestAnimationFrame(function () {
+                releaseMomentum();
+              });
+            });
 
             setTimeout(function () {
               settingsPageSwitching = false;

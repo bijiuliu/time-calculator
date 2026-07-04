@@ -593,6 +593,7 @@
       min-height: 0;
       max-height: none;
       overflow-y: auto;
+      overscroll-behavior: contain;
       padding-right: 4px;
       color: #334155;
       font-size: 15px;
@@ -852,6 +853,7 @@
       min-height: 0;
       max-height: none;
       overflow-y: auto;
+      overscroll-behavior: contain;
       padding-right: 4px;
       -webkit-overflow-scrolling: touch;
     }
