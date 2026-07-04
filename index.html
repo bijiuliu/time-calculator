@@ -122,14 +122,12 @@
         <section id="datePanelDiff" class="panel active">
           <div class="field"><label class="label">开始日期</label><div class="date-box date-native-wrap">
             <input id="dateStartNative" class="native-picker date-native-picker" type="date" aria-label="开始日期">
-            <span class="date-native-placeholder">年 / 月 / 日</span>
             <input id="dateStartY" class="date-num" type="number" inputmode="numeric" placeholder="年"><span class="date-sep">年</span>
             <input id="dateStartM" class="date-num" type="number" inputmode="numeric" placeholder="月"><span class="date-sep">月</span>
             <input id="dateStartD" class="date-num" type="number" inputmode="numeric" placeholder="日">
           </div></div>
           <div class="field"><label class="label">结束日期</label><div class="date-box date-native-wrap">
             <input id="dateEndNative" class="native-picker date-native-picker" type="date" aria-label="结束日期">
-            <span class="date-native-placeholder">年 / 月 / 日</span>
             <input id="dateEndY" class="date-num" type="number" inputmode="numeric" placeholder="年"><span class="date-sep">年</span>
             <input id="dateEndM" class="date-num" type="number" inputmode="numeric" placeholder="月"><span class="date-sep">月</span>
             <input id="dateEndD" class="date-num" type="number" inputmode="numeric" placeholder="日">
@@ -140,7 +138,6 @@
         <section id="datePanelShift" class="panel">
           <div class="field"><label class="label">基准日期</label><div class="date-box date-native-wrap">
             <input id="dateBaseNative" class="native-picker date-native-picker" type="date" aria-label="基准日期">
-            <span class="date-native-placeholder">年 / 月 / 日</span>
             <input id="dateBaseY" class="date-num" type="number" inputmode="numeric" placeholder="年"><span class="date-sep">年</span>
             <input id="dateBaseM" class="date-num" type="number" inputmode="numeric" placeholder="月"><span class="date-sep">月</span>
             <input id="dateBaseD" class="date-num" type="number" inputmode="numeric" placeholder="日">
@@ -390,7 +387,7 @@
             <button class="notice-menu-item" type="button" data-notice-page="date">
               <span>
                 <span class="notice-menu-main">日期计算器说明</span>
-                <span class="notice-menu-sub">日期差、前移/后退、连续累计和输入方式</span>
+                <span class="notice-menu-sub">日期差、日期前移/后退、连续累计和输入方式</span>
               </span>
               <span class="notice-menu-arrow">›</span>
             </button>
@@ -594,6 +591,8 @@
 
         <div id="noticePageVersion" class="notice-page">
           <section class="notice-block">
+            <h3>历史更新日志</h3>
+
             <div class="version-accordion">
               <details class="version-item">
                 <summary>v1.3.0</summary>

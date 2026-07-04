@@ -113,21 +113,6 @@
       }
 
 
-      function updateDateNativePlaceholders() {
-        ["dateStartNative", "dateEndNative", "dateBaseNative"].forEach(function (id) {
-          var input = el(id);
-          if (!input) return;
-          var empty = !input.value;
-          input.classList.toggle("native-empty", empty);
-
-          var wrap = input.closest(".date-native-wrap");
-          if (!wrap) return;
-          var placeholder = wrap.querySelector(".date-native-placeholder");
-          if (!placeholder) return;
-          placeholder.classList.toggle("show", empty);
-        });
-      }
-
       function syncNativeToNumeric() {
         syncOneTimeToNumeric("startNative", "startH", "startM");
         syncOneTimeToNumeric("endNative", "endH", "endM");
@@ -145,7 +130,6 @@
         appSettings.inputMode = mode;
         document.body.classList.toggle("use-native-pickers", inputMode === "native");
         if (el("inputModeBtn")) el("inputModeBtn").innerText = inputMode === "native" ? "系统选择器" : "数字输入";
-        updateDateNativePlaceholders();
         if (save) {
           localStorage.setItem(INPUT_MODE_KEY, inputMode);
           saveSettings();
@@ -321,7 +305,7 @@
         var subtitles = {
           main: "选择要查看的说明内容",
           time: "时间差、前移/后退、连续累计和输入方式",
-          date: "日期差、前移/后退、连续累计和输入方式",
+          date: "日期差、日期前移/后退、连续累计和输入方式",
           settings: "输入设置、外观设置、计算设置和交互设置",
           records: "记录保存、复制、删除、清空和本地存储",
           notes: "跨天规则、有效日期和正式用途提醒",
@@ -416,12 +400,6 @@
         currentNoticePage = "main";
       }
 
-      function resetVersionAccordion() {
-        document.querySelectorAll(".version-item").forEach(function (item) {
-          item.open = false;
-        });
-      }
-
       function resetSettingsPageStack() {
         settingsPageStack = [{ page: "main", scrollTop: 0 }];
         currentSettingsPage = "main";
@@ -430,7 +408,6 @@
       function openNoticeSubPage(page) {
         page = normalizePage(page, NOTICE_PAGES);
         if (page === "main") return backNoticePage();
-        if (page === "version") resetVersionAccordion();
         var nextStack = captureNoticeStack();
         nextStack.push({ page: page, scrollTop: 0 });
         switchNoticeStack(nextStack);
@@ -1220,8 +1197,8 @@
       function renderDateHistory(){var h=loadDateHistory(),list=el("dateHistoryList");if(!h.length){list.innerHTML='<li class="empty">暂无日期记录，先去算一条吧</li>';return;}list.innerHTML=h.map(function(item,index){var main="",sub="";if(item.type==="dateDiff"){main=item.start+" → "+item.end;sub="日期差："+item.days+"天";}else{main=item.baseDate+" "+item.directionText+item.days+"天";sub="结果日期："+item.resultDate;}var copy=main+"\n"+sub;return '<li class="history-item"><div class="history-top"><span>记录 '+(h.length-index)+'</span><span>'+escapeHtml(formatNow(item.timestamp))+'</span></div><div class="history-main">'+escapeHtml(main)+'</div><div class="history-sub">'+escapeHtml(sub)+'</div><div class="history-actions"><button class="history-action-btn history-copy-btn" type="button" data-action="copy" data-text="'+escapeHtml(copy)+'">复制</button><button class="history-action-btn history-delete-btn" type="button" data-action="delete-date" data-index="'+index+'">删除</button></div></li>';}).join("");}
       function calcDateDiff(){var s=getDateInput("dateStartY","dateStartM","dateStartD","开始日期"),e=getDateInput("dateEndY","dateEndM","dateEndD","结束日期");if(!s.ok)return setDateMessage(s.msg,"例如填写 2026 年 06 月 10 日");if(!e.ok)return setDateMessage(e.msg,"例如填写 2026 年 06 月 20 日");var diff=dateDiffDays(s.date,e.date),rev=diff<0;currentDateResult={type:"dateDiff",start:rev?e.text:s.text,end:rev?s.text:e.text,days:Math.abs(diff),timestamp:Date.now()};renderDateResult();addDateHistory(currentDateResult);}
       function calcDateShift(){var b=getDateInput("dateBaseY","dateBaseM","dateBaseD","基准日期");if(!b.ok)return setDateMessage(b.msg,"例如填写 2026 年 06 月 10 日");var days=Number(el("dateShiftDays").value||0);if(days<=0)return setDateMessage("请输入前移/后退天数","例如 7 天 或 30 天");var dir=el("dateDirection").value,txt=dir==="back"?"前移":"后退",res=addDays(b.date,dir==="back"?-days:days),rt=formatDate(res);currentDateResult={type:"dateShift",baseDate:b.text,directionText:txt,days:days,resultDate:rt,timestamp:Date.now()};renderDateResult();addDateHistory(currentDateResult);var hint=el("dateAccumHint");if(appSettings.accumulation!=="off"){dateToInput(res,"dateBaseY","dateBaseM","dateBaseD");if(hint)hint.innerText="已自动把基准日期更新为 "+rt+"，再点计算会继续累计";}else if(hint){hint.innerText="连续累计已关闭：基准日期保持为 "+b.text;}}
-      function resetDateDiff(){["dateStartY","dateStartM","dateStartD","dateEndY","dateEndM","dateEndD","dateStartNative","dateEndNative"].forEach(function(id){el(id).value=""});updateDateNativePlaceholders();currentDateResult=null;renderDateResult();}
-      function resetDateShift(){["dateBaseY","dateBaseM","dateBaseD","dateShiftDays","dateBaseNative"].forEach(function(id){el(id).value=""});updateDateNativePlaceholders();setDateDirection("back");currentDateResult=null;updateAccumulationHints();renderDateResult();}
+      function resetDateDiff(){["dateStartY","dateStartM","dateStartD","dateEndY","dateEndM","dateEndD","dateStartNative","dateEndNative"].forEach(function(id){el(id).value=""});currentDateResult=null;renderDateResult();}
+      function resetDateShift(){["dateBaseY","dateBaseM","dateBaseD","dateShiftDays","dateBaseNative"].forEach(function(id){el(id).value=""});currentDateResult=null;updateAccumulationHints();renderDateResult();}
       function clearAllDateHistory(){if(!loadDateHistory().length)return setDateMessage("暂无日期记录可清空","先去算一条吧");openClearConfirm("date");}
       function doClearDateHistory(){localStorage.removeItem(DATE_STORAGE_KEY);renderDateHistory();setDateMessage("已清空全部日期记录","日期记录已删除");}
       function deleteDateHistoryItem(index){var h=loadDateHistory();h.splice(index,1);saveDateHistory(h);renderDateHistory();setDateMessage("已删除该条日期记录","日期记录已更新");}
@@ -1262,6 +1239,12 @@
         el("directionForward").classList.toggle("active", !isBack);
         el("directionBack").setAttribute("aria-pressed", isBack ? "true" : "false");
         el("directionForward").setAttribute("aria-pressed", !isBack ? "true" : "false");
+      }
+
+      // 同步时间计算器与日期计算器的前移/后退方向。
+      function setDirectionSync(value) {
+        setDirection(value);
+        setDateDirection(value);
       }
 
       function calcShift() {
@@ -1317,7 +1300,6 @@
 
       function resetShift() {
         ["baseH", "baseM", "shiftH", "shiftM", "baseNative"].forEach(function (id) { el(id).value = ""; });
-        setDirection("back");
         currentResult = null;
         var hint = el("shiftAccumHint");
         updateAccumulationHints();
@@ -1405,7 +1387,6 @@
 
       function openNotice() {
         resetNoticePageStack();
-        resetVersionAccordion();
         var overlay = el("noticeOverlay");
         overlay.classList.add("show");
         overlay.setAttribute("aria-hidden", "false");
@@ -1421,7 +1402,6 @@
           stopMomentumScroll(content);
         }
         resetNoticePageStack();
-        resetVersionAccordion();
         renderNoticePageDirect("main");
         restoreScrollStable(getNoticeContent, 0);
         el("noticeOverlay").classList.remove("show");
@@ -1565,7 +1545,6 @@
             if (id === "dateStartNative") syncOneDateToNumeric(id, "dateStartY", "dateStartM", "dateStartD");
             if (id === "dateEndNative") syncOneDateToNumeric(id, "dateEndY", "dateEndM", "dateEndD");
             if (id === "dateBaseNative") syncOneDateToNumeric(id, "dateBaseY", "dateBaseM", "dateBaseD");
-            updateDateNativePlaceholders();
           });
         });
 
@@ -1574,16 +1553,16 @@
         bindTap(el("tabShift"), function () { setModeSync("shift"); });
         bindTap(el("dateTabDiff"), function () { setModeSync("diff"); });
         bindTap(el("dateTabShift"), function () { setModeSync("shift"); });
-        bindTap(el("dateDirectionBack"), function () { setDateDirection("back"); });
-        bindTap(el("dateDirectionForward"), function () { setDateDirection("forward"); });
+        bindTap(el("dateDirectionBack"), function () { setDirectionSync("back"); });
+        bindTap(el("dateDirectionForward"), function () { setDirectionSync("forward"); });
         bindTap(el("calcDateDiffBtn"), calcDateDiff);
         bindTap(el("resetDateDiffBtn"), resetDateDiff);
         bindTap(el("calcDateShiftBtn"), calcDateShift);
         bindTap(el("resetDateShiftBtn"), resetDateShift);
         bindTap(el("clearDateHistoryBtn"), clearAllDateHistory);
 
-        bindTap(el("directionBack"), function () { setDirection("back"); });
-        bindTap(el("directionForward"), function () { setDirection("forward"); });
+        bindTap(el("directionBack"), function () { setDirectionSync("back"); });
+        bindTap(el("directionForward"), function () { setDirectionSync("forward"); });
 
         bindTap(el("calcDiffBtn"), calcDiff);
         bindTap(el("resetDiffBtn"), resetDiff);
@@ -1706,7 +1685,6 @@ bindTap(el("resultBox"), function () {
         applyStartupSettings();
         syncSettingsForm();
         updateAccumulationHints();
-        updateDateNativePlaceholders();
         trimHistoryToLimit();
         renderResult();
         renderHistory();

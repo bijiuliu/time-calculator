@@ -530,8 +530,14 @@
       width: min(92vw, 520px);
       touch-action: auto;
       user-select: text;
-      max-height: 82vh;
+      height: min(72vh, 620px);
+      height: min(72dvh, 620px);
+      max-height: calc(100vh - 36px);
+      max-height: calc(100dvh - 36px);
       overflow: hidden;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
       border-radius: 28px;
       background: #ffffff;
       border: 1px solid rgba(255, 255, 255, 0.85);
@@ -553,6 +559,7 @@
 
     .notice-header {
       display: flex;
+      flex-shrink: 0;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
@@ -582,7 +589,9 @@
     }
 
     .notice-content {
-      max-height: 56vh;
+      flex: 1;
+      min-height: 0;
+      max-height: none;
       overflow-y: auto;
       padding-right: 4px;
       color: #334155;
@@ -745,24 +754,6 @@
       position: relative;
     }
 
-    .date-native-placeholder {
-      display: none;
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      color: #111827;
-      font-size: 24px;
-      font-weight: 900;
-      letter-spacing: 0.4px;
-      pointer-events: none;
-      white-space: nowrap;
-    }
-
-    .use-native-pickers .date-native-wrap .date-native-placeholder.show {
-      display: block;
-    }
-
     .native-picker {
       display: none;
       width: 100%;
@@ -803,7 +794,6 @@
 
     @media (max-width: 430px) {
       .native-picker { font-size: 22px; height: 48px; }
-      .date-native-placeholder { font-size: 22px; }
     }
 
     .settings-overlay {
@@ -825,8 +815,14 @@
 
     .settings-dialog {
       width: min(92vw, 520px);
-      max-height: 84vh;
+      height: min(72vh, 620px);
+      height: min(72dvh, 620px);
+      max-height: calc(100vh - 36px);
+      max-height: calc(100dvh - 36px);
       overflow: hidden;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
       border-radius: 28px;
       background: #ffffff;
       border: 1px solid rgba(255, 255, 255, 0.85);
@@ -837,6 +833,7 @@
 
     .settings-header {
       display: flex;
+      flex-shrink: 0;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
@@ -851,7 +848,9 @@
     }
 
     .settings-content {
-      max-height: 62vh;
+      flex: 1;
+      min-height: 0;
+      max-height: none;
       overflow-y: auto;
       padding-right: 4px;
       -webkit-overflow-scrolling: touch;
@@ -920,6 +919,7 @@
 
     .settings-actions {
       display: grid;
+      flex-shrink: 0;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
       margin-top: 14px;
@@ -929,6 +929,15 @@
       height: 56px;
       border-radius: 22px;
       font-size: 18px;
+    }
+
+    @media (max-height: 600px) {
+      .settings-dialog,
+      .notice-dialog {
+        height: calc(100vh - 24px);
+        height: calc(100dvh - 24px);
+        max-height: none;
+      }
     }
 
     .settings-reset-bounce {
@@ -1166,29 +1175,6 @@
       min-height: 330px;
     }
 
-    .use-native-pickers .date-native-picker.native-empty {
-      color: transparent !important;
-      caret-color: transparent;
-    }
-
-    .use-native-pickers .date-native-picker.native-empty::-webkit-datetime-edit,
-    .use-native-pickers .date-native-picker.native-empty::-webkit-datetime-edit-year-field,
-    .use-native-pickers .date-native-picker.native-empty::-webkit-datetime-edit-month-field,
-    .use-native-pickers .date-native-picker.native-empty::-webkit-datetime-edit-day-field,
-    .use-native-pickers .date-native-picker.native-empty::-webkit-datetime-edit-text {
-      color: transparent !important;
-    }
-
-    .use-native-pickers .date-native-picker:not(.native-empty) {
-      color: #111827;
-      caret-color: auto;
-    }
-
-    body.appearance-dark .use-native-pickers .date-native-picker:not(.native-empty),
-    body.appearance-system.system-dark .use-native-pickers .date-native-picker:not(.native-empty) {
-      color: var(--text);
-    }
-
     #settingsDone {
       transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, opacity 0.18s ease;
     }
@@ -1393,18 +1379,6 @@
       gap: 10px;
       align-items: center;
       text-align: left;
-    }
-
-    .settings-menu-item > span:first-child {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      min-width: 0;
-    }
-
-    .settings-menu-main,
-    .settings-menu-sub {
-      display: block;
     }
 
     .settings-menu-main {
