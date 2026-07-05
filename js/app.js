@@ -6,7 +6,7 @@
       var DATE_STORAGE_KEY = "dateCalculatorHistoryV1";
       var INPUT_MODE_KEY = "calculatorInputModeV1";
       var SETTINGS_KEY = "calculatorSettingsV1";
-      var APP_VERSION = "v1.3.0";
+      var APP_VERSION = "v1.4.0";
       var CHANGELOG_SEEN_VERSION_KEY = "calculatorChangelogSeenVersionV1";
       var LAST_CALCULATOR_KEY = "calculatorLastCalculatorV1";
       var LAST_MODE_KEY = "calculatorLastModeV1";
@@ -281,22 +281,21 @@
         return settingsPageStack[settingsPageStack.length - 1];
       }
 
-      function captureNoticeStack() {
-        var stack = normalizePageStack(noticePageStack, NOTICE_PAGES);
-        var content = getNoticeContent();
+      function capturePageStack(stack, validPages, getContent) {
+        stack = normalizePageStack(stack, validPages);
+        var content = getContent();
         if (content && stack.length) {
           stack[stack.length - 1].scrollTop = content.scrollTop || 0;
         }
         return stack;
       }
 
+      function captureNoticeStack() {
+        return capturePageStack(noticePageStack, NOTICE_PAGES, getNoticeContent);
+      }
+
       function captureSettingsStack() {
-        var stack = normalizePageStack(settingsPageStack, SETTINGS_PAGES);
-        var content = getSettingsContent();
-        if (content && stack.length) {
-          stack[stack.length - 1].scrollTop = content.scrollTop || 0;
-        }
-        return stack;
+        return capturePageStack(settingsPageStack, SETTINGS_PAGES, getSettingsContent);
       }
 
       function renderNoticePageDirect(page) {
@@ -315,7 +314,7 @@
         var subtitles = {
           main: "选择要查看的说明内容",
           time: "时间差、前移/后退、连续累计和输入方式",
-          date: "日期差、日期前移/后退、连续累计和输入方式",
+          date: "日期差、前移/后退、连续累计和输入方式",
           settings: "输入设置、外观设置、计算设置和交互设置",
           records: "记录保存、复制、删除、清空和本地存储",
           notes: "跨天规则、有效日期和正式用途提醒",
@@ -361,60 +360,63 @@
         el("settingsBack").classList.toggle("show", page !== "main");
       }
 
-      function switchNoticeStack(nextStack) {
-        if (noticePageSwitching) return;
-        nextStack = normalizePageStack(nextStack, NOTICE_PAGES);
+      function switchPageStack(config, nextStack) {
+        if (config.isSwitching()) return;
+        nextStack = normalizePageStack(nextStack, config.validPages);
         var target = nextStack[nextStack.length - 1];
-        var content = getNoticeContent();
+        var currentStack = config.getStack();
+        var direction = nextStack.length < currentStack.length ? "back" : "forward";
+        var content = config.getContent();
+        var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var outDuration = reduceMotion ? 0 : 100;
+        var inDuration = reduceMotion ? 0 : 160;
 
-        noticePageSwitching = true;
+        config.setSwitching(true);
         var releaseMomentum = lockMomentumScroll(content);
+        if (content && !reduceMotion) content.classList.add("page-nav-out-" + direction);
 
-        requestAnimationFrame(function () {
-          requestAnimationFrame(function () {
-            noticePageStack = nextStack;
-            renderNoticePageDirect(target.page);
-            restoreScrollStable(getNoticeContent, target.scrollTop);
+        setTimeout(function () {
+          if (content) content.classList.remove("page-nav-out-forward", "page-nav-out-back");
+          config.setStack(nextStack);
+          config.render(target.page);
+          restoreScrollStable(config.getContent, target.scrollTop);
 
-            requestAnimationFrame(function () {
-              requestAnimationFrame(function () {
-                releaseMomentum();
-              });
-            });
+          content = config.getContent();
+          if (content && !reduceMotion) {
+            content.classList.add("page-nav-in-" + direction);
+            content.offsetHeight;
+          }
 
-            setTimeout(function () {
-              noticePageSwitching = false;
-            }, 150);
-          });
-        });
+          setTimeout(function () {
+            if (content) content.classList.remove("page-nav-in-forward", "page-nav-in-back");
+            releaseMomentum();
+            config.setSwitching(false);
+          }, inDuration);
+        }, outDuration);
+      }
+
+      function switchNoticeStack(nextStack) {
+        switchPageStack({
+          validPages: NOTICE_PAGES,
+          getContent: getNoticeContent,
+          getStack: function () { return noticePageStack; },
+          setStack: function (stack) { noticePageStack = stack; },
+          isSwitching: function () { return noticePageSwitching; },
+          setSwitching: function (value) { noticePageSwitching = value; },
+          render: renderNoticePageDirect
+        }, nextStack);
       }
 
       function switchSettingsStack(nextStack) {
-        if (settingsPageSwitching) return;
-        nextStack = normalizePageStack(nextStack, SETTINGS_PAGES);
-        var target = nextStack[nextStack.length - 1];
-        var content = getSettingsContent();
-
-        settingsPageSwitching = true;
-        var releaseMomentum = lockMomentumScroll(content);
-
-        requestAnimationFrame(function () {
-          requestAnimationFrame(function () {
-            settingsPageStack = nextStack;
-            renderSettingsPageDirect(target.page);
-            restoreScrollStable(getSettingsContent, target.scrollTop);
-
-            requestAnimationFrame(function () {
-              requestAnimationFrame(function () {
-                releaseMomentum();
-              });
-            });
-
-            setTimeout(function () {
-              settingsPageSwitching = false;
-            }, 150);
-          });
-        });
+        switchPageStack({
+          validPages: SETTINGS_PAGES,
+          getContent: getSettingsContent,
+          getStack: function () { return settingsPageStack; },
+          setStack: function (stack) { settingsPageStack = stack; },
+          isSwitching: function () { return settingsPageSwitching; },
+          setSwitching: function (value) { settingsPageSwitching = value; },
+          render: renderSettingsPageDirect
+        }, nextStack);
       }
 
       function resetNoticePageStack() {
@@ -915,7 +917,26 @@
       }
 
 
-      function clampInput(input, max) {
+      function focusNumericInput(nextId) {
+        var next = el(nextId);
+        if (!next || next.disabled) return;
+        try {
+          next.focus({ preventScroll: true });
+        } catch (e) {
+          next.focus();
+        }
+      }
+
+      function bindSpaceAdvance(input, nextId) {
+        if (!input || !nextId) return;
+        input.addEventListener("keydown", function (event) {
+          if (event.key !== " " && event.key !== "Spacebar") return;
+          event.preventDefault();
+          focusNumericInput(nextId);
+        });
+      }
+
+      function clampInput(input, max, nextId) {
         input.addEventListener("input", function () {
           var v = input.value.replace(/[^\d]/g, "");
           if (v.length > 2 && max <= 59) v = v.slice(0, 2);
@@ -926,6 +947,7 @@
         input.addEventListener("blur", function () {
           if (input.value !== "") input.value = pad(Number(input.value));
         });
+        bindSpaceAdvance(input, nextId);
       }
 
       function getTime(hId, mId, name) {
@@ -1164,9 +1186,14 @@
       function setDateTab(tab){activeDateTab=tab;el("dateTabDiff").classList.toggle("active",tab==="diff");el("dateTabShift").classList.toggle("active",tab==="shift");el("datePanelDiff").classList.toggle("active",tab==="diff");el("datePanelShift").classList.toggle("active",tab==="shift");currentDateResult=null;renderDateResult();}
       function setDateDirection(value){el("dateDirection").value=value;var b=value==="back";el("dateDirectionBack").classList.toggle("active",b);el("dateDirectionForward").classList.toggle("active",!b);}
       function clampDateInputs(){
-        ["dateStartY","dateEndY","dateBaseY"].forEach(function(id){el(id).addEventListener("input",function(){el(id).value=el(id).value.replace(/[^\d]/g,"").slice(0,4);});});
-        ["dateStartM","dateEndM","dateBaseM"].forEach(function(id){el(id).addEventListener("input",function(){var v=el(id).value.replace(/[^\d]/g,"").slice(0,2);if(v!==""&&Number(v)>12)v="12";el(id).value=v;});});
-        ["dateStartD","dateEndD","dateBaseD"].forEach(function(id){el(id).addEventListener("input",function(){var v=el(id).value.replace(/[^\d]/g,"").slice(0,2);if(v!==""&&Number(v)>31)v="31";el(id).value=v;});});
+        var nextDateInput = {
+          dateStartY: "dateStartM", dateStartM: "dateStartD", dateStartD: "dateEndY",
+          dateEndY: "dateEndM", dateEndM: "dateEndD",
+          dateBaseY: "dateBaseM", dateBaseM: "dateBaseD", dateBaseD: "dateShiftDays"
+        };
+        ["dateStartY","dateEndY","dateBaseY"].forEach(function(id){el(id).addEventListener("input",function(){var v=el(id).value.replace(/[^\d]/g,"").slice(0,4);el(id).value=v;});bindSpaceAdvance(el(id),nextDateInput[id]);});
+        ["dateStartM","dateEndM","dateBaseM"].forEach(function(id){el(id).addEventListener("input",function(){var v=el(id).value.replace(/[^\d]/g,"").slice(0,2);if(v!==""&&Number(v)>12)v="12";el(id).value=v;});bindSpaceAdvance(el(id),nextDateInput[id]);});
+        ["dateStartD","dateEndD","dateBaseD"].forEach(function(id){el(id).addEventListener("input",function(){var v=el(id).value.replace(/[^\d]/g,"").slice(0,2);if(v!==""&&Number(v)>31)v="31";el(id).value=v;});bindSpaceAdvance(el(id),nextDateInput[id]);});
         el("dateShiftDays").addEventListener("input",function(){el("dateShiftDays").value=el("dateShiftDays").value.replace(/[^\d]/g,"").slice(0,5);});
       }
       function formatDate(d){return d.getFullYear()+"年"+pad(d.getMonth()+1)+"月"+pad(d.getDate())+"日";}
@@ -1541,8 +1568,13 @@
           }
         }
         bindUnifiedVibration();
-        ["startH", "endH", "baseH"].forEach(function (id) { clampInput(el(id), 23); });
-        ["startM", "endM", "baseM"].forEach(function (id) { clampInput(el(id), 59); });
+        clampInput(el("startH"), 23, "startM");
+        clampInput(el("startM"), 59, "endH");
+        clampInput(el("endH"), 23, "endM");
+        clampInput(el("endM"), 59);
+        clampInput(el("baseH"), 23, "baseM");
+        clampInput(el("baseM"), 59, "shiftH");
+        bindSpaceAdvance(el("shiftH"), "shiftM");
 
         bindTap(el("settingsBtn"), openSettings);
         bindTap(el("settingsClose"), closeSettings);

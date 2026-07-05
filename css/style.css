@@ -601,6 +601,57 @@
       -webkit-overflow-scrolling: touch;
     }
 
+    .notice-content.page-nav-out-forward,
+    .settings-content.page-nav-out-forward {
+      animation: pageNavOutForward 0.1s ease-in forwards;
+    }
+
+    .notice-content.page-nav-out-back,
+    .settings-content.page-nav-out-back {
+      animation: pageNavOutBack 0.1s ease-in forwards;
+    }
+
+    .notice-content.page-nav-in-forward,
+    .settings-content.page-nav-in-forward {
+      animation: pageNavInForward 0.16s ease-out both;
+    }
+
+    .notice-content.page-nav-in-back,
+    .settings-content.page-nav-in-back {
+      animation: pageNavInBack 0.16s ease-out both;
+    }
+
+    @keyframes pageNavOutForward {
+      to { transform: translateX(-16px); opacity: 0; }
+    }
+
+    @keyframes pageNavOutBack {
+      to { transform: translateX(16px); opacity: 0; }
+    }
+
+    @keyframes pageNavInForward {
+      from { transform: translateX(18px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes pageNavInBack {
+      from { transform: translateX(-18px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .notice-content.page-nav-out-forward,
+      .settings-content.page-nav-out-forward,
+      .notice-content.page-nav-out-back,
+      .settings-content.page-nav-out-back,
+      .notice-content.page-nav-in-forward,
+      .settings-content.page-nav-in-forward,
+      .notice-content.page-nav-in-back,
+      .settings-content.page-nav-in-back {
+        animation: none;
+      }
+    }
+
     .notice-content p {
       margin: 0 0 10px;
     }
