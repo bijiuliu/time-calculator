@@ -560,7 +560,7 @@
     .notice-header {
       display: flex;
       flex-shrink: 0;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
       gap: 12px;
       margin-bottom: 12px;
@@ -576,6 +576,8 @@
     .notice-x {
       width: 42px;
       height: 42px;
+      flex: 0 0 42px;
+      align-self: flex-start;
       border-radius: 18px;
       background: #f3f4f6;
       color: #475569;
@@ -886,7 +888,7 @@
     .settings-header {
       display: flex;
       flex-shrink: 0;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
       gap: 12px;
       margin-bottom: 12px;
@@ -1461,6 +1463,8 @@
     .settings-back {
       width: 42px;
       height: 42px;
+      flex: 0 0 42px;
+      align-self: flex-start;
       border-radius: 18px;
       background: #f3f4f6;
       color: #475569;
