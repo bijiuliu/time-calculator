@@ -2026,3 +2026,854 @@ body.appearance-system.system-dark .history-copy-btn.copied {
     body.appearance-system.system-dark .version-item summary::after {
       color: #94a3b8;
     }
+
+    /* 深海蓝晶：高质感科技主题 */
+    body.appearance-crystal {
+      --bg1: #020713;
+      --bg2: #071426;
+      --card: rgba(10, 24, 43, 0.86);
+      --text: #f3f8ff;
+      --muted: #8fa9c8;
+      --primary: #2478ff;
+      --primary2: #55c7ff;
+      --soft: rgba(18, 45, 75, 0.78);
+      --border: rgba(113, 177, 235, 0.24);
+      --danger: #ff7b9b;
+      --shadow: 0 30px 80px rgba(0, 5, 18, 0.62), 0 0 50px rgba(24, 119, 255, 0.12);
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 4%, rgba(33, 130, 255, 0.32), transparent 30%),
+        radial-gradient(circle at 88% 20%, rgba(15, 210, 255, 0.16), transparent 28%),
+        radial-gradient(circle at 50% 100%, rgba(33, 73, 160, 0.25), transparent 42%),
+        linear-gradient(155deg, #020611 0%, #071427 50%, #030916 100%);
+      background-attachment: fixed;
+    }
+
+    body.appearance-crystal .card {
+      background: linear-gradient(145deg, rgba(15, 35, 59, 0.94), rgba(5, 17, 32, 0.90));
+      border-color: rgba(130, 197, 255, 0.25);
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+      backdrop-filter: blur(24px) saturate(135%);
+      -webkit-backdrop-filter: blur(24px) saturate(135%);
+    }
+
+    body.appearance-crystal .title {
+      color: #f7fbff;
+      background: linear-gradient(100deg, #ffffff 5%, #a7dcff 48%, #65efff 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 28px rgba(65, 173, 255, 0.20);
+    }
+
+    body.appearance-crystal .subtitle,
+    body.appearance-crystal .label,
+    body.appearance-crystal .direction-label,
+    body.appearance-crystal .result-label,
+    body.appearance-crystal .result-tip,
+    body.appearance-crystal .history-sub,
+    body.appearance-crystal .history-top,
+    body.appearance-crystal .accum-hint,
+    body.appearance-crystal .settings-subtitle,
+    body.appearance-crystal .notice-subtitle,
+    body.appearance-crystal .settings-menu-sub,
+    body.appearance-crystal .notice-menu-sub,
+    body.appearance-crystal .settings-tip,
+    body.appearance-crystal .confirm-text {
+      color: #91abc8;
+    }
+
+    body.appearance-crystal .tabs,
+    body.appearance-crystal .direction-tabs {
+      background: rgba(3, 13, 27, 0.76);
+      border-color: rgba(105, 170, 225, 0.20);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 12px 28px rgba(0, 5, 18, 0.24);
+    }
+
+    body.appearance-crystal .tab,
+    body.appearance-crystal .direction-tab {
+      color: #7693b5;
+    }
+
+    body.appearance-crystal .tab.active,
+    body.appearance-crystal .direction-tab.active {
+      color: #eaf8ff;
+      background: linear-gradient(145deg, rgba(39, 104, 171, 0.72), rgba(16, 52, 95, 0.92));
+      border: 1px solid rgba(111, 209, 255, 0.28);
+      box-shadow: 0 10px 25px rgba(0, 10, 30, 0.40), inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 20px rgba(45, 161, 255, 0.12);
+    }
+
+    body.appearance-crystal .time-box,
+    body.appearance-crystal .date-box,
+    body.appearance-crystal .mini-box,
+    body.appearance-crystal .native-picker {
+      color: #f4f9ff;
+      background: linear-gradient(145deg, rgba(9, 25, 44, 0.94), rgba(4, 15, 30, 0.92));
+      border-color: rgba(103, 174, 232, 0.24);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), inset 0 -12px 30px rgba(0, 4, 15, 0.20);
+    }
+
+    body.appearance-crystal .time-box:focus-within,
+    body.appearance-crystal .date-box:focus-within,
+    body.appearance-crystal .mini-box:focus-within {
+      border-color: rgba(89, 213, 255, 0.78);
+      box-shadow: 0 0 0 4px rgba(40, 148, 255, 0.16), 0 0 28px rgba(24, 168, 255, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+    }
+
+    body.appearance-crystal .time-num,
+    body.appearance-crystal .date-num,
+    body.appearance-crystal .mini-input,
+    body.appearance-crystal .native-picker,
+    body.appearance-crystal .colon,
+    body.appearance-crystal .date-sep {
+      color: #f4f9ff;
+      text-shadow: 0 0 18px rgba(86, 200, 255, 0.16);
+    }
+
+    body.appearance-crystal .btn-primary,
+    body.appearance-crystal .changelog-ok,
+    body.appearance-crystal #settingsDone {
+      color: #ffffff;
+      background: linear-gradient(135deg, #1768ee 0%, #289cff 52%, #33c9ed 100%);
+      border: 1px solid rgba(147, 224, 255, 0.34);
+      box-shadow: 0 16px 34px rgba(0, 77, 205, 0.38), 0 0 24px rgba(44, 178, 255, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+    }
+
+    body.appearance-crystal .btn-secondary,
+    body.appearance-crystal .confirm-cancel {
+      color: #c8def5;
+      background: linear-gradient(145deg, rgba(29, 55, 84, 0.86), rgba(12, 31, 53, 0.92));
+      border: 1px solid rgba(111, 173, 225, 0.22);
+    }
+
+    body.appearance-crystal .result-box {
+      background:
+        radial-gradient(circle at 50% 18%, rgba(64, 199, 255, 0.18), transparent 48%),
+        linear-gradient(145deg, rgba(14, 46, 79, 0.92), rgba(4, 19, 37, 0.96));
+      border-color: rgba(83, 195, 255, 0.42);
+      box-shadow: 0 20px 45px rgba(0, 5, 18, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.10), 0 0 34px rgba(39, 157, 255, 0.10);
+    }
+
+    body.appearance-crystal .result-value {
+      color: #dff7ff;
+      text-shadow: 0 0 22px rgba(62, 204, 255, 0.34);
+    }
+
+    body.appearance-crystal .history,
+    body.appearance-crystal .settings-block,
+    body.appearance-crystal .notice-block {
+      color: #e8f3ff;
+      background: linear-gradient(145deg, rgba(13, 35, 59, 0.88), rgba(6, 22, 40, 0.90));
+      border-color: rgba(99, 164, 220, 0.22);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+
+    body.appearance-crystal .history-item,
+    body.appearance-crystal .setting-option,
+    body.appearance-crystal .settings-menu-item,
+    body.appearance-crystal .notice-menu-item,
+    body.appearance-crystal .version-item {
+      color: #dfeeff;
+      background: linear-gradient(145deg, rgba(18, 43, 70, 0.90), rgba(7, 23, 42, 0.94));
+      border-color: rgba(106, 173, 228, 0.21);
+      box-shadow: 0 10px 25px rgba(0, 5, 18, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+
+    body.appearance-crystal .history-title,
+    body.appearance-crystal .history-main,
+    body.appearance-crystal .setting-label,
+    body.appearance-crystal .settings-menu-main,
+    body.appearance-crystal .notice-menu-main,
+    body.appearance-crystal .settings-header h2,
+    body.appearance-crystal .notice-header h2,
+    body.appearance-crystal .confirm-title,
+    body.appearance-crystal .changelog-title {
+      color: #f1f8ff;
+    }
+
+    body.appearance-crystal .settings-block h3,
+    body.appearance-crystal .notice-block h3,
+    body.appearance-crystal .notice-intro,
+    body.appearance-crystal .version-item summary {
+      color: #91ddff;
+    }
+
+    body.appearance-crystal .app-switch-btn,
+    body.appearance-crystal .settings-open,
+    body.appearance-crystal .settings-back,
+    body.appearance-crystal .notice-back,
+    body.appearance-crystal .notice-x,
+    body.appearance-crystal .changelog-never {
+      color: #cdeaff;
+      background: linear-gradient(145deg, rgba(31, 67, 104, 0.88), rgba(10, 31, 54, 0.94));
+      border: 1px solid rgba(111, 186, 240, 0.24);
+      box-shadow: 0 10px 24px rgba(0, 5, 18, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.09);
+    }
+
+    body.appearance-crystal .clear-btn {
+      color: #ff9ab2;
+      background: rgba(101, 25, 54, 0.38);
+      border: 1px solid rgba(255, 111, 154, 0.22);
+    }
+
+    body.appearance-crystal .history-action-btn {
+      color: #abdfff;
+      background: rgba(25, 68, 108, 0.52);
+      border-color: rgba(99, 184, 240, 0.22);
+    }
+
+    body.appearance-crystal .settings-overlay,
+    body.appearance-crystal .notice-overlay,
+    body.appearance-crystal .confirm-overlay,
+    body.appearance-crystal .changelog-overlay {
+      background: rgba(0, 5, 16, 0.68);
+      backdrop-filter: blur(14px) saturate(120%);
+      -webkit-backdrop-filter: blur(14px) saturate(120%);
+    }
+
+    body.appearance-crystal .settings-dialog,
+    body.appearance-crystal .notice-dialog,
+    body.appearance-crystal .confirm-dialog,
+    body.appearance-crystal .changelog-dialog {
+      color: #e7f2ff;
+      background: linear-gradient(145deg, rgba(13, 32, 54, 0.98), rgba(4, 16, 31, 0.98));
+      border-color: rgba(116, 190, 244, 0.24);
+      box-shadow: 0 30px 90px rgba(0, 3, 12, 0.68), inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 45px rgba(26, 127, 255, 0.10);
+    }
+
+    body.appearance-crystal .notice-content,
+    body.appearance-crystal .notice-content p,
+    body.appearance-crystal .notice-list li {
+      color: #cbdced;
+    }
+
+    body.appearance-crystal .notice-example {
+      color: #bfeaff;
+      background: rgba(25, 76, 119, 0.38);
+      border-color: rgba(91, 190, 244, 0.20);
+    }
+
+    body.appearance-crystal input[type="radio"] {
+      accent-color: #38bdf8;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      body.appearance-crystal .result-box {
+        transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
+      }
+
+      body.appearance-crystal .result-box:active {
+        transform: scale(0.992);
+      }
+    }
+
+    /* iOS 液态玻璃：覆盖旧实验主题，保留同一设置值以兼容已保存设置 */
+    body.appearance-crystal {
+      --bg1: #cfe7ff;
+      --bg2: #f2eaff;
+      --card: rgba(245, 250, 255, 0.52);
+      --text: #10243e;
+      --muted: #60758e;
+      --primary: #087cff;
+      --primary2: #5db8ff;
+      --soft: rgba(255, 255, 255, 0.42);
+      --border: rgba(255, 255, 255, 0.66);
+      --danger: #e54867;
+      --shadow: 0 26px 70px rgba(41, 75, 118, 0.22), 0 8px 24px rgba(75, 130, 190, 0.12);
+      color: var(--text);
+      background:
+        radial-gradient(circle at 8% 5%, rgba(65, 174, 255, 0.72), transparent 31%),
+        radial-gradient(circle at 92% 12%, rgba(179, 126, 255, 0.58), transparent 32%),
+        radial-gradient(circle at 82% 88%, rgba(72, 224, 210, 0.46), transparent 34%),
+        radial-gradient(circle at 10% 92%, rgba(255, 160, 196, 0.44), transparent 30%),
+        linear-gradient(145deg, #d8edff 0%, #eee8ff 48%, #dff8f5 100%);
+      background-attachment: fixed;
+    }
+
+    body.appearance-crystal .card {
+      position: relative;
+      overflow: hidden;
+      color: #10243e;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.62), rgba(230, 244, 255, 0.38));
+      border-color: rgba(255, 255, 255, 0.82);
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.94), inset 0 -1px 0 rgba(117, 162, 210, 0.12);
+      backdrop-filter: blur(32px) saturate(175%);
+      -webkit-backdrop-filter: blur(32px) saturate(175%);
+    }
+
+    body.appearance-crystal .card::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 34%;
+      pointer-events: none;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.26), transparent);
+    }
+
+    body.appearance-crystal .title {
+      color: #10243e;
+      background: none;
+      -webkit-background-clip: initial;
+      background-clip: initial;
+      -webkit-text-fill-color: currentColor;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.72);
+    }
+
+    body.appearance-crystal .subtitle,
+    body.appearance-crystal .label,
+    body.appearance-crystal .direction-label,
+    body.appearance-crystal .result-label,
+    body.appearance-crystal .result-tip,
+    body.appearance-crystal .history-sub,
+    body.appearance-crystal .history-top,
+    body.appearance-crystal .accum-hint,
+    body.appearance-crystal .settings-subtitle,
+    body.appearance-crystal .notice-subtitle,
+    body.appearance-crystal .settings-menu-sub,
+    body.appearance-crystal .notice-menu-sub,
+    body.appearance-crystal .settings-tip,
+    body.appearance-crystal .confirm-text {
+      color: #61758d;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
+    }
+
+    body.appearance-crystal .tabs,
+    body.appearance-crystal .direction-tabs {
+      background: rgba(230, 241, 252, 0.44);
+      border-color: rgba(255, 255, 255, 0.72);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.80), 0 10px 28px rgba(49, 88, 130, 0.10);
+      backdrop-filter: blur(18px) saturate(160%);
+      -webkit-backdrop-filter: blur(18px) saturate(160%);
+    }
+
+    body.appearance-crystal .tab,
+    body.appearance-crystal .direction-tab {
+      color: #58708d;
+    }
+
+    body.appearance-crystal .tab.active,
+    body.appearance-crystal .direction-tab.active {
+      color: #075ebc;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.86), rgba(232, 246, 255, 0.66));
+      border: 1px solid rgba(255, 255, 255, 0.88);
+      box-shadow: 0 9px 24px rgba(49, 90, 136, 0.16), inset 0 1px 0 #ffffff;
+    }
+
+    body.appearance-crystal .time-box,
+    body.appearance-crystal .date-box,
+    body.appearance-crystal .mini-box,
+    body.appearance-crystal .native-picker {
+      color: #10243e;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.66), rgba(229, 243, 255, 0.43));
+      border-color: rgba(255, 255, 255, 0.82);
+      box-shadow: 0 10px 25px rgba(47, 88, 132, 0.09), inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 -1px 0 rgba(97, 145, 195, 0.10);
+      backdrop-filter: blur(20px) saturate(165%);
+      -webkit-backdrop-filter: blur(20px) saturate(165%);
+    }
+
+    body.appearance-crystal .time-box:focus-within,
+    body.appearance-crystal .date-box:focus-within,
+    body.appearance-crystal .mini-box:focus-within {
+      border-color: rgba(64, 160, 255, 0.56);
+      box-shadow: 0 0 0 4px rgba(57, 151, 255, 0.13), 0 14px 30px rgba(40, 110, 185, 0.14), inset 0 1px 0 #ffffff;
+    }
+
+    body.appearance-crystal .time-num,
+    body.appearance-crystal .date-num,
+    body.appearance-crystal .mini-input,
+    body.appearance-crystal .native-picker,
+    body.appearance-crystal .colon,
+    body.appearance-crystal .date-sep {
+      color: #10243e;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.74);
+    }
+
+    body.appearance-crystal .btn-primary,
+    body.appearance-crystal .changelog-ok,
+    body.appearance-crystal #settingsDone {
+      color: #ffffff;
+      background: linear-gradient(145deg, rgba(57, 166, 255, 0.96), rgba(0, 111, 245, 0.94));
+      border: 1px solid rgba(255, 255, 255, 0.54);
+      box-shadow: 0 16px 34px rgba(0, 105, 225, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.48), inset 0 -1px 0 rgba(0, 64, 170, 0.18);
+      backdrop-filter: blur(16px) saturate(160%);
+      -webkit-backdrop-filter: blur(16px) saturate(160%);
+    }
+
+    body.appearance-crystal .btn-secondary,
+    body.appearance-crystal .confirm-cancel {
+      color: #294661;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.64), rgba(225, 239, 251, 0.46));
+      border: 1px solid rgba(255, 255, 255, 0.76);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86), 0 9px 22px rgba(50, 87, 126, 0.10);
+    }
+
+    body.appearance-crystal .result-box {
+      color: #10243e;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.78), transparent 58%),
+        linear-gradient(145deg, rgba(221, 244, 255, 0.68), rgba(240, 232, 255, 0.48));
+      border-color: rgba(255, 255, 255, 0.84);
+      box-shadow: 0 18px 40px rgba(43, 91, 142, 0.16), inset 0 1px 0 #ffffff, inset 0 -1px 0 rgba(93, 142, 195, 0.10);
+      backdrop-filter: blur(24px) saturate(175%);
+      -webkit-backdrop-filter: blur(24px) saturate(175%);
+    }
+
+    body.appearance-crystal .result-value {
+      color: #0758ad;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.78), 0 8px 22px rgba(19, 108, 204, 0.14);
+    }
+
+    body.appearance-crystal .history,
+    body.appearance-crystal .settings-block,
+    body.appearance-crystal .notice-block {
+      color: #18324d;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.52), rgba(225, 241, 253, 0.34));
+      border-color: rgba(255, 255, 255, 0.76);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.88), 0 12px 30px rgba(49, 89, 133, 0.10);
+      backdrop-filter: blur(22px) saturate(165%);
+      -webkit-backdrop-filter: blur(22px) saturate(165%);
+    }
+
+    body.appearance-crystal .history-item,
+    body.appearance-crystal .setting-option,
+    body.appearance-crystal .settings-menu-item,
+    body.appearance-crystal .notice-menu-item,
+    body.appearance-crystal .version-item {
+      color: #18324d;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.66), rgba(226, 242, 254, 0.42));
+      border-color: rgba(255, 255, 255, 0.82);
+      box-shadow: 0 10px 25px rgba(47, 85, 125, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(18px) saturate(165%);
+      -webkit-backdrop-filter: blur(18px) saturate(165%);
+    }
+
+    body.appearance-crystal .history-title,
+    body.appearance-crystal .history-main,
+    body.appearance-crystal .setting-label,
+    body.appearance-crystal .settings-menu-main,
+    body.appearance-crystal .notice-menu-main,
+    body.appearance-crystal .settings-header h2,
+    body.appearance-crystal .notice-header h2,
+    body.appearance-crystal .confirm-title,
+    body.appearance-crystal .changelog-title {
+      color: #10243e;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.72);
+    }
+
+    body.appearance-crystal .settings-block h3,
+    body.appearance-crystal .notice-block h3,
+    body.appearance-crystal .notice-intro,
+    body.appearance-crystal .version-item summary {
+      color: #075db7;
+    }
+
+    body.appearance-crystal .app-switch-btn,
+    body.appearance-crystal .settings-open,
+    body.appearance-crystal .settings-back,
+    body.appearance-crystal .notice-back,
+    body.appearance-crystal .notice-x,
+    body.appearance-crystal .changelog-never {
+      color: #24445f;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.68), rgba(222, 239, 253, 0.46));
+      border: 1px solid rgba(255, 255, 255, 0.82);
+      box-shadow: 0 10px 24px rgba(45, 85, 128, 0.12), inset 0 1px 0 #ffffff;
+      backdrop-filter: blur(18px) saturate(170%);
+      -webkit-backdrop-filter: blur(18px) saturate(170%);
+    }
+
+    body.appearance-crystal .clear-btn {
+      color: #c73757;
+      background: rgba(255, 235, 241, 0.62);
+      border: 1px solid rgba(255, 255, 255, 0.78);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.90);
+    }
+
+    body.appearance-crystal .history-action-btn {
+      color: #1767ad;
+      background: rgba(234, 247, 255, 0.62);
+      border-color: rgba(255, 255, 255, 0.78);
+    }
+
+    body.appearance-crystal .settings-overlay,
+    body.appearance-crystal .notice-overlay,
+    body.appearance-crystal .confirm-overlay,
+    body.appearance-crystal .changelog-overlay {
+      background: rgba(35, 65, 101, 0.22);
+      backdrop-filter: blur(20px) saturate(145%);
+      -webkit-backdrop-filter: blur(20px) saturate(145%);
+    }
+
+    body.appearance-crystal .settings-dialog,
+    body.appearance-crystal .notice-dialog,
+    body.appearance-crystal .confirm-dialog,
+    body.appearance-crystal .changelog-dialog {
+      color: #18324d;
+      background: linear-gradient(145deg, rgba(250, 253, 255, 0.72), rgba(222, 240, 253, 0.52));
+      border-color: rgba(255, 255, 255, 0.86);
+      box-shadow: 0 30px 80px rgba(38, 73, 113, 0.25), inset 0 1px 0 #ffffff, inset 0 -1px 0 rgba(101, 146, 193, 0.10);
+      backdrop-filter: blur(34px) saturate(175%);
+      -webkit-backdrop-filter: blur(34px) saturate(175%);
+    }
+
+    body.appearance-crystal .notice-content,
+    body.appearance-crystal .notice-content p,
+    body.appearance-crystal .notice-list li {
+      color: #304b66;
+    }
+
+    body.appearance-crystal .notice-example {
+      color: #145e9d;
+      background: rgba(224, 243, 255, 0.58);
+      border-color: rgba(255, 255, 255, 0.78);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86);
+    }
+
+    body.appearance-crystal input[type="radio"] {
+      accent-color: #087cff;
+    }
+
+    /* 玻璃风格增强：镜面高光、折射色与缓慢流动的环境光 */
+    body.appearance-crystal {
+      background-size: 130% 130%;
+    }
+
+    body.appearance-crystal .shell {
+      position: relative;
+      isolation: isolate;
+    }
+
+    body.appearance-crystal .shell::before,
+    body.appearance-crystal .shell::after {
+      content: "";
+      position: fixed;
+      z-index: -1;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      pointer-events: none;
+      filter: blur(22px);
+      opacity: 0.54;
+    }
+
+    body.appearance-crystal .shell::before {
+      left: -80px;
+      top: 12%;
+      background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.88), rgba(71,175,255,0.52) 32%, rgba(112,93,255,0.18) 66%, transparent 72%);
+    }
+
+    body.appearance-crystal .shell::after {
+      right: -95px;
+      bottom: 8%;
+      background: radial-gradient(circle at 38% 32%, rgba(255,255,255,0.76), rgba(74,228,211,0.50) 34%, rgba(255,111,192,0.16) 68%, transparent 74%);
+    }
+
+    body.appearance-crystal .card {
+      isolation: isolate;
+      background:
+        radial-gradient(ellipse at 8% 0%, rgba(255,255,255,0.82), transparent 34%),
+        radial-gradient(ellipse at 100% 18%, rgba(166,221,255,0.34), transparent 35%),
+        linear-gradient(145deg, rgba(255,255,255,0.60), rgba(224,241,255,0.30));
+      border: 1px solid rgba(255,255,255,0.88);
+      box-shadow:
+        0 30px 80px rgba(41,75,118,0.22),
+        0 8px 28px rgba(50,112,174,0.13),
+        inset 0 1.5px 0 rgba(255,255,255,0.98),
+        inset 1px 0 0 rgba(255,255,255,0.48),
+        inset 0 -1px 0 rgba(83,132,185,0.12);
+    }
+
+    body.appearance-crystal .card::before {
+      z-index: 0;
+      inset: -18% 34% 48% -18%;
+      height: auto;
+      border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(255,255,255,0.62), rgba(146,213,255,0.20) 45%, transparent 72%);
+      filter: blur(2px);
+    }
+
+    body.appearance-crystal .card::after {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      inset: 1px;
+      border-radius: 30px;
+      pointer-events: none;
+      background:
+        linear-gradient(115deg, rgba(255,255,255,0.25), transparent 22%, transparent 72%, rgba(91,192,255,0.12)),
+        radial-gradient(ellipse at 78% 102%, rgba(132,108,255,0.16), transparent 42%);
+    }
+
+    body.appearance-crystal .card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    body.appearance-crystal .tabs,
+    body.appearance-crystal .direction-tabs,
+    body.appearance-crystal .time-box,
+    body.appearance-crystal .date-box,
+    body.appearance-crystal .mini-box,
+    body.appearance-crystal .result-box,
+    body.appearance-crystal .history,
+    body.appearance-crystal .settings-block,
+    body.appearance-crystal .notice-block,
+    body.appearance-crystal .history-item,
+    body.appearance-crystal .setting-option,
+    body.appearance-crystal .settings-menu-item,
+    body.appearance-crystal .notice-menu-item,
+    body.appearance-crystal .version-item {
+      background-image:
+        radial-gradient(ellipse at 10% 0%, rgba(255,255,255,0.76), transparent 34%),
+        radial-gradient(ellipse at 100% 100%, rgba(116,198,255,0.18), transparent 42%),
+        linear-gradient(145deg, rgba(255,255,255,0.54), rgba(220,239,253,0.30));
+      border-color: rgba(255,255,255,0.88);
+      box-shadow:
+        0 12px 30px rgba(48,86,128,0.11),
+        inset 0 1px 0 rgba(255,255,255,0.98),
+        inset 1px 0 0 rgba(255,255,255,0.44),
+        inset 0 -1px 0 rgba(88,137,188,0.10);
+    }
+
+    body.appearance-crystal button {
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    body.appearance-crystal button::before {
+      content: "";
+      position: absolute;
+      z-index: auto;
+      left: 8%;
+      right: 8%;
+      top: 1px;
+      height: 45%;
+      border-radius: 999px;
+      pointer-events: none;
+      background: linear-gradient(180deg, rgba(255,255,255,0.40), rgba(255,255,255,0.04));
+      filter: blur(0.2px);
+    }
+
+    body.appearance-crystal .btn-primary,
+    body.appearance-crystal .changelog-ok,
+    body.appearance-crystal #settingsDone {
+      background:
+        radial-gradient(ellipse at 24% 0%, rgba(255,255,255,0.48), transparent 34%),
+        linear-gradient(145deg, rgba(79,185,255,0.96), rgba(0,105,241,0.94));
+      box-shadow:
+        0 18px 38px rgba(0,101,220,0.29),
+        inset 0 1.5px 0 rgba(255,255,255,0.62),
+        inset 0 -2px 0 rgba(0,62,160,0.18);
+    }
+
+    body.appearance-crystal .settings-dialog,
+    body.appearance-crystal .notice-dialog,
+    body.appearance-crystal .confirm-dialog,
+    body.appearance-crystal .changelog-dialog {
+      background:
+        radial-gradient(ellipse at 8% 0%, rgba(255,255,255,0.86), transparent 34%),
+        radial-gradient(ellipse at 100% 100%, rgba(139,208,255,0.22), transparent 42%),
+        linear-gradient(145deg, rgba(252,254,255,0.70), rgba(218,238,253,0.48));
+      border: 1px solid rgba(255,255,255,0.92);
+      box-shadow:
+        0 34px 90px rgba(38,73,113,0.28),
+        inset 0 1.5px 0 #ffffff,
+        inset 1px 0 0 rgba(255,255,255,0.52),
+        inset 0 -1px 0 rgba(88,135,183,0.12);
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      body.appearance-crystal {
+        animation: glassAmbientFlow 18s ease-in-out infinite alternate;
+      }
+
+      body.appearance-crystal .shell::before {
+        animation: glassOrbOne 14s ease-in-out infinite alternate;
+      }
+
+      body.appearance-crystal .shell::after {
+        animation: glassOrbTwo 17s ease-in-out infinite alternate;
+      }
+    }
+
+    @keyframes glassAmbientFlow {
+      from { background-position: 0% 0%; }
+      to { background-position: 100% 70%; }
+    }
+
+    @keyframes glassOrbOne {
+      from { transform: translate3d(0, 0, 0) scale(1); }
+      to { transform: translate3d(38px, 54px, 0) scale(1.12); }
+    }
+
+    @keyframes glassOrbTwo {
+      from { transform: translate3d(0, 0, 0) scale(1.06); }
+      to { transform: translate3d(-42px, -48px, 0) scale(0.94); }
+    }
+
+    /* 玻璃风格精修：降低曝光、减少塑料高光并强化内容层级 */
+    body.appearance-crystal {
+      --text: #102943;
+      --muted: #526b85;
+      background:
+        radial-gradient(circle at 10% 3%, rgba(48, 151, 234, 0.50), transparent 30%),
+        radial-gradient(circle at 92% 14%, rgba(132, 112, 220, 0.24), transparent 30%),
+        radial-gradient(circle at 82% 90%, rgba(60, 190, 187, 0.27), transparent 34%),
+        linear-gradient(145deg, #badbf2 0%, #d8e8f6 48%, #cae6e5 100%);
+      background-size: 120% 120%;
+    }
+
+    body.appearance-crystal .shell::before,
+    body.appearance-crystal .shell::after {
+      opacity: 0.30;
+      filter: blur(34px);
+    }
+
+    body.appearance-crystal .card {
+      background:
+        linear-gradient(125deg, rgba(255,255,255,0.30), transparent 28%),
+        linear-gradient(145deg, rgba(239,248,254,0.60), rgba(210,231,245,0.45));
+      border-color: rgba(255,255,255,0.64);
+      box-shadow:
+        0 28px 68px rgba(36,71,108,0.22),
+        0 6px 20px rgba(54,102,150,0.10),
+        inset 0 1px 0 rgba(255,255,255,0.72),
+        inset 0 -1px 0 rgba(67,112,159,0.10);
+    }
+
+    body.appearance-crystal .card::before {
+      opacity: 0.48;
+    }
+
+    body.appearance-crystal .card::after {
+      opacity: 0.44;
+    }
+
+    body.appearance-crystal .subtitle,
+    body.appearance-crystal .label,
+    body.appearance-crystal .direction-label,
+    body.appearance-crystal .result-label,
+    body.appearance-crystal .result-tip,
+    body.appearance-crystal .history-sub,
+    body.appearance-crystal .history-top,
+    body.appearance-crystal .accum-hint,
+    body.appearance-crystal .settings-subtitle,
+    body.appearance-crystal .notice-subtitle,
+    body.appearance-crystal .settings-menu-sub,
+    body.appearance-crystal .notice-menu-sub,
+    body.appearance-crystal .settings-tip,
+    body.appearance-crystal .confirm-text {
+      color: #526b85;
+      text-shadow: none;
+    }
+
+    body.appearance-crystal .tabs,
+    body.appearance-crystal .direction-tabs {
+      background-image: none;
+      background-color: rgba(194, 218, 236, 0.48);
+      border-color: rgba(255,255,255,0.54);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.52), 0 8px 20px rgba(45,80,116,0.08);
+    }
+
+    body.appearance-crystal .tab.active,
+    body.appearance-crystal .direction-tab.active {
+      background: rgba(245, 251, 255, 0.72);
+      border-color: rgba(255,255,255,0.64);
+      box-shadow: 0 7px 18px rgba(42,80,120,0.13), inset 0 1px 0 rgba(255,255,255,0.76);
+    }
+
+    body.appearance-crystal .time-box,
+    body.appearance-crystal .date-box,
+    body.appearance-crystal .mini-box {
+      background-image: none;
+      background-color: rgba(225, 239, 248, 0.68);
+      border-color: rgba(255,255,255,0.58);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.66), 0 8px 20px rgba(43,78,113,0.08);
+    }
+
+    body.appearance-crystal .time-num,
+    body.appearance-crystal .date-num,
+    body.appearance-crystal .mini-input,
+    body.appearance-crystal .native-picker,
+    body.appearance-crystal .colon,
+    body.appearance-crystal .date-sep {
+      color: #17324d;
+      text-shadow: none;
+    }
+
+    body.appearance-crystal button::before {
+      left: 14%;
+      right: 14%;
+      height: 24%;
+      opacity: 0.42;
+      background: linear-gradient(180deg, rgba(255,255,255,0.34), transparent);
+    }
+
+    body.appearance-crystal .btn-primary,
+    body.appearance-crystal .changelog-ok,
+    body.appearance-crystal #settingsDone {
+      background: linear-gradient(145deg, #42a8f5, #0877e8 62%, #0568d4);
+      border-color: rgba(255,255,255,0.40);
+      box-shadow: 0 14px 28px rgba(3,101,210,0.25), inset 0 1px 0 rgba(255,255,255,0.38);
+    }
+
+    body.appearance-crystal .btn-secondary,
+    body.appearance-crystal .confirm-cancel {
+      background: rgba(229, 239, 248, 0.70);
+      border-color: rgba(255,255,255,0.56);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.65), 0 7px 16px rgba(44,78,112,0.08);
+    }
+
+    body.appearance-crystal .result-box {
+      background-image: none;
+      background-color: rgba(207, 231, 248, 0.66);
+      border-color: rgba(255,255,255,0.62);
+      box-shadow: 0 15px 32px rgba(34,79,125,0.13), inset 0 1px 0 rgba(255,255,255,0.72);
+    }
+
+    body.appearance-crystal .result-value {
+      color: #075eb8;
+      text-shadow: 0 6px 18px rgba(14,91,172,0.11);
+    }
+
+    body.appearance-crystal .history,
+    body.appearance-crystal .settings-block,
+    body.appearance-crystal .notice-block {
+      background-image: none;
+      background-color: rgba(218, 233, 244, 0.70);
+      border-color: rgba(255,255,255,0.58);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.62), 0 9px 22px rgba(43,77,111,0.08);
+    }
+
+    body.appearance-crystal .history-item,
+    body.appearance-crystal .setting-option,
+    body.appearance-crystal .settings-menu-item,
+    body.appearance-crystal .notice-menu-item,
+    body.appearance-crystal .version-item {
+      background-image: none;
+      background-color: rgba(235, 245, 252, 0.68);
+      border-color: rgba(255,255,255,0.62);
+      box-shadow: 0 7px 18px rgba(42,75,108,0.08), inset 0 1px 0 rgba(255,255,255,0.66);
+    }
+
+    body.appearance-crystal .settings-dialog,
+    body.appearance-crystal .notice-dialog,
+    body.appearance-crystal .confirm-dialog,
+    body.appearance-crystal .changelog-dialog {
+      background:
+        linear-gradient(125deg, rgba(255,255,255,0.30), transparent 28%),
+        linear-gradient(145deg, rgba(239,248,254,0.80), rgba(207,229,244,0.70));
+      border-color: rgba(255,255,255,0.72);
+      box-shadow: 0 30px 75px rgba(34,68,105,0.25), inset 0 1px 0 rgba(255,255,255,0.78);
+    }
+
+    body.appearance-crystal .app-switch-btn,
+    body.appearance-crystal .settings-open,
+    body.appearance-crystal .settings-back,
+    body.appearance-crystal .notice-back,
+    body.appearance-crystal .notice-x,
+    body.appearance-crystal .changelog-never {
+      background: rgba(235, 245, 252, 0.72);
+      border-color: rgba(255,255,255,0.62);
+      box-shadow: 0 7px 17px rgba(42,76,111,0.10), inset 0 1px 0 rgba(255,255,255,0.70);
+    }

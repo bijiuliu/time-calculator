@@ -148,7 +148,7 @@
             if (saved.inputMode === "native" || saved.inputMode === "numeric") appSettings.inputMode = saved.inputMode;
             if (["time", "date", "remember"].indexOf(saved.defaultCalculator) !== -1) appSettings.defaultCalculator = saved.defaultCalculator;
             if (["diff", "shift", "remember"].indexOf(saved.defaultMode) !== -1) appSettings.defaultMode = saved.defaultMode;
-            if (["light", "dark", "system"].indexOf(saved.appearance) !== -1) appSettings.appearance = saved.appearance;
+            if (["light", "dark", "system", "crystal"].indexOf(saved.appearance) !== -1) appSettings.appearance = saved.appearance;
             if (["standard", "compact"].indexOf(saved.density) !== -1) appSettings.density = saved.density;
             if (["on", "off"].indexOf(saved.accumulation) !== -1) appSettings.accumulation = saved.accumulation;
             if (["on", "off"].indexOf(saved.vibration) !== -1) appSettings.vibration = saved.vibration;
@@ -588,7 +588,7 @@
       function applyAppearanceSettings() {
         document.body.classList.remove("theme-green", "theme-purple", "theme-orange");
 
-        document.body.classList.remove("appearance-light", "appearance-dark", "appearance-system", "system-dark");
+        document.body.classList.remove("appearance-light", "appearance-dark", "appearance-system", "appearance-crystal", "system-dark");
         document.body.classList.add("appearance-" + appSettings.appearance);
         updateSystemAppearanceClass();
 
