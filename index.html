@@ -5,14 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>时间计算器 Pro</title>
   <!-- 拆分版：页面结构在这里，样式在 css/style.css，逻辑在 js/app.js -->
-  <link rel="stylesheet" href="./css/style.css?v=1.3.0">
+  <link rel="stylesheet" href="./css/style.css?v=1.5.0">
 </head>
 <body>
+  <script>
+    (function () {
+      var body = document.body;
+      try {
+        var saved = JSON.parse(localStorage.getItem("calculatorSettingsV1") || "{}");
+        var allowed = ["light", "dark", "system", "crystal"];
+        var appearance = allowed.indexOf(saved.appearance) !== -1 ? saved.appearance : "light";
+        body.classList.add("appearance-" + appearance);
+        if (saved.density === "compact") body.classList.add("density-compact");
+        if (appearance === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          body.classList.add("system-dark");
+        }
+      } catch (error) {
+        body.classList.add("appearance-light");
+      }
+    })();
+  </script>
   <main class="shell">
     <section class="card">
       <div class="app-switch-wrap"><button id="appSwitchBtn" class="app-switch-btn" type="button">日期计算器</button></div>
       <div class="top-actions">
-      <button id="settingsBtn" class="notice-open settings-open" type="button" aria-label="设置" title="设置">⚙</button>
+      <button id="settingsBtn" class="notice-open settings-open" type="button" aria-label="设置" title="设置">
+        <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.09a2 2 0 0 1 1 1.74v.5a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+      </button>
       <button id="noticeBtn" class="notice-open" type="button">公告</button>
     </div>
     <section id="timeCalculatorPanel" class="calculator-panel active">
@@ -261,7 +283,7 @@
                 <label class="setting-option"><input type="radio" name="settingAppearance" value="light">浅色</label>
                 <label class="setting-option"><input type="radio" name="settingAppearance" value="dark">深色</label>
                 <label class="setting-option"><input type="radio" name="settingAppearance" value="system">跟随系统</label>
-                <label class="setting-option"><input type="radio" name="settingAppearance" value="crystal">玻璃风格</label>
+                <label class="setting-option"><input type="radio" name="settingAppearance" value="crystal">立体风格</label>
               </div>
             </div>
 
@@ -342,17 +364,19 @@
       <div class="changelog-header">
         <div>
           <h2 id="changelogTitle" class="changelog-title">更新日志</h2>
-          <div id="changelogVersion" class="changelog-version">v1.4.0</div>
+          <div id="changelogVersion" class="changelog-version">v1.5.0</div>
         </div>
         <button id="changelogNever" class="changelog-never" type="button">不再弹窗</button>
       </div>
 
       <div class="changelog-content">
         <ul class="changelog-list">
-          <li>设置页与公告页界面高度调整</li>
-          <li>快速返回滚动问题修复</li>
-          <li>加入页面切换动效</li>
-          <li>输入框可按空格输入下一项</li>
+          <li class="changelog-feature-action">
+            <span>新增</span>
+            <button id="changelogCrystalBtn" class="changelog-crystal-btn" type="button" aria-pressed="false">立体风格外观</button>
+          </li>
+          <li>优化按钮点击动效</li>
+          <li>新增历史记录卡片删除动效</li>
         </ul>
       </div>
 
@@ -516,7 +540,7 @@
 
           <section class="notice-block">
             <h3>二、外观设置</h3>
-            <p>支持浅色、深色、跟随系统和玻璃风格四种显示模式，也支持标准和紧凑两种界面密度。</p>
+            <p>支持浅色、深色、跟随系统和立体风格四种显示模式，也支持标准和紧凑两种界面密度。</p>
           </section>
 
           <section class="notice-block">
@@ -597,6 +621,15 @@
 
             <div class="version-accordion">
               <details class="version-item">
+                <summary>v1.5.0</summary>
+                <ul class="notice-list">
+                  <li>新增立体风格外观</li>
+                  <li>优化按钮点击动效</li>
+                  <li>新增历史记录卡片删除动效</li>
+                </ul>
+              </details>
+
+              <details class="version-item">
                 <summary>v1.4.0</summary>
                 <ul class="notice-list">
                   <li>设置页与公告页界面高度调整</li>
@@ -657,6 +690,6 @@
     </div>
   </div>
 
-  <script src="./js/app.js?v=1.3.0"></script>
+  <script src="./js/app.js?v=1.5.0"></script>
 </body>
 </html>

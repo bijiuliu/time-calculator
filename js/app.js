@@ -6,7 +6,7 @@
       var DATE_STORAGE_KEY = "dateCalculatorHistoryV1";
       var INPUT_MODE_KEY = "calculatorInputModeV1";
       var SETTINGS_KEY = "calculatorSettingsV1";
-      var APP_VERSION = "v1.4.0";
+      var APP_VERSION = "v1.5.0";
       var CHANGELOG_SEEN_VERSION_KEY = "calculatorChangelogSeenVersionV1";
       var LAST_CALCULATOR_KEY = "calculatorLastCalculatorV1";
       var LAST_MODE_KEY = "calculatorLastModeV1";
@@ -1016,7 +1016,21 @@
           .replaceAll("'", "&#039;");
       }
 
-      function renderResult() {
+      function animateResultDisplay(boxId, valueOnly) {
+        var box = el(boxId);
+        if (!box || !document.body.classList.contains("appearance-crystal")) return;
+        if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        var animationClass = valueOnly ? "result-value-updating" : "result-animating";
+        box.classList.remove("result-animating", "result-value-updating");
+        void box.offsetWidth;
+        box.classList.add(animationClass);
+        window.clearTimeout(box._resultAnimationTimer);
+        box._resultAnimationTimer = window.setTimeout(function () {
+          box.classList.remove("result-animating", "result-value-updating");
+        }, valueOnly ? 210 : 380);
+      }
+
+      function renderResult(valueOnly) {
         if (!currentResult) {
           el("resultValue").innerText = "结果会显示在这里";
           el("resultTip").innerText = activeTab === "diff"
@@ -1038,6 +1052,7 @@
             currentResult.baseTime + " " + currentResult.directionText + " " +
             formatHM(currentResult.shiftTotal) + " = " + currentResult.resultTime + "，再点计算可继续累计";
         }
+        animateResultDisplay("resultBox", !!valueOnly);
       }
 
       function setMessage(main, tip) {
@@ -1115,8 +1130,57 @@
         document.body.removeChild(textarea);
       }
 
-      function deleteHistoryItem(index) {
+      function animateHistoryRemoval(btn, onDone) {
+        var item = btn && btn.closest(".history-item");
+        if (!item || item.classList.contains("history-removing")) return;
+
+        var list = item.parentElement;
+        var listButtons = list ? list.querySelectorAll(".history-action-btn") : [];
+        listButtons.forEach(function (node) { node.disabled = true; });
+
+        var reduceMotion = window.matchMedia &&
+          window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var isCrystal = document.body.classList.contains("appearance-crystal");
+        var duration = reduceMotion ? 120 : (isCrystal ? 420 : 380);
+        var finished = false;
+
+        function finish() {
+          if (finished) return;
+          finished = true;
+          onDone();
+        }
+
+        item.style.height = item.offsetHeight + "px";
+        item.style.boxSizing = "border-box";
+        item.classList.add("history-removing");
+        void item.offsetHeight;
+
+        requestAnimationFrame(function () {
+          item.classList.add("history-removing-active");
+          item.classList.add("history-collapsing");
+          item.style.height = "0px";
+          if (item.previousElementSibling) {
+            item.style.marginTop = "0px";
+          } else if (item.nextElementSibling) {
+            item.style.marginBottom = "-10px";
+          }
+        });
+
+        window.setTimeout(finish, duration + 30);
+      }
+
+      function deleteHistoryItem(index, timestamp) {
         var history = loadHistory();
+        if (timestamp) {
+          var matchedIndex = history.findIndex(function (item) {
+            return String(item.timestamp) === String(timestamp);
+          });
+          if (matchedIndex !== -1) index = matchedIndex;
+        }
+        if (index < 0 || index >= history.length) {
+          renderHistory();
+          return;
+        }
         history.splice(index, 1);
         saveHistory(history);
         renderHistory();
@@ -1162,7 +1226,7 @@
             copyText = main + "\n" + sub;
           }
 
-          return '<li class="history-item">' +
+          return '<li class="history-item" data-history-key="' + escapeHtml(item.timestamp) + '" data-timestamp="' + escapeHtml(item.timestamp) + '">' +
             '<div class="history-top"><span>记录 ' + (history.length - index) + '</span><span>' +
             escapeHtml(formatNow(item.timestamp)) + '</span></div>' +
             '<div class="history-main">' + escapeHtml(main) + '</div>' +
@@ -1228,7 +1292,7 @@
       }
       function dateDiffDays(a,b){return Math.round((Date.UTC(b.getFullYear(),b.getMonth(),b.getDate())-Date.UTC(a.getFullYear(),a.getMonth(),a.getDate()))/86400000);}
       function addDays(d,days){var r=new Date(d.getFullYear(),d.getMonth(),d.getDate());r.setDate(r.getDate()+days);return r;}
-      function renderDateResult(){if(!currentDateResult){el("dateResultValue").innerText="结果会显示在这里";el("dateResultTip").innerText=activeDateTab==="diff"?"日期差会显示相差天数":"示例：2026年6月10日 前移7天 = 2026年6月3日";return;}if(currentDateResult.type==="dateDiff"){el("dateResultValue").innerText=currentDateResult.days+"天";el("dateResultTip").innerText=currentDateResult.start+" 到 "+currentDateResult.end;}else{el("dateResultValue").innerText=currentDateResult.resultDate;el("dateResultTip").innerText=currentDateResult.baseDate+" "+currentDateResult.directionText+currentDateResult.days+"天 = "+currentDateResult.resultDate+"，再点计算可继续累计";}}
+      function renderDateResult(){if(!currentDateResult){el("dateResultValue").innerText="结果会显示在这里";el("dateResultTip").innerText=activeDateTab==="diff"?"日期差会显示相差天数":"示例：2026年6月10日 前移7天 = 2026年6月3日";return;}if(currentDateResult.type==="dateDiff"){el("dateResultValue").innerText=currentDateResult.days+"天";el("dateResultTip").innerText=currentDateResult.start+" 到 "+currentDateResult.end;}else{el("dateResultValue").innerText=currentDateResult.resultDate;el("dateResultTip").innerText=currentDateResult.baseDate+" "+currentDateResult.directionText+currentDateResult.days+"天 = "+currentDateResult.resultDate+"，再点计算可继续累计";}animateResultDisplay("dateResultBox");}
       function loadDateHistory(){try{var d=JSON.parse(localStorage.getItem(DATE_STORAGE_KEY)||"[]");return Array.isArray(d)?d:[]}catch(e){return[]}}
       function saveDateHistory(h){localStorage.setItem(DATE_STORAGE_KEY,JSON.stringify(h));}
       function addDateHistory(r){
@@ -1243,14 +1307,14 @@
           showHistoryToast("date","已保留最近 "+limit+" 条，最早记录已移除");
         }
       }
-      function renderDateHistory(){var h=loadDateHistory(),list=el("dateHistoryList");if(!h.length){list.innerHTML='<li class="empty">暂无日期记录，先去算一条吧</li>';return;}list.innerHTML=h.map(function(item,index){var main="",sub="";if(item.type==="dateDiff"){main=item.start+" → "+item.end;sub="日期差："+item.days+"天";}else{main=item.baseDate+" "+item.directionText+item.days+"天";sub="结果日期："+item.resultDate;}var copy=main+"\n"+sub;return '<li class="history-item"><div class="history-top"><span>记录 '+(h.length-index)+'</span><span>'+escapeHtml(formatNow(item.timestamp))+'</span></div><div class="history-main">'+escapeHtml(main)+'</div><div class="history-sub">'+escapeHtml(sub)+'</div><div class="history-actions"><button class="history-action-btn history-copy-btn" type="button" data-action="copy" data-text="'+escapeHtml(copy)+'">复制</button><button class="history-action-btn history-delete-btn" type="button" data-action="delete-date" data-index="'+index+'">删除</button></div></li>';}).join("");}
+      function renderDateHistory(){var h=loadDateHistory(),list=el("dateHistoryList");if(!h.length){list.innerHTML='<li class="empty">暂无日期记录，先去算一条吧</li>';return;}list.innerHTML=h.map(function(item,index){var main="",sub="";if(item.type==="dateDiff"){main=item.start+" → "+item.end;sub="日期差："+item.days+"天";}else{main=item.baseDate+" "+item.directionText+item.days+"天";sub="结果日期："+item.resultDate;}var copy=main+"\n"+sub;return '<li class="history-item" data-history-key="'+escapeHtml(item.timestamp)+'"><div class="history-top"><span>记录 '+(h.length-index)+'</span><span>'+escapeHtml(formatNow(item.timestamp))+'</span></div><div class="history-main">'+escapeHtml(main)+'</div><div class="history-sub">'+escapeHtml(sub)+'</div><div class="history-actions"><button class="history-action-btn history-copy-btn" type="button" data-action="copy" data-text="'+escapeHtml(copy)+'">复制</button><button class="history-action-btn history-delete-btn" type="button" data-action="delete-date" data-index="'+index+'">删除</button></div></li>';}).join("");}
       function calcDateDiff(){var s=getDateInput("dateStartY","dateStartM","dateStartD","开始日期"),e=getDateInput("dateEndY","dateEndM","dateEndD","结束日期");if(!s.ok)return setDateMessage(s.msg,"例如填写 2026 年 06 月 10 日");if(!e.ok)return setDateMessage(e.msg,"例如填写 2026 年 06 月 20 日");var diff=dateDiffDays(s.date,e.date),rev=diff<0;currentDateResult={type:"dateDiff",start:rev?e.text:s.text,end:rev?s.text:e.text,days:Math.abs(diff),timestamp:Date.now()};renderDateResult();addDateHistory(currentDateResult);}
       function calcDateShift(){var b=getDateInput("dateBaseY","dateBaseM","dateBaseD","基准日期");if(!b.ok)return setDateMessage(b.msg,"例如填写 2026 年 06 月 10 日");var days=Number(el("dateShiftDays").value||0);if(days<=0)return setDateMessage("请输入前移/后退天数","例如 7 天 或 30 天");var dir=el("dateDirection").value,txt=dir==="back"?"前移":"后退",res=addDays(b.date,dir==="back"?-days:days),rt=formatDate(res);currentDateResult={type:"dateShift",baseDate:b.text,directionText:txt,days:days,resultDate:rt,timestamp:Date.now()};renderDateResult();addDateHistory(currentDateResult);var hint=el("dateAccumHint");if(appSettings.accumulation!=="off"){dateToInput(res,"dateBaseY","dateBaseM","dateBaseD");if(hint)hint.innerText="已自动把基准日期更新为 "+rt+"，再点计算会继续累计";}else if(hint){hint.innerText="连续累计已关闭：基准日期保持为 "+b.text;}}
       function resetDateDiff(){["dateStartY","dateStartM","dateStartD","dateEndY","dateEndM","dateEndD","dateStartNative","dateEndNative"].forEach(function(id){el(id).value=""});currentDateResult=null;renderDateResult();}
       function resetDateShift(){["dateBaseY","dateBaseM","dateBaseD","dateShiftDays","dateBaseNative"].forEach(function(id){el(id).value=""});currentDateResult=null;updateAccumulationHints();renderDateResult();}
       function clearAllDateHistory(){if(!loadDateHistory().length)return setDateMessage("暂无日期记录可清空","先去算一条吧");openClearConfirm("date");}
       function doClearDateHistory(){localStorage.removeItem(DATE_STORAGE_KEY);renderDateHistory();setDateMessage("已清空全部日期记录","日期记录已删除");}
-      function deleteDateHistoryItem(index){var h=loadDateHistory();h.splice(index,1);saveDateHistory(h);renderDateHistory();setDateMessage("已删除该条日期记录","日期记录已更新");}
+      function deleteDateHistoryItem(index){var h=loadDateHistory();if(index<0||index>=h.length){renderDateHistory();return;}h.splice(index,1);saveDateHistory(h);renderDateHistory();setDateMessage("已删除该条日期记录","日期记录已更新");}
 
       function calcDiff() {
         var start = getTime("startH", "startM", "开始时间");
@@ -1387,6 +1451,7 @@
       function openChangelog() {
         if (!el("changelogOverlay")) return;
         el("changelogVersion").innerText = APP_VERSION;
+        syncChangelogCrystalButton();
         el("changelogOverlay").classList.add("show");
         el("changelogOverlay").setAttribute("aria-hidden", "false");
         document.body.classList.add("notice-lock");
@@ -1408,6 +1473,24 @@
         localStorage.setItem(CHANGELOG_SEEN_VERSION_KEY, APP_VERSION);
         syncSettingsForm();
         closeChangelog(false);
+      }
+
+      function syncChangelogCrystalButton() {
+        var button = el("changelogCrystalBtn");
+        if (!button) return;
+        var enabled = appSettings.appearance === "crystal";
+        button.classList.toggle("applied", enabled);
+        button.setAttribute("aria-pressed", enabled ? "true" : "false");
+        button.innerText = enabled ? "立体风格已启用" : "立体风格外观";
+      }
+
+      function applyCrystalFromChangelog() {
+        appSettings.appearance = "crystal";
+        if (pendingSettings) pendingSettings.appearance = "crystal";
+        saveSettings();
+        applyAppearanceSettings();
+        syncSettingsForm();
+        syncChangelogCrystalButton();
       }
 
       function showChangelogOnStartup() {
@@ -1628,20 +1711,32 @@
 
         el("historyList").addEventListener("click", function (e) {
           var btn = e.target.closest(".history-action-btn"); if (!btn) return;
+          if (btn.disabled) return;
           e.preventDefault(); e.stopPropagation(); var action = btn.getAttribute("data-action");
           if (action === "copy") return copyText(btn.getAttribute("data-text") || "", btn);
-          if (action === "delete") deleteHistoryItem(Number(btn.getAttribute("data-index")));
+          if (action === "delete") {
+            var historyItem = btn.closest(".history-item");
+            var timestamp = historyItem ? historyItem.getAttribute("data-timestamp") : "";
+            animateHistoryRemoval(btn, function () {
+              deleteHistoryItem(Number(btn.getAttribute("data-index")), timestamp);
+            });
+          }
         });
         el("dateHistoryList").addEventListener("click", function (e) {
           var btn = e.target.closest(".history-action-btn"); if (!btn) return;
+          if (btn.disabled) return;
           e.preventDefault(); e.stopPropagation(); var action = btn.getAttribute("data-action");
           if (action === "copy") return copyText(btn.getAttribute("data-text") || "", btn);
-          if (action === "delete-date") deleteDateHistoryItem(Number(btn.getAttribute("data-index")));
+          if (action === "delete-date") {
+            animateHistoryRemoval(btn, function () {
+              deleteDateHistoryItem(Number(btn.getAttribute("data-index")));
+            });
+          }
         });
 bindTap(el("resultBox"), function () {
           if (!currentResult || currentResult.type !== "diff") return;
           displayMode = displayMode === "hm" ? "minutes" : "hm";
-          renderResult();
+          renderResult(true);
         });
 
         document.addEventListener("keydown", function (e) {
@@ -1660,6 +1755,19 @@ bindTap(el("resultBox"), function () {
           if (e.key === "Escape" && el("noticeOverlay").classList.contains("show")) {
             closeNotice();
           }
+        });
+
+        document.addEventListener("click", function (e) {
+          if (!document.body.classList.contains("appearance-crystal")) return;
+          var button = e.target.closest("button");
+          if (!button || button.disabled) return;
+          if (!button.matches(".btn-primary, .changelog-ok, .notice-ok, .confirm-ok, #settingsDone")) return;
+          button.classList.remove("stereo-clicked");
+          void button.offsetWidth;
+          button.classList.add("stereo-clicked");
+          window.setTimeout(function () {
+            button.classList.remove("stereo-clicked");
+          }, 420);
         });
 
 
@@ -1699,6 +1807,8 @@ bindTap(el("resultBox"), function () {
           e.stopPropagation();
           disableChangelogPopupFromDialog();
         };
+
+        bindTap(el("changelogCrystalBtn"), applyCrystalFromChangelog);
 
         el("clearConfirmOverlay").onclick = function (e) {
           if (e.target === el("clearConfirmOverlay")) {
