@@ -3478,3 +3478,93 @@ body.appearance-system.system-dark .history-copy-btn.copied {
         transform: none;
       }
     }
+
+    /* Mobile-only experience refinements; desktop presentation remains unchanged. */
+    @media (max-width: 640px) {
+      .settings-open {
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+      }
+
+      .settings-icon {
+        width: 25px;
+        height: 25px;
+        stroke-width: 2.2;
+      }
+
+      body.appearance-crystal .settings-overlay,
+      body.appearance-crystal .notice-overlay,
+      body.appearance-crystal .confirm-overlay,
+      body.appearance-crystal .changelog-overlay {
+        background: rgba(55, 78, 103, 0.46);
+      }
+
+      body.appearance-crystal .settings-dialog,
+      body.appearance-crystal .notice-dialog,
+      body.appearance-crystal .confirm-dialog,
+      body.appearance-crystal .changelog-dialog {
+        background:
+          linear-gradient(125deg, rgba(255, 255, 255, 0.52), transparent 30%),
+          linear-gradient(145deg, rgba(244, 250, 255, 0.97), rgba(218, 235, 248, 0.95));
+      }
+
+      body.appearance-crystal .settings-menu-item,
+      body.appearance-crystal .notice-menu-item,
+      body.appearance-crystal .setting-option,
+      body.appearance-crystal .version-item {
+        background-color: rgba(241, 248, 253, 0.94);
+      }
+
+      .history-item.history-removing,
+      body.appearance-crystal .history-item.history-removing {
+        contain: paint;
+        backface-visibility: hidden;
+        will-change: transform, opacity;
+        transition:
+          transform 360ms cubic-bezier(0.20, 0.68, 0.24, 1),
+          opacity 300ms ease-out,
+          height 360ms cubic-bezier(0.22, 0.72, 0.24, 1),
+          margin-top 360ms cubic-bezier(0.22, 0.72, 0.24, 1),
+          margin-bottom 360ms cubic-bezier(0.22, 0.72, 0.24, 1);
+      }
+
+      body.appearance-crystal .history-item.history-removing {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background-image: none;
+      }
+
+      .history-item.history-removing-active {
+        transform: translate3d(-64px, 0, 0) scale(0.985);
+      }
+
+      body.appearance-crystal .history-item.history-removing-active {
+        transform: translate3d(-76px, 0, 0) scale(0.98);
+        box-shadow:
+          0 9px 22px rgba(45, 82, 118, 0.10),
+          inset 0 1px 0 rgba(255, 255, 255, 0.92);
+      }
+
+      .history-item.history-collapsing {
+        padding-top: 13px;
+        padding-bottom: 13px;
+        border-width: 1px;
+      }
+    }
+
+    @media (max-width: 640px) and (prefers-reduced-motion: reduce) {
+      .history-item.history-removing,
+      body.appearance-crystal .history-item.history-removing {
+        transition:
+          opacity 90ms linear,
+          height 120ms linear,
+          margin-top 120ms linear,
+          margin-bottom 120ms linear;
+      }
+
+      .history-item.history-removing-active,
+      body.appearance-crystal .history-item.history-removing-active {
+        transform: none;
+      }
+    }

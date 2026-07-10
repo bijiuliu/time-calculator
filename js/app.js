@@ -1141,7 +1141,9 @@
         var reduceMotion = window.matchMedia &&
           window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         var isCrystal = document.body.classList.contains("appearance-crystal");
-        var duration = reduceMotion ? 120 : (isCrystal ? 420 : 380);
+        var isMobile = window.matchMedia &&
+          window.matchMedia("(max-width: 640px)").matches;
+        var duration = reduceMotion ? 120 : (isMobile ? 360 : (isCrystal ? 420 : 380));
         var finished = false;
 
         function finish() {
@@ -1771,17 +1773,8 @@ bindTap(el("resultBox"), function () {
         });
 
 
-        el("noticeBtn").onclick = function (e) {
-          e.preventDefault();
-          e.stopPropagation();
-          openNotice();
-        };
-
-        el("noticeClose").onclick = function (e) {
-          e.preventDefault();
-          e.stopPropagation();
-          closeNotice();
-        };
+        bindTap(el("noticeBtn"), openNotice);
+        bindTap(el("noticeClose"), closeNotice);
 
         el("noticeOk").onclick = function (e) {
           e.preventDefault();
@@ -1796,17 +1789,11 @@ bindTap(el("resultBox"), function () {
           });
         });
 
-        el("changelogOk").onclick = function (e) {
-          e.preventDefault();
-          e.stopPropagation();
+        bindTap(el("changelogOk"), function () {
           closeChangelog(true);
-        };
+        });
 
-        el("changelogNever").onclick = function (e) {
-          e.preventDefault();
-          e.stopPropagation();
-          disableChangelogPopupFromDialog();
-        };
+        bindTap(el("changelogNever"), disableChangelogPopupFromDialog);
 
         bindTap(el("changelogCrystalBtn"), applyCrystalFromChangelog);
 
