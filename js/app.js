@@ -1733,7 +1733,7 @@
           }
           button.classList.add("mobile-press-releasing");
           clearReleaseTimer(button);
-          var releaseDuration = kind === "primary" ? 110 : (kind === "icon" ? 70 : 85);
+          var releaseDuration = kind === "primary" ? 140 : (kind === "icon" ? 100 : 115);
           releaseTimers.set(button, window.setTimeout(function () {
             button.classList.remove("mobile-press-releasing", "mobile-press-primary", "mobile-press-secondary", "mobile-press-icon");
             releaseTimers.delete(button);
