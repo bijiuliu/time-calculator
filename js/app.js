@@ -1709,7 +1709,7 @@
           if (button.matches(".btn-primary, #settingsDone, .notice-ok, .changelog-ok, .confirm-ok")) {
             return "primary";
           }
-          if (button.matches(".settings-open, #noticeBtn, .notice-x, .settings-back, .notice-back, .clear-btn")) {
+          if (button.matches(".settings-open, #noticeBtn, .notice-x, .settings-back, .notice-back")) {
             return "icon";
           }
           return "secondary";
@@ -1733,7 +1733,7 @@
           }
           button.classList.add("mobile-press-releasing");
           clearReleaseTimer(button);
-          var releaseDuration = kind === "primary" ? 140 : (kind === "icon" ? 100 : 115);
+          var releaseDuration = kind === "primary" ? 220 : (kind === "icon" ? 150 : 180);
           releaseTimers.set(button, window.setTimeout(function () {
             button.classList.remove("mobile-press-releasing", "mobile-press-primary", "mobile-press-secondary", "mobile-press-icon");
             releaseTimers.delete(button);
