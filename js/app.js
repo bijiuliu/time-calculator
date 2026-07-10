@@ -33,6 +33,7 @@
       var historyToastTimer = null;
       var dateHistoryToastTimer = null;
       var copyFeedbackTimers = new WeakMap();
+      var historyClearAnimating = { time: false, date: false };
 
       function el(id) { return document.getElementById(id); }
       function pad(n) { return String(n).padStart(2, "0"); }
@@ -1189,7 +1190,55 @@
         setMessage("已删除该条记录", "历史记录已更新");
       }
 
+      function animateClearHistory(type, onDone) {
+        if (historyClearAnimating[type]) return;
+
+        var list = el(type === "date" ? "dateHistoryList" : "historyList");
+        var items = list ? Array.prototype.slice.call(list.querySelectorAll(".history-item")) : [];
+        var reduceMotion = window.matchMedia &&
+          window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        if (!items.length || reduceMotion) {
+          onDone();
+          return;
+        }
+
+        historyClearAnimating[type] = true;
+        var isCrystal = document.body.classList.contains("appearance-crystal");
+        var duration = isCrystal ? 280 : 250;
+        var stagger = 60;
+
+        items.forEach(function (item, index) {
+          item.querySelectorAll(".history-action-btn").forEach(function (button) {
+            button.disabled = true;
+          });
+
+          window.setTimeout(function () {
+            item.style.height = item.offsetHeight + "px";
+            item.style.boxSizing = "border-box";
+            item.classList.add("history-clear-removing");
+            void item.offsetHeight;
+
+            requestAnimationFrame(function () {
+              item.classList.add("history-clear-removing-active", "history-clear-collapsing");
+              item.style.height = "0px";
+              if (item.previousElementSibling) {
+                item.style.marginTop = "0px";
+              } else if (item.nextElementSibling) {
+                item.style.marginBottom = "-10px";
+              }
+            });
+          }, index * stagger);
+        });
+
+        window.setTimeout(function () {
+          historyClearAnimating[type] = false;
+          onDone();
+        }, (items.length - 1) * stagger + duration + 40);
+      }
+
       function clearAllHistory() {
+        if (historyClearAnimating.time) return;
         if (!loadHistory().length) {
           setMessage("暂无记录可清空", "先去算一条吧");
           return;
@@ -1314,7 +1363,7 @@
       function calcDateShift(){var b=getDateInput("dateBaseY","dateBaseM","dateBaseD","基准日期");if(!b.ok)return setDateMessage(b.msg,"例如填写 2026 年 06 月 10 日");var days=Number(el("dateShiftDays").value||0);if(days<=0)return setDateMessage("请输入前移/后退天数","例如 7 天 或 30 天");var dir=el("dateDirection").value,txt=dir==="back"?"前移":"后退",res=addDays(b.date,dir==="back"?-days:days),rt=formatDate(res);currentDateResult={type:"dateShift",baseDate:b.text,directionText:txt,days:days,resultDate:rt,timestamp:Date.now()};renderDateResult();addDateHistory(currentDateResult);var hint=el("dateAccumHint");if(appSettings.accumulation!=="off"){dateToInput(res,"dateBaseY","dateBaseM","dateBaseD");if(hint)hint.innerText="已自动把基准日期更新为 "+rt+"，再点计算会继续累计";}else if(hint){hint.innerText="连续累计已关闭：基准日期保持为 "+b.text;}}
       function resetDateDiff(){["dateStartY","dateStartM","dateStartD","dateEndY","dateEndM","dateEndD","dateStartNative","dateEndNative"].forEach(function(id){el(id).value=""});currentDateResult=null;renderDateResult();}
       function resetDateShift(){["dateBaseY","dateBaseM","dateBaseD","dateShiftDays","dateBaseNative"].forEach(function(id){el(id).value=""});currentDateResult=null;updateAccumulationHints();renderDateResult();}
-      function clearAllDateHistory(){if(!loadDateHistory().length)return setDateMessage("暂无日期记录可清空","先去算一条吧");openClearConfirm("date");}
+      function clearAllDateHistory(){if(historyClearAnimating.date)return;if(!loadDateHistory().length)return setDateMessage("暂无日期记录可清空","先去算一条吧");openClearConfirm("date");}
       function doClearDateHistory(){localStorage.removeItem(DATE_STORAGE_KEY);renderDateHistory();setDateMessage("已清空全部日期记录","日期记录已删除");}
       function deleteDateHistoryItem(index){var h=loadDateHistory();if(index<0||index>=h.length){renderDateHistory();return;}h.splice(index,1);saveDateHistory(h);renderDateHistory();setDateMessage("已删除该条日期记录","日期记录已更新");}
 
@@ -1477,17 +1526,11 @@
         closeChangelog(false);
       }
 
-      function suppressMobileGhostClick(pointerEvent) {
-        var isMobile = window.matchMedia &&
-          window.matchMedia("(max-width: 640px)").matches;
-        if (!isMobile || !pointerEvent) return;
+      function suppressGhostClick(pointerEvent) {
+        if (!pointerEvent) return;
 
-        var x = pointerEvent.clientX;
-        var y = pointerEvent.clientY;
         var removeGuard;
         var guard = function (e) {
-          var nearOriginalTap = Math.abs(e.clientX - x) < 24 && Math.abs(e.clientY - y) < 24;
-          if (!nearOriginalTap) return;
           e.preventDefault();
           e.stopImmediatePropagation();
           removeGuard();
@@ -1585,9 +1628,9 @@
         var type = el("clearConfirmType").value;
         closeClearConfirm();
         if (type === "date") {
-          doClearDateHistory();
+          animateClearHistory("date", doClearDateHistory);
         } else {
-          doClearHistory();
+          animateClearHistory("time", doClearHistory);
         }
       }
 
@@ -1663,6 +1706,15 @@
         });
       }
 
+      function bindDialogClickAction(node, action) {
+        if (!node) return;
+        node.onclick = function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          action();
+        };
+      }
+
       document.addEventListener("DOMContentLoaded", function () {
         loadSettings();
         applyAppearanceSettings();
@@ -1685,10 +1737,7 @@
         bindSpaceAdvance(el("shiftH"), "shiftM");
 
         bindTap(el("settingsBtn"), openSettings);
-        bindTap(el("settingsClose"), function (e) {
-          suppressMobileGhostClick(e);
-          closeSettings();
-        });
+        bindTap(el("settingsClose"), closeSettings);
         bindTap(el("settingsDone"), applySettingsFromPending);
         bindTap(el("settingsReset"), resetSettings);
         bindTap(el("settingsBack"), function () { showSettingsPage("main"); });
@@ -1724,7 +1773,10 @@
         bindTap(el("resetDateDiffBtn"), resetDateDiff);
         bindTap(el("calcDateShiftBtn"), calcDateShift);
         bindTap(el("resetDateShiftBtn"), resetDateShift);
-        bindTap(el("clearDateHistoryBtn"), clearAllDateHistory);
+        bindTap(el("clearDateHistoryBtn"), function (e) {
+          suppressGhostClick(e);
+          clearAllDateHistory();
+        });
 
         bindTap(el("directionBack"), function () { setDirectionSync("back"); });
         bindTap(el("directionForward"), function () { setDirectionSync("forward"); });
@@ -1733,13 +1785,16 @@
         bindTap(el("resetDiffBtn"), resetDiff);
         bindTap(el("calcShiftBtn"), calcShift);
         bindTap(el("resetShiftBtn"), resetShift);
-        bindTap(el("clearHistoryBtn"), clearAllHistory);
+        bindTap(el("clearHistoryBtn"), function (e) {
+          suppressGhostClick(e);
+          clearAllHistory();
+        });
         bindTap(el("clearConfirmCancel"), function (e) {
-          suppressMobileGhostClick(e);
+          suppressGhostClick(e);
           closeClearConfirm();
         });
         bindTap(el("clearConfirmOk"), function (e) {
-          suppressMobileGhostClick(e);
+          suppressGhostClick(e);
           confirmClearRecords();
         });
 
@@ -1806,16 +1861,9 @@ bindTap(el("resultBox"), function () {
 
 
         bindTap(el("noticeBtn"), openNotice);
-        bindTap(el("noticeClose"), function (e) {
-          suppressMobileGhostClick(e);
-          closeNotice();
-        });
+        bindTap(el("noticeClose"), closeNotice);
 
-        el("noticeOk").onclick = function (e) {
-          e.preventDefault();
-          e.stopPropagation();
-          closeNotice();
-        };
+        bindDialogClickAction(el("noticeOk"), closeNotice);
 
         bindTap(el("noticeBack"), function () { showNoticePage("main"); });
         document.querySelectorAll("[data-notice-page]").forEach(function (node) {
@@ -1824,15 +1872,11 @@ bindTap(el("resultBox"), function () {
           });
         });
 
-        bindTap(el("changelogOk"), function (e) {
-          suppressMobileGhostClick(e);
+        bindDialogClickAction(el("changelogOk"), function () {
           closeChangelog(true);
         });
 
-        bindTap(el("changelogNever"), function (e) {
-          suppressMobileGhostClick(e);
-          disableChangelogPopupFromDialog();
-        });
+        bindDialogClickAction(el("changelogNever"), disableChangelogPopupFromDialog);
 
         bindTap(el("changelogCrystalBtn"), applyCrystalFromChangelog);
 
