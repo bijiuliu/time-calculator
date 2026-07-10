@@ -1363,7 +1363,7 @@
       function calcDateShift(){var b=getDateInput("dateBaseY","dateBaseM","dateBaseD","基准日期");if(!b.ok)return setDateMessage(b.msg,"例如填写 2026 年 06 月 10 日");var days=Number(el("dateShiftDays").value||0);if(days<=0)return setDateMessage("请输入前移/后退天数","例如 7 天 或 30 天");var dir=el("dateDirection").value,txt=dir==="back"?"前移":"后退",res=addDays(b.date,dir==="back"?-days:days),rt=formatDate(res);currentDateResult={type:"dateShift",baseDate:b.text,directionText:txt,days:days,resultDate:rt,timestamp:Date.now()};renderDateResult();addDateHistory(currentDateResult);var hint=el("dateAccumHint");if(appSettings.accumulation!=="off"){dateToInput(res,"dateBaseY","dateBaseM","dateBaseD");if(hint)hint.innerText="已自动把基准日期更新为 "+rt+"，再点计算会继续累计";}else if(hint){hint.innerText="连续累计已关闭：基准日期保持为 "+b.text;}}
       function resetDateDiff(){["dateStartY","dateStartM","dateStartD","dateEndY","dateEndM","dateEndD","dateStartNative","dateEndNative"].forEach(function(id){el(id).value=""});currentDateResult=null;renderDateResult();}
       function resetDateShift(){["dateBaseY","dateBaseM","dateBaseD","dateShiftDays","dateBaseNative"].forEach(function(id){el(id).value=""});currentDateResult=null;updateAccumulationHints();renderDateResult();}
-      function clearAllDateHistory(){if(historyClearAnimating.date)return;if(!loadDateHistory().length)return setDateMessage("暂无日期记录可清空","先去算一条吧");openClearConfirm("date");}
+      function clearAllDateHistory(){if(historyClearAnimating.date)return;if(!loadDateHistory().length)return setDateMessage("暂无记录可清空","先去算一条吧");openClearConfirm("date");}
       function doClearDateHistory(){localStorage.removeItem(DATE_STORAGE_KEY);renderDateHistory();setDateMessage("已清空全部日期记录","日期记录已删除");}
       function deleteDateHistoryItem(index){var h=loadDateHistory();if(index<0||index>=h.length){renderDateHistory();return;}h.splice(index,1);saveDateHistory(h);renderDateHistory();setDateMessage("已删除该条日期记录","日期记录已更新");}
 
@@ -1526,23 +1526,6 @@
         closeChangelog(false);
       }
 
-      function suppressGhostClick(pointerEvent) {
-        if (!pointerEvent) return;
-
-        var removeGuard;
-        var guard = function (e) {
-          e.preventDefault();
-          e.stopImmediatePropagation();
-          removeGuard();
-        };
-        removeGuard = function () {
-          document.removeEventListener("click", guard, true);
-        };
-
-        document.addEventListener("click", guard, true);
-        window.setTimeout(removeGuard, 350);
-      }
-
       function syncChangelogCrystalButton() {
         var button = el("changelogCrystalBtn");
         if (!button) return;
@@ -1657,6 +1640,7 @@
         var startTime = 0;
         var tracking = false;
         var moved = false;
+        var cancelClickUntil = 0;
         var MOVE_LIMIT = 10;
         var TIME_LIMIT = 900;
 
@@ -1681,6 +1665,7 @@
         node.addEventListener("pointercancel", function () {
           tracking = false;
           moved = false;
+          cancelClickUntil = Date.now() + 500;
         });
 
         node.addEventListener("pointerup", function (e) {
@@ -1693,17 +1678,104 @@
           tracking = false;
 
           if (moved || dx > MOVE_LIMIT || dy > MOVE_LIMIT || elapsed > TIME_LIMIT) {
+            cancelClickUntil = Date.now() + 500;
             return;
           }
+          cancelClickUntil = 0;
+        });
 
+        node.addEventListener("click", function (e) {
+          var isKeyboardOrProgrammatic = e.detail === 0;
+          if (!isKeyboardOrProgrammatic && Date.now() < cancelClickUntil) {
+            e.preventDefault();
+            e.stopPropagation();
+            cancelClickUntil = 0;
+            return;
+          }
+          cancelClickUntil = 0;
           fn(e);
         });
+      }
 
-        // 旧浏览器备用：如果不支持 PointerEvent，就用普通 click。
-        node.addEventListener("click", function () {
-          if (window.PointerEvent) return;
-          fn();
+      function bindMobilePressFeedback() {
+        var activePress = null;
+        var releaseTimers = new WeakMap();
+
+        function isMobileViewport() {
+          return window.matchMedia && window.matchMedia("(max-width: 640px)").matches;
+        }
+
+        function pressKind(button) {
+          if (button.matches(".btn-primary, #settingsDone, .notice-ok, .changelog-ok, .confirm-ok")) {
+            return "primary";
+          }
+          if (button.matches(".settings-open, #noticeBtn, .notice-x, .settings-back, .notice-back, .clear-btn")) {
+            return "icon";
+          }
+          return "secondary";
+        }
+
+        function clearReleaseTimer(button) {
+          var timer = releaseTimers.get(button);
+          if (timer) window.clearTimeout(timer);
+          releaseTimers.delete(button);
+        }
+
+        function finishPress(cancelled) {
+          if (!activePress) return;
+          var button = activePress.button;
+          var kind = activePress.kind;
+          activePress = null;
+          button.classList.remove("mobile-press-active");
+          if (cancelled) {
+            button.classList.remove("mobile-press-releasing", "mobile-press-primary", "mobile-press-secondary", "mobile-press-icon");
+            return;
+          }
+          button.classList.add("mobile-press-releasing");
+          clearReleaseTimer(button);
+          var releaseDuration = kind === "primary" ? 110 : (kind === "icon" ? 70 : 85);
+          releaseTimers.set(button, window.setTimeout(function () {
+            button.classList.remove("mobile-press-releasing", "mobile-press-primary", "mobile-press-secondary", "mobile-press-icon");
+            releaseTimers.delete(button);
+          }, releaseDuration + 30));
+        }
+
+        document.addEventListener("pointerdown", function (e) {
+          if (!isMobileViewport() || e.button !== 0) return;
+          var button = e.target.closest("button");
+          if (!button || button.disabled) return;
+          if (activePress) finishPress(true);
+          clearReleaseTimer(button);
+          button.classList.remove("mobile-press-releasing", "mobile-press-primary", "mobile-press-secondary", "mobile-press-icon");
+          var kind = pressKind(button);
+          button.classList.add("mobile-press-" + kind, "mobile-press-active");
+          activePress = {
+            button: button,
+            kind: kind,
+            pointerId: e.pointerId,
+            startX: e.clientX,
+            startY: e.clientY
+          };
         });
+
+        document.addEventListener("pointermove", function (e) {
+          if (!activePress || e.pointerId !== activePress.pointerId) return;
+          if (Math.abs(e.clientX - activePress.startX) > 10 || Math.abs(e.clientY - activePress.startY) > 10) {
+            finishPress(true);
+          }
+        });
+
+        document.addEventListener("pointerup", function (e) {
+          if (!activePress || e.pointerId !== activePress.pointerId) return;
+          finishPress(false);
+        });
+
+        document.addEventListener("pointercancel", function (e) {
+          if (!activePress || e.pointerId !== activePress.pointerId) return;
+          finishPress(true);
+        });
+
+        window.addEventListener("blur", function () { finishPress(true); });
       }
 
       function bindDialogClickAction(node, action) {
@@ -1718,6 +1790,7 @@
       document.addEventListener("DOMContentLoaded", function () {
         loadSettings();
         applyAppearanceSettings();
+        bindMobilePressFeedback();
         if (window.matchMedia) {
           var systemAppearanceQuery = window.matchMedia("(prefers-color-scheme: dark)");
           var onSystemAppearanceChange = function () { applyAppearanceSettings(); };
@@ -1736,8 +1809,8 @@
         clampInput(el("baseM"), 59, "shiftH");
         bindSpaceAdvance(el("shiftH"), "shiftM");
 
-        bindTap(el("settingsBtn"), openSettings);
-        bindTap(el("settingsClose"), closeSettings);
+        bindDialogClickAction(el("settingsBtn"), openSettings);
+        bindDialogClickAction(el("settingsClose"), closeSettings);
         bindTap(el("settingsDone"), applySettingsFromPending);
         bindTap(el("settingsReset"), resetSettings);
         bindTap(el("settingsBack"), function () { showSettingsPage("main"); });
@@ -1773,10 +1846,7 @@
         bindTap(el("resetDateDiffBtn"), resetDateDiff);
         bindTap(el("calcDateShiftBtn"), calcDateShift);
         bindTap(el("resetDateShiftBtn"), resetDateShift);
-        bindTap(el("clearDateHistoryBtn"), function (e) {
-          suppressGhostClick(e);
-          clearAllDateHistory();
-        });
+        bindTap(el("clearDateHistoryBtn"), clearAllDateHistory);
 
         bindTap(el("directionBack"), function () { setDirectionSync("back"); });
         bindTap(el("directionForward"), function () { setDirectionSync("forward"); });
@@ -1785,18 +1855,9 @@
         bindTap(el("resetDiffBtn"), resetDiff);
         bindTap(el("calcShiftBtn"), calcShift);
         bindTap(el("resetShiftBtn"), resetShift);
-        bindTap(el("clearHistoryBtn"), function (e) {
-          suppressGhostClick(e);
-          clearAllHistory();
-        });
-        bindTap(el("clearConfirmCancel"), function (e) {
-          suppressGhostClick(e);
-          closeClearConfirm();
-        });
-        bindTap(el("clearConfirmOk"), function (e) {
-          suppressGhostClick(e);
-          confirmClearRecords();
-        });
+        bindTap(el("clearHistoryBtn"), clearAllHistory);
+        bindTap(el("clearConfirmCancel"), closeClearConfirm);
+        bindTap(el("clearConfirmOk"), confirmClearRecords);
 
         el("historyList").addEventListener("click", function (e) {
           var btn = e.target.closest(".history-action-btn"); if (!btn) return;
@@ -1850,6 +1911,17 @@ bindTap(el("resultBox"), function () {
           if (!document.body.classList.contains("appearance-crystal")) return;
           var button = e.target.closest("button");
           if (!button || button.disabled) return;
+          var isMobileViewport = window.matchMedia &&
+            window.matchMedia("(max-width: 640px)").matches;
+          if (button.matches(".changelog-never") && !isMobileViewport) {
+            button.classList.remove("stereo-secondary-clicked");
+            void button.offsetWidth;
+            button.classList.add("stereo-secondary-clicked");
+            window.setTimeout(function () {
+              button.classList.remove("stereo-secondary-clicked");
+            }, 240);
+            return;
+          }
           if (!button.matches(".btn-primary, .changelog-ok, .notice-ok, .confirm-ok, #settingsDone")) return;
           button.classList.remove("stereo-clicked");
           void button.offsetWidth;
@@ -1857,11 +1929,11 @@ bindTap(el("resultBox"), function () {
           window.setTimeout(function () {
             button.classList.remove("stereo-clicked");
           }, 420);
-        });
+        }, true);
 
 
-        bindTap(el("noticeBtn"), openNotice);
-        bindTap(el("noticeClose"), closeNotice);
+        bindDialogClickAction(el("noticeBtn"), openNotice);
+        bindDialogClickAction(el("noticeClose"), closeNotice);
 
         bindDialogClickAction(el("noticeOk"), closeNotice);
 

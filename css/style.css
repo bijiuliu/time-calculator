@@ -284,7 +284,7 @@
     .btn-primary {
       background: linear-gradient(180deg, var(--primary2), var(--primary));
       color: white;
-      box-shadow: 0 15px 26px rgba(37, 99, 235, 0.24);
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.20);
     }
 
     .btn-secondary {
@@ -732,7 +732,7 @@
       color: #ffffff;
       font-size: 19px;
       font-weight: 900;
-      box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
+      box-shadow: 0 9px 18px rgba(37, 99, 235, 0.19);
     }
 
     body.notice-lock {
@@ -1277,7 +1277,7 @@
 
     #settingsDone.settings-applied {
       background: linear-gradient(180deg, #22c55e, #16a34a);
-      box-shadow: 0 14px 28px rgba(22, 163, 74, 0.24);
+      box-shadow: 0 10px 20px rgba(22, 163, 74, 0.20);
       transform: scale(0.98);
     }
 
@@ -1463,7 +1463,7 @@
       color: #ffffff;
       font-size: 19px;
       font-weight: 900;
-      box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
+      box-shadow: 0 9px 18px rgba(37, 99, 235, 0.19);
     }
 
     body.appearance-dark .changelog-dialog,
@@ -3160,6 +3160,16 @@ body.appearance-system.system-dark .history-copy-btn.copied {
         inset 0 1px 0 rgba(255, 255, 255, 0.42);
     }
 
+    body.appearance-crystal .btn-primary,
+    body.appearance-crystal #settingsDone,
+    body.appearance-crystal .notice-ok,
+    body.appearance-crystal .changelog-ok {
+      box-shadow:
+        0 5px 0 rgba(22, 84, 181, 0.28),
+        0 10px 17px rgba(37, 99, 235, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.42);
+    }
+
     body.appearance-crystal .btn-secondary,
     body.appearance-crystal .confirm-cancel,
     body.appearance-crystal .app-switch-btn,
@@ -3246,6 +3256,76 @@ body.appearance-system.system-dark .history-copy-btn.copied {
       100% { left: 116%; opacity: 0; }
     }
 
+    body.appearance-crystal .changelog-never.stereo-secondary-clicked {
+      animation: stereoSecondaryClick 200ms cubic-bezier(0.22, 0.72, 0.28, 1) both;
+    }
+
+    @media (max-width: 640px) {
+      button {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      button.mobile-press-active {
+        transform: translateY(2px) scale(0.99) !important;
+        filter: brightness(0.98);
+      }
+
+      button.mobile-press-primary.mobile-press-active {
+        transform: translateY(3px) scale(0.985) !important;
+        transition: transform 80ms ease-out, filter 80ms ease-out !important;
+      }
+
+      button.mobile-press-secondary.mobile-press-active {
+        transition: transform 70ms ease-out, filter 70ms ease-out !important;
+      }
+
+      button.mobile-press-icon.mobile-press-active {
+        transform: translateY(1.5px) scale(0.97) !important;
+        transition: transform 60ms ease-out, filter 60ms ease-out !important;
+      }
+
+      button.mobile-press-primary.mobile-press-releasing {
+        transition: transform 110ms cubic-bezier(0.22, 0.72, 0.28, 1), filter 110ms ease-out !important;
+      }
+
+      button.mobile-press-secondary.mobile-press-releasing {
+        transition: transform 85ms cubic-bezier(0.22, 0.72, 0.28, 1), filter 85ms ease-out !important;
+      }
+
+      button.mobile-press-icon.mobile-press-releasing {
+        transition: transform 70ms cubic-bezier(0.22, 0.72, 0.28, 1), filter 70ms ease-out !important;
+      }
+    }
+
+    @media (max-width: 640px) and (prefers-reduced-motion: reduce) {
+      button.mobile-press-active,
+      button.mobile-press-releasing {
+        transform: none !important;
+        filter: none !important;
+        transition: none !important;
+      }
+    }
+
+    @keyframes stereoSecondaryClick {
+      0%, 100% {
+        transform: translateY(0) scale(1);
+        filter: brightness(1);
+        box-shadow:
+          0 5px 0 rgba(91, 116, 145, 0.18),
+          0 9px 15px rgba(42, 76, 111, 0.10),
+          inset 0 1px 0 rgba(255, 255, 255, 0.72);
+      }
+      46% {
+        transform: translateY(3px) scale(0.985);
+        filter: brightness(0.98);
+        box-shadow:
+          0 1px 0 rgba(91, 116, 145, 0.16),
+          0 3px 7px rgba(42, 76, 111, 0.08),
+          inset 0 2px 4px rgba(64, 91, 122, 0.10);
+      }
+    }
+
     @media (hover: hover) and (pointer: fine) {
       body.appearance-crystal button:hover:not(:disabled) {
         transform: translateY(-1px);
@@ -3276,6 +3356,10 @@ body.appearance-system.system-dark .history-copy-btn.copied {
       }
 
       body.appearance-crystal .stereo-clicked::after {
+        animation: none !important;
+      }
+
+      body.appearance-crystal .stereo-secondary-clicked {
         animation: none !important;
       }
     }
@@ -3627,7 +3711,7 @@ body.appearance-system.system-dark .history-copy-btn.copied {
       body.appearance-crystal .notice-overlay,
       body.appearance-crystal .confirm-overlay,
       body.appearance-crystal .changelog-overlay {
-        background: rgba(55, 78, 103, 0.18);
+        background: rgba(55, 78, 103, 0.14);
       }
 
       body.appearance-crystal .settings-dialog,
@@ -3635,17 +3719,32 @@ body.appearance-system.system-dark .history-copy-btn.copied {
       body.appearance-crystal .confirm-dialog,
       body.appearance-crystal .changelog-dialog {
         background:
-          linear-gradient(125deg, rgba(255, 255, 255, 0.24), transparent 30%),
-          linear-gradient(145deg, rgba(244, 250, 255, 0.58), rgba(218, 235, 248, 0.50));
-        backdrop-filter: blur(4px) saturate(110%) !important;
-        -webkit-backdrop-filter: blur(4px) saturate(110%) !important;
+          linear-gradient(125deg, rgba(255, 255, 255, 0.18), transparent 30%),
+          linear-gradient(145deg, rgba(244, 250, 255, 0.50), rgba(218, 235, 248, 0.42));
+        backdrop-filter: blur(5px) saturate(112%) !important;
+        -webkit-backdrop-filter: blur(5px) saturate(112%) !important;
       }
 
       body.appearance-crystal .settings-menu-item,
       body.appearance-crystal .notice-menu-item,
       body.appearance-crystal .setting-option,
       body.appearance-crystal .version-item {
-        background-color: rgba(241, 248, 253, 0.82);
+        background-color: rgba(241, 248, 253, 0.76);
+      }
+
+      body.appearance-crystal .clear-btn {
+        box-shadow:
+          0 5px 0 rgba(145, 69, 86, 0.18),
+          0 9px 15px rgba(111, 63, 75, 0.10),
+          inset 0 1px 0 rgba(255, 255, 255, 0.72);
+      }
+
+      body.appearance-crystal .clear-btn:active:not(:disabled),
+      body.appearance-crystal .clear-btn.mobile-press-active {
+        box-shadow:
+          0 1px 0 rgba(145, 69, 86, 0.16),
+          0 3px 7px rgba(111, 63, 75, 0.08),
+          inset 0 2px 4px rgba(120, 66, 79, 0.10);
       }
 
     }
