@@ -2957,9 +2957,9 @@ body.appearance-system.system-dark .history-copy-btn.copied {
     body.appearance-crystal {
       animation: none !important;
       background:
-        radial-gradient(circle at 16% 8%, rgba(178, 222, 255, 0.62), transparent 34%),
-        radial-gradient(circle at 92% 28%, rgba(207, 231, 255, 0.58), transparent 32%),
-        linear-gradient(145deg, #d9efff 0%, #eff8ff 42%, #dcecff 100%);
+        radial-gradient(circle at 16% 8%, rgba(184, 223, 248, 0.44), transparent 36%),
+        radial-gradient(circle at 92% 28%, rgba(214, 233, 249, 0.38), transparent 34%),
+        linear-gradient(145deg, #e4f1fa 0%, #f4f9fd 46%, #e5f1fa 100%);
     }
 
     body.appearance-crystal .shell::before,
@@ -3481,6 +3481,13 @@ body.appearance-system.system-dark .history-copy-btn.copied {
 
     /* Mobile-only experience refinements; desktop presentation remains unchanged. */
     @media (max-width: 640px) {
+      body.appearance-crystal {
+        background:
+          radial-gradient(circle at 16% 8%, rgba(184, 223, 248, 0.38), transparent 36%),
+          radial-gradient(circle at 92% 28%, rgba(214, 233, 249, 0.32), transparent 34%),
+          linear-gradient(145deg, #e8f4fc 0%, #f5faff 48%, #e7f3fb 100%);
+      }
+
       .settings-open {
         width: 40px;
         height: 40px;
@@ -3488,8 +3495,8 @@ body.appearance-system.system-dark .history-copy-btn.copied {
       }
 
       .settings-icon {
-        width: 25px;
-        height: 25px;
+        width: 28px;
+        height: 28px;
         stroke-width: 2.2;
       }
 
@@ -3516,55 +3523,4 @@ body.appearance-system.system-dark .history-copy-btn.copied {
         background-color: rgba(241, 248, 253, 0.94);
       }
 
-      .history-item.history-removing,
-      body.appearance-crystal .history-item.history-removing {
-        contain: paint;
-        backface-visibility: hidden;
-        will-change: transform, opacity;
-        transition:
-          transform 360ms cubic-bezier(0.20, 0.68, 0.24, 1),
-          opacity 300ms ease-out,
-          height 360ms cubic-bezier(0.22, 0.72, 0.24, 1),
-          margin-top 360ms cubic-bezier(0.22, 0.72, 0.24, 1),
-          margin-bottom 360ms cubic-bezier(0.22, 0.72, 0.24, 1);
-      }
-
-      body.appearance-crystal .history-item.history-removing {
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-        background-image: none;
-      }
-
-      .history-item.history-removing-active {
-        transform: translate3d(-64px, 0, 0) scale(0.985);
-      }
-
-      body.appearance-crystal .history-item.history-removing-active {
-        transform: translate3d(-76px, 0, 0) scale(0.98);
-        box-shadow:
-          0 9px 22px rgba(45, 82, 118, 0.10),
-          inset 0 1px 0 rgba(255, 255, 255, 0.92);
-      }
-
-      .history-item.history-collapsing {
-        padding-top: 13px;
-        padding-bottom: 13px;
-        border-width: 1px;
-      }
-    }
-
-    @media (max-width: 640px) and (prefers-reduced-motion: reduce) {
-      .history-item.history-removing,
-      body.appearance-crystal .history-item.history-removing {
-        transition:
-          opacity 90ms linear,
-          height 120ms linear,
-          margin-top 120ms linear,
-          margin-bottom 120ms linear;
-      }
-
-      .history-item.history-removing-active,
-      body.appearance-crystal .history-item.history-removing-active {
-        transform: none;
-      }
     }

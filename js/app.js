@@ -1141,9 +1141,7 @@
         var reduceMotion = window.matchMedia &&
           window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         var isCrystal = document.body.classList.contains("appearance-crystal");
-        var isMobile = window.matchMedia &&
-          window.matchMedia("(max-width: 640px)").matches;
-        var duration = reduceMotion ? 120 : (isMobile ? 360 : (isCrystal ? 420 : 380));
+        var duration = reduceMotion ? 120 : (isCrystal ? 420 : 380);
         var finished = false;
 
         function finish() {
@@ -1477,6 +1475,29 @@
         closeChangelog(false);
       }
 
+      function suppressMobileGhostClick(pointerEvent) {
+        var isMobile = window.matchMedia &&
+          window.matchMedia("(max-width: 640px)").matches;
+        if (!isMobile || !pointerEvent) return;
+
+        var x = pointerEvent.clientX;
+        var y = pointerEvent.clientY;
+        var removeGuard;
+        var guard = function (e) {
+          var nearOriginalTap = Math.abs(e.clientX - x) < 24 && Math.abs(e.clientY - y) < 24;
+          if (!nearOriginalTap) return;
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          removeGuard();
+        };
+        removeGuard = function () {
+          document.removeEventListener("click", guard, true);
+        };
+
+        document.addEventListener("click", guard, true);
+        window.setTimeout(removeGuard, 350);
+      }
+
       function syncChangelogCrystalButton() {
         var button = el("changelogCrystalBtn");
         if (!button) return;
@@ -1630,7 +1651,7 @@
             return;
           }
 
-          fn();
+          fn(e);
         });
 
         // 旧浏览器备用：如果不支持 PointerEvent，就用普通 click。
@@ -1789,11 +1810,15 @@ bindTap(el("resultBox"), function () {
           });
         });
 
-        bindTap(el("changelogOk"), function () {
+        bindTap(el("changelogOk"), function (e) {
+          suppressMobileGhostClick(e);
           closeChangelog(true);
         });
 
-        bindTap(el("changelogNever"), disableChangelogPopupFromDialog);
+        bindTap(el("changelogNever"), function (e) {
+          suppressMobileGhostClick(e);
+          disableChangelogPopupFromDialog();
+        });
 
         bindTap(el("changelogCrystalBtn"), applyCrystalFromChangelog);
 
