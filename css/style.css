@@ -2935,8 +2935,8 @@ body.appearance-system.system-dark .history-copy-btn.copied {
     body.appearance-crystal .confirm-dialog,
     body.appearance-crystal .changelog-dialog {
       background:
-        linear-gradient(125deg, rgba(255,255,255,0.30), transparent 28%),
-        linear-gradient(145deg, rgba(239,248,254,0.80), rgba(207,229,244,0.70));
+        linear-gradient(125deg, rgba(255,255,255,0.22), transparent 28%),
+        linear-gradient(145deg, rgba(239,248,254,0.66), rgba(207,229,244,0.56));
       border-color: rgba(255,255,255,0.72);
       box-shadow: 0 30px 75px rgba(34,68,105,0.25), inset 0 1px 0 rgba(255,255,255,0.78);
     }
@@ -3091,8 +3091,13 @@ body.appearance-system.system-dark .history-copy-btn.copied {
         transform 190ms cubic-bezier(0.22, 1, 0.36, 1),
         box-shadow 190ms ease,
         filter 190ms ease;
-      will-change: transform;
+      will-change: auto;
       -webkit-tap-highlight-color: transparent;
+    }
+
+    body.appearance-crystal button:active:not(:disabled),
+    body.appearance-crystal .stereo-clicked {
+      will-change: transform;
     }
 
     body.appearance-crystal .btn-primary,
@@ -3205,6 +3210,16 @@ body.appearance-system.system-dark .history-copy-btn.copied {
     }
 
     @media (prefers-reduced-motion: reduce) {
+      .settings-overlay.closing,
+      .settings-overlay.closing .settings-dialog,
+      .settings-reset-bounce,
+      .notice-dialog,
+      .settings-dialog,
+      .confirm-dialog,
+      .changelog-dialog {
+        animation: none !important;
+      }
+
       body.appearance-crystal button {
         transition-duration: 1ms !important;
         will-change: auto;
@@ -3495,9 +3510,12 @@ body.appearance-system.system-dark .history-copy-btn.copied {
       }
 
       .settings-icon {
-        width: 28px;
-        height: 28px;
-        stroke-width: 2.2;
+        width: 30px;
+        height: 30px;
+        stroke-width: 2.1;
+        transform-box: fill-box;
+        transform-origin: center;
+        transform: scale(1.05);
       }
 
       body.appearance-crystal .settings-overlay,
@@ -3512,8 +3530,10 @@ body.appearance-system.system-dark .history-copy-btn.copied {
       body.appearance-crystal .confirm-dialog,
       body.appearance-crystal .changelog-dialog {
         background:
-          linear-gradient(125deg, rgba(255, 255, 255, 0.52), transparent 30%),
-          linear-gradient(145deg, rgba(244, 250, 255, 0.97), rgba(218, 235, 248, 0.95));
+          linear-gradient(125deg, rgba(255, 255, 255, 0.38), transparent 30%),
+          linear-gradient(145deg, rgba(244, 250, 255, 0.84), rgba(218, 235, 248, 0.80));
+        backdrop-filter: blur(12px) saturate(120%) !important;
+        -webkit-backdrop-filter: blur(12px) saturate(120%) !important;
       }
 
       body.appearance-crystal .settings-menu-item,

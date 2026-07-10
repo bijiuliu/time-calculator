@@ -875,11 +875,13 @@
         overlay.classList.add("closing");
         overlay.setAttribute("aria-hidden", "true");
 
+        var reduceMotion = window.matchMedia &&
+          window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         settingsCloseAnimationTimer = setTimeout(function () {
           overlay.classList.remove("show", "closing");
           document.body.classList.remove("notice-lock");
           resetApplyButtonState();
-        }, 180);
+        }, reduceMotion ? 0 : 180);
       }
 
       function resetSettings() {
@@ -1683,7 +1685,10 @@
         bindSpaceAdvance(el("shiftH"), "shiftM");
 
         bindTap(el("settingsBtn"), openSettings);
-        bindTap(el("settingsClose"), closeSettings);
+        bindTap(el("settingsClose"), function (e) {
+          suppressMobileGhostClick(e);
+          closeSettings();
+        });
         bindTap(el("settingsDone"), applySettingsFromPending);
         bindTap(el("settingsReset"), resetSettings);
         bindTap(el("settingsBack"), function () { showSettingsPage("main"); });
@@ -1729,8 +1734,14 @@
         bindTap(el("calcShiftBtn"), calcShift);
         bindTap(el("resetShiftBtn"), resetShift);
         bindTap(el("clearHistoryBtn"), clearAllHistory);
-        bindTap(el("clearConfirmCancel"), closeClearConfirm);
-        bindTap(el("clearConfirmOk"), confirmClearRecords);
+        bindTap(el("clearConfirmCancel"), function (e) {
+          suppressMobileGhostClick(e);
+          closeClearConfirm();
+        });
+        bindTap(el("clearConfirmOk"), function (e) {
+          suppressMobileGhostClick(e);
+          confirmClearRecords();
+        });
 
         el("historyList").addEventListener("click", function (e) {
           var btn = e.target.closest(".history-action-btn"); if (!btn) return;
@@ -1795,7 +1806,10 @@ bindTap(el("resultBox"), function () {
 
 
         bindTap(el("noticeBtn"), openNotice);
-        bindTap(el("noticeClose"), closeNotice);
+        bindTap(el("noticeClose"), function (e) {
+          suppressMobileGhostClick(e);
+          closeNotice();
+        });
 
         el("noticeOk").onclick = function (e) {
           e.preventDefault();
