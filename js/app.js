@@ -37,6 +37,9 @@
 
       function el(id) { return document.getElementById(id); }
       function pad(n) { return String(n).padStart(2, "0"); }
+      function isMobileLayout() {
+        return window.matchMedia && window.matchMedia("(max-width: 640px)").matches;
+      }
 
       function timeNativeId(hId) {
         return { startH: "startNative", endH: "endNative", baseH: "baseNative" }[hId];
@@ -971,7 +974,7 @@
         var hRaw = el(hId).value;
         var mRaw = el(mId).value;
         if (hRaw === "" || mRaw === "") {
-          return { ok: false, msg: "请输入" + name + "的小时和分钟" };
+          return { ok: false, msg: "请输入" + name + (isMobileLayout() ? "" : "的小时和分钟") };
         }
         var h = Number(hRaw);
         var m = Number(mRaw);
@@ -1328,7 +1331,7 @@
         }
 
         var y = Number(el(yid).value), m = Number(el(mid).value), d = Number(el(did).value);
-        if (!el(yid).value || !el(mid).value || !el(did).value) return { ok: false, msg: "请输入" + name + "的年月日" };
+        if (!el(yid).value || !el(mid).value || !el(did).value) return { ok: false, msg: "请输入" + name + (isMobileLayout() ? "" : "的年月日") };
         var dt = new Date(y, m - 1, d);
         if (y < 1 || m < 1 || m > 12 || d < 1 || d > 31 || dt.getFullYear() !== y || dt.getMonth() !== m - 1 || dt.getDate() !== d) return { ok: false, msg: name + "不是有效日期" };
         return { ok: true, date: dt, text: formatDate(dt) };
