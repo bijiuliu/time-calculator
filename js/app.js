@@ -1733,10 +1733,10 @@
         }
 
         function pressTiming(kind) {
-          if (kind === "primary") return { press: 100, hold: 45, release: 195 };
-          if (kind === "icon") return { press: 80, hold: 35, release: 150 };
-          if (kind === "dialog") return { press: 70, hold: 20, release: 0 };
-          return { press: 90, hold: 40, release: 170 };
+          if (kind === "primary") return { press: 110, hold: 50, release: 210 };
+          if (kind === "icon") return { press: 90, hold: 40, release: 165 };
+          if (kind === "dialog") return { press: 80, hold: 25, release: 0 };
+          return { press: 100, hold: 45, release: 185 };
         }
 
         function removeFeedbackClasses(button) {
