@@ -3317,7 +3317,7 @@ body.appearance-system.system-dark .history-copy-btn.copied {
       }
     }
 
-    @media (hover: hover) and (pointer: fine) {
+    @media (hover: hover) and (pointer: fine) and (min-width: 641px) {
       body.appearance-crystal button:hover:not(:disabled) {
         transform: translateY(-1px);
         filter: brightness(1.025);
@@ -3541,7 +3541,7 @@ body.appearance-system.system-dark .history-copy-btn.copied {
         inset 0 2px 4px rgba(82, 58, 68, 0.08);
     }
 
-    @media (hover: hover) and (pointer: fine) {
+    @media (hover: hover) and (pointer: fine) and (min-width: 641px) {
       body.appearance-crystal .history-copy-btn:hover:not(:disabled) {
         color: #194d72;
         border-color: rgba(67, 127, 168, 0.56);

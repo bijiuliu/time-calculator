@@ -1733,10 +1733,10 @@
         }
 
         function pressTiming(kind) {
-          if (kind === "primary") return { press: 90, hold: 40, release: 180 };
-          if (kind === "icon") return { press: 70, hold: 30, release: 135 };
-          if (kind === "dialog") return { press: 60, hold: 15, release: 0 };
-          return { press: 80, hold: 35, release: 155 };
+          if (kind === "primary") return { press: 100, hold: 45, release: 195 };
+          if (kind === "icon") return { press: 80, hold: 35, release: 150 };
+          if (kind === "dialog") return { press: 70, hold: 20, release: 0 };
+          return { press: 90, hold: 40, release: 170 };
         }
 
         function removeFeedbackClasses(button) {
@@ -1752,12 +1752,6 @@
           if (state.resolveAction) state.resolveAction(allowAction === true);
           removeFeedbackClasses(state.button);
           buttonStates.delete(state.button);
-        }
-
-        function releaseOvershoot(kind) {
-          if (kind === "primary") return "translateY(-0.4px) scale(1.006)";
-          if (kind === "icon") return "translateY(-0.15px) scale(1.002)";
-          return "translateY(-0.25px) scale(1.003)";
         }
 
         function startFixedRelease(state) {
@@ -1788,11 +1782,7 @@
             return;
           }
 
-          var releaseAnimation = button.animate([
-            fromState,
-            { transform: releaseOvershoot(state.kind), filter: toState.filter, offset: 0.72 },
-            toState
-          ], {
+          var releaseAnimation = button.animate([fromState, toState], {
             duration: timing.release,
             easing: "cubic-bezier(0.22, 0.72, 0.28, 1)"
           });
