@@ -1703,6 +1703,7 @@
       function bindMobilePressFeedback() {
         var activePress = null;
         var releaseTimers = new WeakMap();
+        var releaseAnimations = new WeakMap();
 
         function isMobileViewport() {
           return window.matchMedia && window.matchMedia("(max-width: 640px)").matches;
@@ -1718,38 +1719,94 @@
           return "secondary";
         }
 
-        function clearReleaseTimer(button) {
+        function pressTiming(kind) {
+          if (kind === "primary") return { minimumPress: 80, release: 160 };
+          if (kind === "icon") return { minimumPress: 60, release: 120 };
+          return { minimumPress: 70, release: 140 };
+        }
+
+        function clearButtonFeedback(button) {
           var timer = releaseTimers.get(button);
           if (timer) window.clearTimeout(timer);
           releaseTimers.delete(button);
+          var animation = releaseAnimations.get(button);
+          if (animation) {
+            releaseAnimations.delete(button);
+            animation.cancel();
+          }
+          button.classList.remove("mobile-press-active", "mobile-press-releasing", "mobile-press-primary", "mobile-press-secondary", "mobile-press-icon");
+        }
+
+        function startFixedRelease(button, kind) {
+          releaseTimers.delete(button);
+          var timing = pressTiming(kind);
+          var pressedStyle = window.getComputedStyle(button);
+          var fromState = {
+            transform: pressedStyle.transform,
+            filter: pressedStyle.filter,
+            boxShadow: pressedStyle.boxShadow
+          };
+
+          button.classList.add("mobile-press-releasing");
+          button.classList.remove("mobile-press-active");
+          void button.offsetWidth;
+
+          var restingStyle = window.getComputedStyle(button);
+          var toState = {
+            transform: restingStyle.transform,
+            filter: restingStyle.filter,
+            boxShadow: restingStyle.boxShadow
+          };
+
+          if (typeof button.animate !== "function") {
+            button.classList.remove("mobile-press-releasing", "mobile-press-primary", "mobile-press-secondary", "mobile-press-icon");
+            return;
+          }
+
+          var animation = button.animate([fromState, toState], {
+            duration: timing.release,
+            easing: "cubic-bezier(0.22, 0.72, 0.28, 1)",
+            fill: "none"
+          });
+          releaseAnimations.set(button, animation);
+
+          var finish = function () {
+            if (releaseAnimations.get(button) !== animation) return;
+            releaseAnimations.delete(button);
+            button.classList.remove("mobile-press-releasing", "mobile-press-primary", "mobile-press-secondary", "mobile-press-icon");
+          };
+          animation.finished.then(finish, finish);
         }
 
         function finishPress(cancelled) {
           if (!activePress) return;
-          var button = activePress.button;
-          var kind = activePress.kind;
+          var press = activePress;
+          var button = press.button;
+          var kind = press.kind;
           activePress = null;
-          button.classList.remove("mobile-press-active");
           if (cancelled) {
-            button.classList.remove("mobile-press-releasing", "mobile-press-primary", "mobile-press-secondary", "mobile-press-icon");
+            clearButtonFeedback(button);
             return;
           }
-          button.classList.add("mobile-press-releasing");
-          clearReleaseTimer(button);
-          var releaseDuration = kind === "primary" ? 260 : (kind === "icon" ? 175 : 215);
-          releaseTimers.set(button, window.setTimeout(function () {
-            button.classList.remove("mobile-press-releasing", "mobile-press-primary", "mobile-press-secondary", "mobile-press-icon");
-            releaseTimers.delete(button);
-          }, releaseDuration + 30));
+          var remaining = Math.max(0, pressTiming(kind).minimumPress - (performance.now() - press.startedAt));
+          if (remaining > 0) {
+            releaseTimers.set(button, window.setTimeout(function () {
+              startFixedRelease(button, kind);
+            }, remaining));
+          } else {
+            releaseTimers.set(button, window.setTimeout(function () {
+              startFixedRelease(button, kind);
+            }, 0));
+          }
         }
 
         document.addEventListener("pointerdown", function (e) {
           if (!isMobileViewport() || e.button !== 0) return;
           var button = e.target.closest("button");
           if (!button || button.disabled) return;
+          if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
           if (activePress) finishPress(true);
-          clearReleaseTimer(button);
-          button.classList.remove("mobile-press-releasing", "mobile-press-primary", "mobile-press-secondary", "mobile-press-icon");
+          clearButtonFeedback(button);
           var kind = pressKind(button);
           button.classList.add("mobile-press-" + kind, "mobile-press-active");
           activePress = {
@@ -1757,7 +1814,8 @@
             kind: kind,
             pointerId: e.pointerId,
             startX: e.clientX,
-            startY: e.clientY
+            startY: e.clientY,
+            startedAt: performance.now()
           };
         });
 
