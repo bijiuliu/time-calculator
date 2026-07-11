@@ -1720,9 +1720,9 @@
         }
 
         function pressTiming(kind) {
-          if (kind === "primary") return { minimumPress: 80, release: 160 };
-          if (kind === "icon") return { minimumPress: 60, release: 120 };
-          return { minimumPress: 70, release: 140 };
+          if (kind === "primary") return { minimumPress: 90, release: 180 };
+          if (kind === "icon") return { minimumPress: 70, release: 135 };
+          return { minimumPress: 80, release: 155 };
         }
 
         function clearButtonFeedback(button) {
@@ -1804,6 +1804,7 @@
           if (!isMobileViewport() || e.button !== 0) return;
           var button = e.target.closest("button");
           if (!button || button.disabled) return;
+          if (button.matches("#settingsReset")) return;
           if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
           if (activePress) finishPress(true);
           clearButtonFeedback(button);
