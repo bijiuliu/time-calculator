@@ -3267,22 +3267,21 @@ body.appearance-system.system-dark .history-copy-btn.copied {
       }
 
       button.mobile-press-active {
-        transform: translateY(2px) scale(0.99) !important;
+        transform: translateY(2.5px) scale(0.985) !important;
         filter: brightness(0.98);
+        transition: none !important;
       }
 
       button.mobile-press-primary.mobile-press-active {
         transform: translateY(3px) scale(0.985) !important;
-        transition: transform 90ms ease-out, filter 90ms ease-out, box-shadow 90ms ease-out !important;
-      }
-
-      button.mobile-press-secondary.mobile-press-active {
-        transition: transform 80ms ease-out, filter 80ms ease-out, box-shadow 80ms ease-out !important;
       }
 
       button.mobile-press-icon.mobile-press-active {
-        transform: translateY(1.5px) scale(0.97) !important;
-        transition: transform 70ms ease-out, filter 70ms ease-out, box-shadow 70ms ease-out !important;
+        transform: translateY(2px) scale(0.975) !important;
+      }
+
+      button.mobile-press-dialog.mobile-press-active {
+        transform: translateY(2px) scale(0.975) !important;
       }
 
       button.mobile-press-releasing {

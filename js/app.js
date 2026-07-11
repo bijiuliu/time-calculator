@@ -34,6 +34,7 @@
       var dateHistoryToastTimer = null;
       var copyFeedbackTimers = new WeakMap();
       var historyClearAnimating = { time: false, date: false };
+      var mobileActionReady = new WeakMap();
 
       function el(id) { return document.getElementById(id); }
       function pad(n) { return String(n).padStart(2, "0"); }
@@ -1637,6 +1638,18 @@
         }, true);
       }
 
+      function runAfterMobilePressFeedback(node, action) {
+        var ready = mobileActionReady.get(node);
+        if (!ready) {
+          action();
+          return;
+        }
+        mobileActionReady.delete(node);
+        ready.then(function (allowed) {
+          if (allowed !== false) action();
+        });
+      }
+
       function bindTap(node, fn) {
         var startX = 0;
         var startY = 0;
@@ -1696,108 +1709,121 @@
             return;
           }
           cancelClickUntil = 0;
-          fn(e);
+          runAfterMobilePressFeedback(node, function () { fn(e); });
         });
       }
 
       function bindMobilePressFeedback() {
         var activePress = null;
-        var releaseTimers = new WeakMap();
-        var releaseAnimations = new WeakMap();
+        var buttonStates = new WeakMap();
 
         function isMobileViewport() {
           return window.matchMedia && window.matchMedia("(max-width: 640px)").matches;
         }
 
         function pressKind(button) {
+          if (button.matches(".settings-open, #noticeBtn, .notice-x, .settings-back, .notice-back, .notice-ok, .changelog-ok, .changelog-never, .confirm-cancel, .confirm-ok")) {
+            return "dialog";
+          }
           if (button.matches(".btn-primary, #settingsDone, .notice-ok, .changelog-ok, .confirm-ok")) {
             return "primary";
           }
-          if (button.matches(".settings-open, #noticeBtn, .notice-x, .settings-back, .notice-back")) {
-            return "icon";
-          }
+          if (button.matches("[aria-label]:not(.btn-primary)")) return "icon";
           return "secondary";
         }
 
         function pressTiming(kind) {
-          if (kind === "primary") return { minimumPress: 90, release: 180 };
-          if (kind === "icon") return { minimumPress: 70, release: 135 };
-          return { minimumPress: 80, release: 155 };
+          if (kind === "primary") return { press: 90, hold: 40, release: 180 };
+          if (kind === "icon") return { press: 70, hold: 30, release: 135 };
+          if (kind === "dialog") return { press: 60, hold: 15, release: 0 };
+          return { press: 80, hold: 35, release: 155 };
         }
 
-        function clearButtonFeedback(button) {
-          var timer = releaseTimers.get(button);
-          if (timer) window.clearTimeout(timer);
-          releaseTimers.delete(button);
-          var animation = releaseAnimations.get(button);
-          if (animation) {
-            releaseAnimations.delete(button);
-            animation.cancel();
-          }
-          button.classList.remove("mobile-press-active", "mobile-press-releasing", "mobile-press-primary", "mobile-press-secondary", "mobile-press-icon");
+        function removeFeedbackClasses(button) {
+          button.classList.remove("mobile-press-active", "mobile-press-releasing", "mobile-press-primary", "mobile-press-secondary", "mobile-press-icon", "mobile-press-dialog");
         }
 
-        function startFixedRelease(button, kind) {
-          releaseTimers.delete(button);
-          var timing = pressTiming(kind);
-          var pressedStyle = window.getComputedStyle(button);
-          var fromState = {
-            transform: pressedStyle.transform,
-            filter: pressedStyle.filter,
-            boxShadow: pressedStyle.boxShadow
-          };
+        function cancelState(state, allowAction) {
+          if (!state || state.cancelled) return;
+          state.cancelled = true;
+          if (state.holdTimer) window.clearTimeout(state.holdTimer);
+          if (state.pressAnimation) state.pressAnimation.cancel();
+          if (state.releaseAnimation) state.releaseAnimation.cancel();
+          if (state.resolveAction) state.resolveAction(allowAction === true);
+          removeFeedbackClasses(state.button);
+          buttonStates.delete(state.button);
+        }
 
-          button.classList.add("mobile-press-releasing");
-          button.classList.remove("mobile-press-active");
-          void button.offsetWidth;
+        function releaseOvershoot(kind) {
+          if (kind === "primary") return "translateY(-0.4px) scale(1.006)";
+          if (kind === "icon") return "translateY(-0.15px) scale(1.002)";
+          return "translateY(-0.25px) scale(1.003)";
+        }
 
-          var restingStyle = window.getComputedStyle(button);
-          var toState = {
-            transform: restingStyle.transform,
-            filter: restingStyle.filter,
-            boxShadow: restingStyle.boxShadow
-          };
+        function startFixedRelease(state) {
+          if (!state || state.cancelled) return;
+          var button = state.button;
+          var timing = state.timing;
 
-          if (typeof button.animate !== "function") {
-            button.classList.remove("mobile-press-releasing", "mobile-press-primary", "mobile-press-secondary", "mobile-press-icon");
+          if (state.kind === "dialog") {
+            if (state.pressAnimation) state.pressAnimation.cancel();
+            removeFeedbackClasses(button);
+            buttonStates.delete(button);
+            if (state.resolveAction) state.resolveAction(true);
             return;
           }
 
-          var animation = button.animate([fromState, toState], {
-            duration: timing.release,
-            easing: "cubic-bezier(0.22, 0.72, 0.28, 1)",
-            fill: "none"
-          });
-          releaseAnimations.set(button, animation);
+          var pressedStyle = window.getComputedStyle(button);
+          var fromState = { transform: pressedStyle.transform, filter: pressedStyle.filter };
+          if (state.pressAnimation) state.pressAnimation.cancel();
+          button.classList.add("mobile-press-releasing");
+          button.classList.remove("mobile-press-active");
+          void button.offsetWidth;
+          var restingStyle = window.getComputedStyle(button);
+          var toState = { transform: restingStyle.transform, filter: restingStyle.filter };
 
-          var finish = function () {
-            if (releaseAnimations.get(button) !== animation) return;
-            releaseAnimations.delete(button);
-            button.classList.remove("mobile-press-releasing", "mobile-press-primary", "mobile-press-secondary", "mobile-press-icon");
-          };
-          animation.finished.then(finish, finish);
+          if (typeof button.animate !== "function") {
+            removeFeedbackClasses(button);
+            buttonStates.delete(button);
+            return;
+          }
+
+          var releaseAnimation = button.animate([
+            fromState,
+            { transform: releaseOvershoot(state.kind), filter: toState.filter, offset: 0.72 },
+            toState
+          ], {
+            duration: timing.release,
+            easing: "cubic-bezier(0.22, 0.72, 0.28, 1)"
+          });
+          state.releaseAnimation = releaseAnimation;
+          releaseAnimation.finished.then(function () {
+            if (buttonStates.get(button) !== state) return;
+            removeFeedbackClasses(button);
+            buttonStates.delete(button);
+          }, function () {});
+        }
+
+        function scheduleRelease(state) {
+          if (!state || state.cancelled || !state.released || !state.pressFinishedAt) return;
+          var remainingHold = Math.max(0, state.timing.hold - (performance.now() - state.pressFinishedAt));
+          if (state.holdTimer) window.clearTimeout(state.holdTimer);
+          state.holdTimer = window.setTimeout(function () {
+            state.holdTimer = null;
+            startFixedRelease(state);
+          }, remainingHold);
         }
 
         function finishPress(cancelled) {
           if (!activePress) return;
-          var press = activePress;
-          var button = press.button;
-          var kind = press.kind;
+          var state = activePress;
           activePress = null;
           if (cancelled) {
-            clearButtonFeedback(button);
+            cancelState(state, false);
             return;
           }
-          var remaining = Math.max(0, pressTiming(kind).minimumPress - (performance.now() - press.startedAt));
-          if (remaining > 0) {
-            releaseTimers.set(button, window.setTimeout(function () {
-              startFixedRelease(button, kind);
-            }, remaining));
-          } else {
-            releaseTimers.set(button, window.setTimeout(function () {
-              startFixedRelease(button, kind);
-            }, 0));
-          }
+          state.released = true;
+          scheduleRelease(state);
         }
 
         document.addEventListener("pointerdown", function (e) {
@@ -1807,17 +1833,53 @@
           if (button.matches("#settingsReset")) return;
           if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
           if (activePress) finishPress(true);
-          clearButtonFeedback(button);
+          var previousState = buttonStates.get(button);
+          if (previousState) cancelState(previousState, false);
           var kind = pressKind(button);
+          var timing = pressTiming(kind);
+          var restingStyle = window.getComputedStyle(button);
           button.classList.add("mobile-press-" + kind, "mobile-press-active");
-          activePress = {
+          var pressedStyle = window.getComputedStyle(button);
+          var state = {
             button: button,
             kind: kind,
+            timing: timing,
             pointerId: e.pointerId,
             startX: e.clientX,
             startY: e.clientY,
-            startedAt: performance.now()
+            released: false,
+            cancelled: false,
+            pressFinishedAt: 0,
+            holdTimer: null,
+            pressAnimation: null,
+            releaseAnimation: null,
+            resolveAction: null
           };
+          if (kind === "dialog") {
+            mobileActionReady.set(button, new Promise(function (resolve) {
+              state.resolveAction = resolve;
+            }));
+          }
+          buttonStates.set(button, state);
+          activePress = state;
+
+          if (typeof button.animate !== "function") {
+            state.pressFinishedAt = performance.now();
+            return;
+          }
+          state.pressAnimation = button.animate([
+            { transform: restingStyle.transform, filter: restingStyle.filter },
+            { transform: pressedStyle.transform, filter: pressedStyle.filter }
+          ], {
+            duration: timing.press,
+            easing: "ease-out",
+            fill: "both"
+          });
+          state.pressAnimation.finished.then(function () {
+            if (buttonStates.get(button) !== state || state.cancelled) return;
+            state.pressFinishedAt = performance.now();
+            scheduleRelease(state);
+          }, function () {});
         });
 
         document.addEventListener("pointermove", function (e) {
@@ -1845,7 +1907,7 @@
         node.onclick = function (e) {
           e.preventDefault();
           e.stopPropagation();
-          action();
+          runAfterMobilePressFeedback(node, action);
         };
       }
 
