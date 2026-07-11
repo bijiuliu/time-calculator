@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>时间计算器 Pro</title>
   <!-- 拆分版：页面结构在这里，样式在 css/style.css，逻辑在 js/app.js -->
-  <link rel="stylesheet" href="./css/style.css?v=1.5.0-input35">
+  <link rel="stylesheet" href="./css/style.css?v=1.5.0-input70">
 </head>
 <body>
   <script>
@@ -46,6 +46,7 @@
         <button id="tabShift" class="tab" type="button">前移/后退</button>
       </div>
 
+      <div id="timeModePanels" class="mode-panels">
       <section id="panelDiff" class="panel active">
         <div class="field">
           <label class="label">开始时间</label>
@@ -116,6 +117,8 @@
         <div id="shiftAccumHint" class="accum-hint">连续点“计算”会在上一次结果上继续累计</div>
       </section>
 
+      </div>
+
       <section id="resultBox" class="result-box" role="button" tabindex="0">
         <div class="result-label">计算结果</div>
         <div id="resultValue" class="result-value">结果会显示在这里</div>
@@ -141,6 +144,7 @@
           <button id="dateTabShift" class="tab" type="button">前移/后退</button>
         </div>
 
+        <div id="dateModePanels" class="mode-panels">
         <section id="datePanelDiff" class="panel active">
           <div class="field"><label class="label">开始日期</label><div class="date-box date-native-wrap">
             <input id="dateStartNative" class="native-picker date-native-picker" type="date" aria-label="开始日期">
@@ -171,6 +175,8 @@
           <div class="actions"><button id="calcDateShiftBtn" class="btn-primary" type="button">计算</button><button id="resetDateShiftBtn" class="btn-secondary" type="button">清空</button></div>
           <div id="dateAccumHint" class="accum-hint">连续点“计算”会在上一次结果上继续累计</div>
         </section>
+
+        </div>
 
         <section id="dateResultBox" class="result-box"><div class="result-label">计算结果</div><div id="dateResultValue" class="result-value">结果会显示在这里</div><div id="dateResultTip" class="result-tip">日期差会显示相差天数</div></section>
         <section class="history"><div class="history-head"><h2 class="history-title">日期记录</h2><button id="clearDateHistoryBtn" class="clear-btn" type="button">清空记录</button></div><ul id="dateHistoryList" class="history-list"></ul></section>
@@ -377,6 +383,7 @@
           </li>
           <li>优化按钮点击动效</li>
           <li>新增历史记录卡片删除动效</li>
+          <li>新增模式切换滑块动效</li>
         </ul>
       </div>
 
@@ -626,6 +633,7 @@
                   <li>新增立体风格外观</li>
                   <li>优化按钮点击动效</li>
                   <li>新增历史记录卡片删除动效</li>
+                  <li>新增模式切换滑块动效</li>
                 </ul>
               </details>
 
@@ -690,6 +698,6 @@
     </div>
   </div>
 
-  <script src="./js/app.js?v=1.5.0-input35"></script>
+  <script src="./js/app.js?v=1.5.0-input70"></script>
 </body>
 </html>

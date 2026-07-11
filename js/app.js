@@ -1059,7 +1059,40 @@
             currentResult.baseTime + " " + currentResult.directionText + " " +
             formatHM(currentResult.shiftTotal) + " = " + currentResult.resultTime + "，再点计算可继续累计";
         }
-        animateResultDisplay("resultBox", !!valueOnly);
+        if (!valueOnly) animateResultDisplay("resultBox", false);
+      }
+
+      function switchResultDisplayMode() {
+        if (!currentResult || currentResult.type !== "diff") return;
+        var value = el("resultValue");
+        var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (!value || reduceMotion) {
+          displayMode = displayMode === "hm" ? "minutes" : "hm";
+          renderResult(true);
+          return;
+        }
+        if (value._unitSwitchBusy) return;
+        var sourceResult = currentResult;
+        value._unitSwitchBusy = true;
+        value.classList.remove("result-unit-entering");
+        value.classList.add("result-unit-leaving");
+        window.clearTimeout(value._unitSwitchTimer);
+        value._unitSwitchTimer = window.setTimeout(function () {
+          if (currentResult !== sourceResult) {
+            value.classList.remove("result-unit-leaving", "result-unit-entering");
+            value._unitSwitchBusy = false;
+            return;
+          }
+          displayMode = displayMode === "hm" ? "minutes" : "hm";
+          renderResult(true);
+          value.classList.remove("result-unit-leaving");
+          void value.offsetWidth;
+          value.classList.add("result-unit-entering");
+          value._unitSwitchTimer = window.setTimeout(function () {
+            value.classList.remove("result-unit-entering");
+            value._unitSwitchBusy = false;
+          }, 80);
+        }, 50);
       }
 
       function setMessage(main, tip) {
@@ -1302,8 +1335,97 @@
         el("appSwitchBtn").innerText=type==="time"?"日期计算器":"时间计算器";
         if (!skipSave) localStorage.setItem(LAST_CALCULATOR_KEY, type);
       }
-      function setDateTab(tab){activeDateTab=tab;el("dateTabDiff").classList.toggle("active",tab==="diff");el("dateTabShift").classList.toggle("active",tab==="shift");el("datePanelDiff").classList.toggle("active",tab==="diff");el("datePanelShift").classList.toggle("active",tab==="shift");currentDateResult=null;renderDateResult();}
-      function setDateDirection(value){el("dateDirection").value=value;var b=value==="back";el("dateDirectionBack").classList.toggle("active",b);el("dateDirectionForward").classList.toggle("active",!b);}
+      function transitionModePanel(containerId, oldPanelId, newPanelId, shouldAnimate) {
+        var container = el(containerId);
+        var newPanel = el(newPanelId);
+        if (!container || !newPanel) return;
+        var token = (container._modeTransitionToken || 0) + 1;
+        container._modeTransitionToken = token;
+        window.clearTimeout(container._modeTransitionTimer);
+        (container._modeAnimations || []).forEach(function (animation) {
+          try { animation.cancel(); } catch (e) {}
+        });
+        container._modeAnimations = [];
+        var panels = Array.prototype.slice.call(container.querySelectorAll(".panel"));
+        var oldPanel = el(container._modeActivePanelId || oldPanelId) || panels.filter(function (panel) {
+          return panel.classList.contains("active") && !panel.classList.contains("mode-panel-outgoing");
+        })[0];
+        panels.forEach(function (panel) {
+          panel.classList.remove("mode-panel-outgoing");
+          var action = panel.querySelector(".actions");
+          if (action) action.style.visibility = "";
+          panel.classList.toggle("active", panel === oldPanel);
+        });
+        container.classList.remove("mode-panels-transitioning");
+        container.style.height = "";
+        container.style.transition = "";
+
+        var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var hidden = container.offsetParent === null;
+        if (!oldPanel || !shouldAnimate || reduceMotion || hidden || oldPanel === newPanel || typeof oldPanel.animate !== "function") {
+          panels.forEach(function (panel) { panel.classList.toggle("active", panel === newPanel); });
+          newPanel.classList.add("active");
+          container._modeActivePanelId = newPanelId;
+          return;
+        }
+
+        var oldHeight = oldPanel.getBoundingClientRect().height;
+        var oldAction = oldPanel.querySelector(".actions");
+        var oldActionTop = oldAction ? oldAction.getBoundingClientRect().top : 0;
+        container.style.height = oldHeight + "px";
+        container.classList.add("mode-panels-transitioning");
+        oldPanel.classList.add("mode-panel-outgoing");
+        newPanel.classList.add("active");
+        container._modeActivePanelId = newPanelId;
+        var newHeight = newPanel.getBoundingClientRect().height;
+        var newAction = newPanel.querySelector(".actions");
+        var newActionTop = newAction ? newAction.getBoundingClientRect().top : 0;
+        var oldContent = Array.prototype.slice.call(oldPanel.children).filter(function (node) { return !node.classList.contains("actions"); });
+        var newContent = Array.prototype.slice.call(newPanel.children).filter(function (node) { return !node.classList.contains("actions"); });
+
+        if (oldAction) oldAction.style.visibility = "hidden";
+        oldContent.forEach(function (node) {
+          container._modeAnimations.push(node.animate([
+            { opacity: 1, transform: "translateY(0)" },
+            { opacity: 0, transform: "translateY(-2px)" }
+          ], { duration: 120, easing: "ease-out", fill: "both" }));
+        });
+        newContent.forEach(function (node) {
+          container._modeAnimations.push(node.animate([
+            { opacity: 0, transform: "translateY(3px)" },
+            { opacity: 1, transform: "translateY(0)" }
+          ], { duration: 220, easing: "cubic-bezier(0.22, 0.72, 0.28, 1)", fill: "both" }));
+        });
+        if (newAction) {
+          container._modeAnimations.push(newAction.animate([
+            { transform: "translateY(" + (oldActionTop - newActionTop) + "px)" },
+            { transform: "translateY(0)" }
+          ], { duration: 280, easing: "cubic-bezier(0.22, 0.72, 0.28, 1)", fill: "both" }));
+        }
+
+        container.style.transition = "height 280ms cubic-bezier(0.22, 0.72, 0.28, 1)";
+        void container.offsetHeight;
+        container.style.height = newHeight + "px";
+        container._modeTransitionTimer = window.setTimeout(function () {
+          if (container._modeTransitionToken !== token) return;
+          (container._modeAnimations || []).forEach(function (animation) {
+            try { animation.cancel(); } catch (e) {}
+          });
+          container._modeAnimations = [];
+          panels.forEach(function (panel) {
+            panel.classList.remove("mode-panel-outgoing");
+            panel.classList.toggle("active", panel === newPanel);
+            var action = panel.querySelector(".actions");
+            if (action) action.style.visibility = "";
+          });
+          container.classList.remove("mode-panels-transitioning");
+          container.style.height = "";
+          container.style.transition = "";
+        }, 290);
+      }
+
+      function setDateTab(tab, shouldAnimate){var previous=activeDateTab;activeDateTab=tab;el("dateTabDiff").classList.toggle("active",tab==="diff");el("dateTabShift").classList.toggle("active",tab==="shift");el("dateTabDiff").setAttribute("aria-selected",tab==="diff"?"true":"false");el("dateTabShift").setAttribute("aria-selected",tab==="shift"?"true":"false");el("dateTabDiff").parentElement.setAttribute("data-active",tab);transitionModePanel("dateModePanels",previous==="diff"?"datePanelDiff":"datePanelShift",tab==="diff"?"datePanelDiff":"datePanelShift",shouldAnimate!==false);currentDateResult=null;renderDateResult();}
+      function setDateDirection(value){el("dateDirection").value=value;var b=value==="back";el("dateDirectionBack").classList.toggle("active",b);el("dateDirectionForward").classList.toggle("active",!b);el("dateDirectionBack").setAttribute("aria-pressed",b?"true":"false");el("dateDirectionForward").setAttribute("aria-pressed",b?"false":"true");el("dateDirectionBack").parentElement.setAttribute("data-active",value);}
       function clampDateInputs(){
         var nextDateInput = {
           dateStartY: "dateStartM", dateStartM: "dateStartD", dateStartD: "dateEndY",
@@ -1407,6 +1529,7 @@
         el("directionForward").classList.toggle("active", !isBack);
         el("directionBack").setAttribute("aria-pressed", isBack ? "true" : "false");
         el("directionForward").setAttribute("aria-pressed", !isBack ? "true" : "false");
+        el("directionBack").parentElement.setAttribute("data-active", value);
       }
 
       // 同步时间计算器与日期计算器的前移/后退方向。
@@ -1474,12 +1597,20 @@
         renderResult();
       }
 
-      function setTab(tab) {
+      function setTab(tab, shouldAnimate) {
+        var previous = activeTab;
         activeTab = tab;
         el("tabDiff").classList.toggle("active", tab === "diff");
         el("tabShift").classList.toggle("active", tab === "shift");
-        el("panelDiff").classList.toggle("active", tab === "diff");
-        el("panelShift").classList.toggle("active", tab === "shift");
+        el("tabDiff").setAttribute("aria-selected", tab === "diff" ? "true" : "false");
+        el("tabShift").setAttribute("aria-selected", tab === "shift" ? "true" : "false");
+        el("tabDiff").parentElement.setAttribute("data-active", tab);
+        transitionModePanel(
+          "timeModePanels",
+          previous === "diff" ? "panelDiff" : "panelShift",
+          tab === "diff" ? "panelDiff" : "panelShift",
+          shouldAnimate !== false
+        );
         currentResult = null;
         displayMode = "hm";
         renderResult();
@@ -1488,8 +1619,8 @@
       // 同步“时间计算器”和“日期计算器”的模式：
       // 时间差 ↔ 日期差，前移/后退 ↔ 前移/后退。
       function setModeSync(tab, skipSave) {
-        setTab(tab);
-        setDateTab(tab);
+        setTab(tab, !skipSave);
+        setDateTab(tab, !skipSave);
         if (!skipSave) localStorage.setItem(LAST_MODE_KEY, tab);
       }
 
@@ -1820,6 +1951,7 @@
           if (!isMobileViewport() || e.button !== 0) return;
           var button = e.target.closest("button");
           if (!button || button.disabled) return;
+          if (button.matches(".tab, .direction-tab")) return;
           if (button.matches("#settingsReset")) return;
           if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
           if (activePress) finishPress(true);
@@ -1998,9 +2130,7 @@
           }
         });
 bindTap(el("resultBox"), function () {
-          if (!currentResult || currentResult.type !== "diff") return;
-          displayMode = displayMode === "hm" ? "minutes" : "hm";
-          renderResult(true);
+          switchResultDisplayMode();
         });
 
         document.addEventListener("keydown", function (e) {

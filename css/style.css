@@ -99,6 +99,31 @@
     .panel { display: none; }
     .panel.active { display: block; }
 
+    .mode-panels {
+      position: relative;
+    }
+
+    .mode-panels.mode-panels-transitioning {
+      overflow: hidden;
+      overflow: clip;
+      overflow-clip-margin: 28px;
+      will-change: height;
+    }
+
+    .mode-panels .panel.mode-panel-outgoing {
+      display: block;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .mode-panels.mode-panels-transitioning > .panel.active:not(.mode-panel-outgoing) {
+      position: relative;
+      z-index: 2;
+    }
+
     .field {
       margin-bottom: 18px;
     }
@@ -279,7 +304,7 @@
       touch-action: auto;
     }
 
-    button:active { transform: scale(0.98); }
+    button:not(.tab):not(.direction-tab):active { transform: scale(0.98); }
 
     .btn-primary {
       background: linear-gradient(180deg, var(--primary2), var(--primary));
@@ -2380,11 +2405,7 @@ body.appearance-system.system-dark .history-copy-btn.copied {
 
     @media (prefers-reduced-motion: no-preference) {
       body.appearance-crystal .result-box {
-        transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
-      }
-
-      body.appearance-crystal .result-box:active {
-        transform: scale(0.992);
+        transition: border-color 0.22s ease, box-shadow 0.22s ease;
       }
     }
 
@@ -3143,7 +3164,7 @@ body.appearance-system.system-dark .history-copy-btn.copied {
       -webkit-tap-highlight-color: transparent;
     }
 
-    body.appearance-crystal button:active:not(:disabled),
+    body.appearance-crystal button:not(.tab):not(.direction-tab):active:not(:disabled),
     body.appearance-crystal .stereo-clicked {
       will-change: transform;
     }
@@ -3192,7 +3213,7 @@ body.appearance-system.system-dark .history-copy-btn.copied {
         inset 0 2px 1px rgba(255, 255, 255, 0.94);
     }
 
-    body.appearance-crystal button:active:not(:disabled) {
+    body.appearance-crystal button:not(.tab):not(.direction-tab):active:not(:disabled) {
       transform: translateY(3px) scale(0.985);
       filter: brightness(0.98);
       transition-duration: 85ms;
@@ -3289,6 +3310,313 @@ body.appearance-system.system-dark .history-copy-btn.copied {
       }
     }
 
+    /* 立体风格主页大面积雾蓝底色 */
+    body.appearance-crystal .card {
+      background:
+        linear-gradient(125deg, rgba(255, 255, 255, 0.22), transparent 31%),
+        linear-gradient(145deg, rgba(205, 226, 241, 0.92), rgba(176, 205, 227, 0.86)) !important;
+      border-color: rgba(255, 255, 255, 0.80);
+      box-shadow:
+        0 22px 48px rgba(42, 76, 108, 0.17),
+        inset 0 1px 0 rgba(255, 255, 255, 0.84),
+        inset 0 -1px 1px rgba(91, 129, 162, 0.10);
+    }
+
+    @media (max-width: 640px) {
+      body.appearance-crystal .card {
+        box-shadow:
+          0 16px 34px rgba(42, 76, 108, 0.14),
+          inset 0 1px 0 rgba(255, 255, 255, 0.82),
+          inset 0 -1px 1px rgba(91, 129, 162, 0.09);
+      }
+    }
+
+    /* 立体风格模式切换：扎实的内凹轨道 + 珍珠冰蓝滑块 */
+    body.appearance-crystal .tabs {
+      background-image: none;
+      background-color: rgba(178, 205, 227, 0.62);
+      border: 1px solid rgba(255, 255, 255, 0.52);
+      box-shadow:
+        inset 0 4px 8px rgba(46, 82, 116, 0.15),
+        inset 0 -1px 1px rgba(255, 255, 255, 0.60),
+        0 1px 0 rgba(255, 255, 255, 0.34);
+      backdrop-filter: blur(7px) saturate(108%);
+      -webkit-backdrop-filter: blur(7px) saturate(108%);
+    }
+
+    body.appearance-crystal .tabs::before {
+      background:
+        linear-gradient(145deg, rgba(246, 251, 255, 0.96), rgba(213, 232, 246, 0.90)) !important;
+      border-color: rgba(255, 255, 255, 0.88) !important;
+      box-shadow:
+        0 3px 0 rgba(62, 99, 131, 0.13),
+        0 7px 13px rgba(45, 84, 119, 0.12),
+        inset 0 2px 1px rgba(255, 255, 255, 0.96),
+        inset 0 -1px 1px rgba(103, 143, 177, 0.12) !important;
+    }
+
+    body.appearance-crystal .tabs > .tab {
+      color: #57728f;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.48);
+    }
+
+    body.appearance-crystal .tabs > .tab.active {
+      color: #0759a8;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.76);
+    }
+
+    @media (max-width: 640px) {
+      body.appearance-crystal .tabs::before {
+        box-shadow:
+          0 2px 0 rgba(62, 99, 131, 0.12),
+          0 6px 10px rgba(45, 84, 119, 0.10),
+          inset 0 2px 1px rgba(255, 255, 255, 0.94),
+          inset 0 -1px 1px rgba(103, 143, 177, 0.10) !important;
+      }
+    }
+
+    /* 立体风格计算方向：与模式滑块同体系，但降低一档对比和厚度 */
+    body.appearance-crystal .direction-tabs {
+      background-image: none;
+      background-color: rgba(183, 208, 229, 0.59);
+      border-color: rgba(255, 255, 255, 0.44);
+      box-shadow:
+        inset 0 3px 6px rgba(48, 84, 117, 0.14),
+        inset 0 -1px 1px rgba(255, 255, 255, 0.50),
+        0 1px 0 rgba(255, 255, 255, 0.26);
+      backdrop-filter: blur(6px) saturate(106%);
+      -webkit-backdrop-filter: blur(6px) saturate(106%);
+    }
+
+    body.appearance-crystal .direction-tabs::before {
+      background:
+        linear-gradient(145deg, rgba(246, 251, 255, 0.90), rgba(220, 236, 248, 0.78)) !important;
+      border-color: rgba(255, 255, 255, 0.78) !important;
+      box-shadow:
+        0 2px 0 rgba(67, 105, 137, 0.09),
+        0 5px 10px rgba(48, 87, 122, 0.085),
+        inset 0 1px 1px rgba(255, 255, 255, 0.90),
+        inset 0 -1px 1px rgba(107, 146, 178, 0.08) !important;
+    }
+
+    body.appearance-crystal .direction-tabs > .direction-tab {
+      color: #607a94;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.42);
+    }
+
+    body.appearance-crystal .direction-tabs > .direction-tab.active {
+      color: #0b63ad;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.64);
+    }
+
+    @media (max-width: 640px) {
+      body.appearance-crystal .direction-tabs::before {
+        box-shadow:
+          0 1px 0 rgba(67, 105, 137, 0.085),
+          0 4px 8px rgba(48, 87, 122, 0.07),
+          inset 0 1px 1px rgba(255, 255, 255, 0.88),
+          inset 0 -1px 1px rgba(107, 146, 178, 0.07) !important;
+      }
+    }
+
+    /* 立体风格输入区：凸起选择器与内嵌输入框形成明确层级 */
+    body.appearance-crystal .time-box,
+    body.appearance-crystal .date-box,
+    body.appearance-crystal .mini-box {
+      background-image: none;
+      background-color: rgba(224, 238, 248, 0.52);
+      border-color: rgba(255, 255, 255, 0.74);
+      box-shadow:
+        inset 0 3px 7px rgba(52, 91, 127, 0.11),
+        inset 0 -1px 1px rgba(255, 255, 255, 0.78),
+        0 2px 5px rgba(49, 84, 116, 0.055);
+      backdrop-filter: blur(8px) saturate(112%);
+      -webkit-backdrop-filter: blur(8px) saturate(112%);
+      transition:
+        border-color 180ms ease,
+        background-color 180ms ease,
+        box-shadow 220ms ease;
+    }
+
+    body.appearance-crystal .time-box:focus-within,
+    body.appearance-crystal .date-box:focus-within,
+    body.appearance-crystal .mini-box:focus-within {
+      background-color: rgba(235, 246, 253, 0.66);
+      border-color: rgba(63, 145, 220, 0.62);
+      box-shadow:
+        inset 0 3px 7px rgba(52, 91, 127, 0.12),
+        inset 0 -1px 1px rgba(255, 255, 255, 0.82),
+        0 0 0 3px rgba(64, 150, 230, 0.10),
+        0 5px 12px rgba(43, 102, 157, 0.08);
+    }
+
+    body.appearance-crystal .time-num,
+    body.appearance-crystal .date-num,
+    body.appearance-crystal .mini-input {
+      color: #183550;
+      caret-color: #176fc5;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.48);
+    }
+
+    body.appearance-crystal .time-num::placeholder,
+    body.appearance-crystal .date-num::placeholder,
+    body.appearance-crystal .mini-input::placeholder {
+      color: #71879b;
+      opacity: 0.92;
+    }
+
+    body.appearance-crystal .colon,
+    body.appearance-crystal .date-sep {
+      color: #173653;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.54);
+    }
+
+    body.appearance-crystal .calculator-panel .field > .label {
+      color: #526f8c;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      body.appearance-crystal .time-box:hover,
+      body.appearance-crystal .date-box:hover,
+      body.appearance-crystal .mini-box:hover {
+        background-color: rgba(229, 242, 251, 0.58);
+        border-color: rgba(225, 243, 255, 0.92);
+        box-shadow:
+          inset 0 3px 7px rgba(52, 91, 127, 0.115),
+          inset 0 -1px 1px rgba(255, 255, 255, 0.80),
+          0 3px 7px rgba(49, 84, 116, 0.065);
+      }
+    }
+
+    @media (max-width: 640px) {
+      body.appearance-crystal .time-box,
+      body.appearance-crystal .date-box,
+      body.appearance-crystal .mini-box {
+        box-shadow:
+          inset 0 3px 6px rgba(52, 91, 127, 0.095),
+          inset 0 -1px 1px rgba(255, 255, 255, 0.74),
+          0 1px 4px rgba(49, 84, 116, 0.04);
+      }
+
+      body.appearance-crystal .time-box:focus-within,
+      body.appearance-crystal .date-box:focus-within,
+      body.appearance-crystal .mini-box:focus-within {
+        box-shadow:
+          inset 0 3px 6px rgba(52, 91, 127, 0.105),
+          inset 0 -1px 1px rgba(255, 255, 255, 0.78),
+          0 0 0 3px rgba(64, 150, 230, 0.09),
+          0 4px 9px rgba(43, 102, 157, 0.06);
+      }
+    }
+
+    /* 双端分段选择器：仅滑动共享滑块，标签按钮本身不下沉回弹 */
+    .tabs {
+      position: relative;
+      isolation: isolate;
+    }
+
+    .tabs::before {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      top: 6px;
+      bottom: 6px;
+      left: 6px;
+      width: calc((100% - 18px) / 2);
+      border: 1px solid rgba(255, 255, 255, 0.88);
+      border-radius: 21px;
+      background: #ffffff;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+      pointer-events: none;
+      transition: left 320ms cubic-bezier(0.22, 0.82, 0.32, 1);
+      will-change: left;
+    }
+
+    .tabs[data-active="shift"]::before {
+      left: calc(50% + 3px);
+    }
+
+    .tabs .tab {
+      position: relative;
+      z-index: 1;
+      background: transparent !important;
+      border-color: transparent !important;
+      box-shadow: none !important;
+      transform: none !important;
+      filter: none !important;
+      transition: none !important;
+    }
+
+    .tabs .tab:hover:not(:disabled),
+    .tabs .tab:active:not(:disabled) {
+      transform: none !important;
+      filter: none !important;
+    }
+
+    .direction-tabs {
+      position: relative;
+      isolation: isolate;
+    }
+
+    .direction-tabs::before {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      top: 4px;
+      bottom: 4px;
+      left: 4px;
+      width: calc((100% - 12px) / 2);
+      border: 1px solid rgba(255, 255, 255, 0.88);
+      border-radius: 17px;
+      background: #ffffff;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+      pointer-events: none;
+      transition: left 320ms cubic-bezier(0.22, 0.82, 0.32, 1);
+      will-change: left;
+    }
+
+    .direction-tabs[data-active="forward"]::before {
+      left: calc(50% + 2px);
+    }
+
+    .direction-tabs .direction-tab,
+    .direction-tabs .direction-tab:hover:not(:disabled),
+    .direction-tabs .direction-tab:active:not(:disabled) {
+      position: relative;
+      z-index: 1;
+      background: transparent !important;
+      border-color: transparent !important;
+      box-shadow: none !important;
+      transform: none !important;
+      filter: none !important;
+      transition: none !important;
+    }
+
+    body.appearance-dark .tabs::before,
+    body.appearance-system.system-dark .tabs::before,
+    body.appearance-dark .direction-tabs::before,
+    body.appearance-system.system-dark .direction-tabs::before {
+      background: rgba(15, 23, 42, 0.98);
+      border-color: rgba(71, 85, 105, 0.78);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+
+    body.appearance-crystal .tabs::before,
+    body.appearance-crystal .direction-tabs::before {
+      background: rgba(245, 251, 255, 0.72);
+      border-color: rgba(255, 255, 255, 0.64);
+      box-shadow: 0 7px 18px rgba(42, 80, 120, 0.13), inset 0 1px 0 rgba(255, 255, 255, 0.76);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .tabs::before,
+      .tabs .tab,
+      .direction-tabs::before,
+      .direction-tabs .direction-tab {
+        transition: none !important;
+      }
+    }
+
     @media (max-width: 640px) and (prefers-reduced-motion: reduce) {
       button.mobile-press-active,
       button.mobile-press-releasing {
@@ -3323,7 +3651,7 @@ body.appearance-system.system-dark .history-copy-btn.copied {
         filter: brightness(1.025);
       }
 
-      body.appearance-crystal button:active:not(:disabled) {
+      body.appearance-crystal button:not(.tab):not(.direction-tab):active:not(:disabled) {
         transform: translateY(3px) scale(0.985);
       }
     }
@@ -3421,6 +3749,33 @@ body.appearance-system.system-dark .history-copy-btn.copied {
     @keyframes crystalResultValueUpdate {
       0% { opacity: 0.45; transform: scale(0.985); }
       100% { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes resultUnitTextOut {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-3px); }
+    }
+
+    @keyframes resultUnitTextIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-value.result-unit-leaving {
+      animation: resultUnitTextOut 50ms ease both !important;
+      will-change: transform, opacity;
+    }
+
+    .result-value.result-unit-entering {
+      animation: resultUnitTextIn 70ms cubic-bezier(0.22, 0.72, 0.28, 1) both !important;
+      will-change: transform, opacity;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .result-value.result-unit-leaving,
+      .result-value.result-unit-entering {
+        animation: none !important;
+      }
     }
 
     @media (prefers-reduced-motion: no-preference) {
@@ -3645,6 +4000,36 @@ body.appearance-system.system-dark .history-copy-btn.copied {
       box-shadow:
         0 0 0 rgba(53, 112, 171, 0),
         inset 0 0 0 rgba(255, 255, 255, 0);
+    }
+
+    /* 分段选择器最终交互锁：任何外观与触摸态都只允许共享滑块移动 */
+    .tabs > .tab,
+    .tabs > .tab:hover:not(:disabled),
+    .tabs > .tab:active:not(:disabled),
+    .tabs > .tab.active,
+    .direction-tabs > .direction-tab,
+    .direction-tabs > .direction-tab:hover:not(:disabled),
+    .direction-tabs > .direction-tab:active:not(:disabled),
+    .direction-tabs > .direction-tab.active,
+    body.appearance-crystal .tabs > .tab,
+    body.appearance-crystal .tabs > .tab:active:not(:disabled),
+    body.appearance-crystal .direction-tabs > .direction-tab,
+    body.appearance-crystal .direction-tabs > .direction-tab:active:not(:disabled) {
+      transform: none !important;
+      scale: none !important;
+      filter: none !important;
+      animation: none !important;
+      transition: none !important;
+      box-shadow: none !important;
+      background: transparent !important;
+      border-color: transparent !important;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      appearance: none;
+      -webkit-appearance: none;
+      -webkit-font-smoothing: antialiased;
+      text-size-adjust: 100%;
+      -webkit-text-size-adjust: 100%;
     }
 
     @media (prefers-reduced-motion: reduce) {
