@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>时间计算器 Pro</title>
   <!-- 拆分版：页面结构在这里，样式在 css/style.css，逻辑在 js/app.js -->
-  <link rel="stylesheet" href="./css/style.css?v=1.5.0-input70">
+  <link rel="stylesheet" href="./css/style.css?v=1.5.0-input77">
 </head>
 <body>
   <script>
@@ -68,10 +68,6 @@
           </div>
         </div>
 
-        <div class="actions">
-          <button id="calcDiffBtn" class="btn-primary" type="button">计算</button>
-          <button id="resetDiffBtn" class="btn-secondary" type="button">清空</button>
-        </div>
       </section>
 
       <section id="panelShift" class="panel">
@@ -110,14 +106,15 @@
           </div>
         </div>
 
-        <div class="actions">
-          <button id="calcShiftBtn" class="btn-primary" type="button">计算</button>
-          <button id="resetShiftBtn" class="btn-secondary" type="button">清空</button>
-        </div>
-        <div id="shiftAccumHint" class="accum-hint">连续点“计算”会在上一次结果上继续累计</div>
       </section>
 
       </div>
+
+      <div class="actions mode-actions">
+        <button id="calcModeBtn" class="btn-primary" type="button">计算</button>
+        <button id="resetModeBtn" class="btn-secondary" type="button">清空</button>
+      </div>
+      <div id="shiftAccumHint" class="accum-hint" hidden>连续点“计算”会在上一次结果上继续累计</div>
 
       <section id="resultBox" class="result-box" role="button" tabindex="0">
         <div class="result-label">计算结果</div>
@@ -158,7 +155,6 @@
             <input id="dateEndM" class="date-num" type="number" inputmode="numeric" placeholder="月"><span class="date-sep">月</span>
             <input id="dateEndD" class="date-num" type="number" inputmode="numeric" placeholder="日">
           </div></div>
-          <div class="actions"><button id="calcDateDiffBtn" class="btn-primary" type="button">计算</button><button id="resetDateDiffBtn" class="btn-secondary" type="button">清空</button></div>
         </section>
 
         <section id="datePanelShift" class="panel">
@@ -172,11 +168,15 @@
             <button id="dateDirectionBack" class="direction-tab active" type="button">前移</button><button id="dateDirectionForward" class="direction-tab" type="button">后退</button>
           </div></div>
           <div class="field"><label class="label">天数</label><div class="mini-box"><input id="dateShiftDays" class="mini-input" type="number" inputmode="numeric" placeholder="0"></div></div>
-          <div class="actions"><button id="calcDateShiftBtn" class="btn-primary" type="button">计算</button><button id="resetDateShiftBtn" class="btn-secondary" type="button">清空</button></div>
-          <div id="dateAccumHint" class="accum-hint">连续点“计算”会在上一次结果上继续累计</div>
         </section>
 
         </div>
+
+        <div class="actions mode-actions">
+          <button id="calcDateModeBtn" class="btn-primary" type="button">计算</button>
+          <button id="resetDateModeBtn" class="btn-secondary" type="button">清空</button>
+        </div>
+        <div id="dateAccumHint" class="accum-hint" hidden>连续点“计算”会在上一次结果上继续累计</div>
 
         <section id="dateResultBox" class="result-box"><div class="result-label">计算结果</div><div id="dateResultValue" class="result-value">结果会显示在这里</div><div id="dateResultTip" class="result-tip">日期差会显示相差天数</div></section>
         <section class="history"><div class="history-head"><h2 class="history-title">日期记录</h2><button id="clearDateHistoryBtn" class="clear-btn" type="button">清空记录</button></div><ul id="dateHistoryList" class="history-list"></ul></section>
@@ -698,6 +698,6 @@
     </div>
   </div>
 
-  <script src="./js/app.js?v=1.5.0-input70"></script>
+  <script src="./js/app.js?v=1.5.0-input77"></script>
 </body>
 </html>

@@ -249,7 +249,7 @@
     .direction-label {
       margin-bottom: 8px;
       font-size: 16px;
-      color: #64748b;
+      color: #303b4d;
       font-weight: 800;
     }
 
@@ -271,7 +271,7 @@
       height: 42px;
       border-radius: 15px;
       background: transparent;
-      color: #64748b;
+      color: #334155;
       font-size: 18px;
       font-weight: 900;
       box-shadow: none;
@@ -283,7 +283,7 @@
 
     .direction-tab.active {
       background: #ffffff;
-      color: #2563eb;
+      color: #1d4ed8;
       box-shadow: 0 5px 12px rgba(15, 23, 42, 0.05);
     }
 
@@ -292,6 +292,10 @@
       grid-template-columns: 1fr 1fr;
       gap: 12px;
       margin-top: 8px;
+    }
+
+    .accum-hint[hidden] {
+      display: none !important;
     }
 
     button {
@@ -3287,6 +3291,53 @@ body.appearance-system.system-dark .history-copy-btn.copied {
         -webkit-tap-highlight-color: transparent;
       }
 
+      /* Read a true resting frame before the browser's native :active style is
+         used as the target for the managed mobile press timeline. */
+      body.appearance-crystal.mobile-press-measuring button:not(.tab):not(.direction-tab):active:not(:disabled) {
+        transform: translateY(0) scale(1) !important;
+        filter: none !important;
+        transition: none !important;
+      }
+
+      body.appearance-crystal.mobile-press-measuring .btn-primary:active:not(:disabled),
+      body.appearance-crystal.mobile-press-measuring #settingsDone:active:not(:disabled),
+      body.appearance-crystal.mobile-press-measuring .notice-ok:active:not(:disabled),
+      body.appearance-crystal.mobile-press-measuring .changelog-ok:active:not(:disabled) {
+        box-shadow:
+          0 5px 0 rgba(22, 84, 181, 0.28),
+          0 10px 17px rgba(37, 99, 235, 0.18),
+          inset 0 1px 0 rgba(255, 255, 255, 0.42) !important;
+      }
+
+      body.appearance-crystal.mobile-press-measuring .confirm-ok:active:not(:disabled) {
+        box-shadow:
+          0 8px 0 rgba(22, 84, 181, 0.34),
+          0 14px 22px rgba(37, 99, 235, 0.22),
+          inset 0 1px 0 rgba(255, 255, 255, 0.42) !important;
+      }
+
+      body.appearance-crystal.mobile-press-measuring .btn-secondary:active:not(:disabled),
+      body.appearance-crystal.mobile-press-measuring .confirm-cancel:active:not(:disabled),
+      body.appearance-crystal.mobile-press-measuring .app-switch-btn:active:not(:disabled),
+      body.appearance-crystal.mobile-press-measuring #noticeBtn:active:not(:disabled),
+      body.appearance-crystal.mobile-press-measuring .settings-open:active:not(:disabled),
+      body.appearance-crystal.mobile-press-measuring .settings-back:active:not(:disabled),
+      body.appearance-crystal.mobile-press-measuring .notice-back:active:not(:disabled),
+      body.appearance-crystal.mobile-press-measuring .notice-x:active:not(:disabled),
+      body.appearance-crystal.mobile-press-measuring .changelog-never:active:not(:disabled) {
+        box-shadow:
+          0 5px 0 rgba(91, 116, 145, 0.18),
+          0 9px 15px rgba(42, 76, 111, 0.10),
+          inset 0 1px 0 rgba(255, 255, 255, 0.72) !important;
+      }
+
+      body.appearance-crystal.mobile-press-measuring .clear-btn:active:not(:disabled) {
+        box-shadow:
+          0 4px 0 rgba(145, 69, 86, 0.20),
+          0 9px 17px rgba(111, 63, 75, 0.11),
+          inset 0 2px 1px rgba(255, 255, 255, 0.94) !important;
+      }
+
       button.mobile-press-active {
         transform: translateY(2.5px) scale(0.985) !important;
         filter: brightness(0.98);
@@ -3298,10 +3349,6 @@ body.appearance-system.system-dark .history-copy-btn.copied {
       }
 
       button.mobile-press-icon.mobile-press-active {
-        transform: translateY(2px) scale(0.975) !important;
-      }
-
-      button.mobile-press-dialog.mobile-press-active {
         transform: translateY(2px) scale(0.975) !important;
       }
 
@@ -3400,13 +3447,13 @@ body.appearance-system.system-dark .history-copy-btn.copied {
     }
 
     body.appearance-crystal .direction-tabs > .direction-tab {
-      color: #607a94;
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.42);
+      color: #57728f;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.48);
     }
 
     body.appearance-crystal .direction-tabs > .direction-tab.active {
-      color: #0b63ad;
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.64);
+      color: #0759a8;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.76);
     }
 
     @media (max-width: 640px) {

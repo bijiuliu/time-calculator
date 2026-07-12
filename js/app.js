@@ -1382,28 +1382,33 @@
         var newActionTop = newAction ? newAction.getBoundingClientRect().top : 0;
         var oldContent = Array.prototype.slice.call(oldPanel.children).filter(function (node) { return !node.classList.contains("actions"); });
         var newContent = Array.prototype.slice.call(newPanel.children).filter(function (node) { return !node.classList.contains("actions"); });
+        var mobileTransition = isMobileLayout();
+        var oldContentDuration = mobileTransition ? 160 : 120;
+        var newContentDuration = mobileTransition ? 300 : 220;
+        var newContentDelay = mobileTransition ? 40 : 0;
+        var layoutDuration = mobileTransition ? 360 : 280;
 
         if (oldAction) oldAction.style.visibility = "hidden";
         oldContent.forEach(function (node) {
           container._modeAnimations.push(node.animate([
-            { opacity: 1, transform: "translateY(0)" },
-            { opacity: 0, transform: "translateY(-2px)" }
-          ], { duration: 120, easing: "ease-out", fill: "both" }));
+            { opacity: 1 },
+            { opacity: 0 }
+          ], { duration: oldContentDuration, easing: "ease-out", fill: "both" }));
         });
         newContent.forEach(function (node) {
           container._modeAnimations.push(node.animate([
-            { opacity: 0, transform: "translateY(3px)" },
-            { opacity: 1, transform: "translateY(0)" }
-          ], { duration: 220, easing: "cubic-bezier(0.22, 0.72, 0.28, 1)", fill: "both" }));
+            { opacity: 0 },
+            { opacity: 1 }
+          ], { duration: newContentDuration, delay: newContentDelay, easing: "cubic-bezier(0.22, 0.72, 0.28, 1)", fill: "both" }));
         });
         if (newAction) {
           container._modeAnimations.push(newAction.animate([
             { transform: "translateY(" + (oldActionTop - newActionTop) + "px)" },
             { transform: "translateY(0)" }
-          ], { duration: 280, easing: "cubic-bezier(0.22, 0.72, 0.28, 1)", fill: "both" }));
+          ], { duration: layoutDuration, easing: "cubic-bezier(0.22, 0.72, 0.28, 1)", fill: "both" }));
         }
 
-        container.style.transition = "height 280ms cubic-bezier(0.22, 0.72, 0.28, 1)";
+        container.style.transition = "height " + layoutDuration + "ms cubic-bezier(0.22, 0.72, 0.28, 1)";
         void container.offsetHeight;
         container.style.height = newHeight + "px";
         container._modeTransitionTimer = window.setTimeout(function () {
@@ -1421,10 +1426,10 @@
           container.classList.remove("mode-panels-transitioning");
           container.style.height = "";
           container.style.transition = "";
-        }, 290);
+        }, layoutDuration + 10);
       }
 
-      function setDateTab(tab, shouldAnimate){var previous=activeDateTab;activeDateTab=tab;el("dateTabDiff").classList.toggle("active",tab==="diff");el("dateTabShift").classList.toggle("active",tab==="shift");el("dateTabDiff").setAttribute("aria-selected",tab==="diff"?"true":"false");el("dateTabShift").setAttribute("aria-selected",tab==="shift"?"true":"false");el("dateTabDiff").parentElement.setAttribute("data-active",tab);transitionModePanel("dateModePanels",previous==="diff"?"datePanelDiff":"datePanelShift",tab==="diff"?"datePanelDiff":"datePanelShift",shouldAnimate!==false);currentDateResult=null;renderDateResult();}
+      function setDateTab(tab, shouldAnimate){var previous=activeDateTab;activeDateTab=tab;el("dateTabDiff").classList.toggle("active",tab==="diff");el("dateTabShift").classList.toggle("active",tab==="shift");el("dateTabDiff").setAttribute("aria-selected",tab==="diff"?"true":"false");el("dateTabShift").setAttribute("aria-selected",tab==="shift"?"true":"false");el("dateTabDiff").parentElement.setAttribute("data-active",tab);transitionModePanel("dateModePanels",previous==="diff"?"datePanelDiff":"datePanelShift",tab==="diff"?"datePanelDiff":"datePanelShift",shouldAnimate!==false);el("dateAccumHint").hidden=tab!=="shift";currentDateResult=null;renderDateResult();}
       function setDateDirection(value){el("dateDirection").value=value;var b=value==="back";el("dateDirectionBack").classList.toggle("active",b);el("dateDirectionForward").classList.toggle("active",!b);el("dateDirectionBack").setAttribute("aria-pressed",b?"true":"false");el("dateDirectionForward").setAttribute("aria-pressed",b?"false":"true");el("dateDirectionBack").parentElement.setAttribute("data-active",value);}
       function clampDateInputs(){
         var nextDateInput = {
@@ -1611,6 +1616,7 @@
           tab === "diff" ? "panelDiff" : "panelShift",
           shouldAnimate !== false
         );
+        el("shiftAccumHint").hidden = tab !== "shift";
         currentResult = null;
         displayMode = "hm";
         renderResult();
@@ -1853,9 +1859,6 @@
         }
 
         function pressKind(button) {
-          if (button.matches(".settings-open, #noticeBtn, .notice-x, .settings-back, .notice-back, .notice-ok, .changelog-ok, .changelog-never, .confirm-cancel, .confirm-ok")) {
-            return "dialog";
-          }
           if (button.matches(".btn-primary, #settingsDone, .notice-ok, .changelog-ok, .confirm-ok")) {
             return "primary";
           }
@@ -1863,10 +1866,13 @@
           return "secondary";
         }
 
+        function shouldDeferAction(button) {
+          return button.matches(".settings-open, #noticeBtn, .notice-x, .settings-back, .notice-back, .notice-ok, .changelog-ok, .changelog-never, .confirm-cancel, .confirm-ok");
+        }
+
         function pressTiming(kind) {
           if (kind === "primary") return { press: 110, hold: 50, release: 210 };
           if (kind === "icon") return { press: 90, hold: 40, release: 165 };
-          if (kind === "dialog") return { press: 80, hold: 25, release: 0 };
           return { press: 100, hold: 45, release: 185 };
         }
 
@@ -1890,26 +1896,19 @@
           var button = state.button;
           var timing = state.timing;
 
-          if (state.kind === "dialog") {
-            if (state.pressAnimation) state.pressAnimation.cancel();
-            removeFeedbackClasses(button);
-            buttonStates.delete(button);
-            if (state.resolveAction) state.resolveAction(true);
-            return;
-          }
-
           var pressedStyle = window.getComputedStyle(button);
-          var fromState = { transform: pressedStyle.transform, filter: pressedStyle.filter };
+          var fromState = { transform: pressedStyle.transform, filter: pressedStyle.filter, boxShadow: pressedStyle.boxShadow };
           if (state.pressAnimation) state.pressAnimation.cancel();
           button.classList.add("mobile-press-releasing");
           button.classList.remove("mobile-press-active");
           void button.offsetWidth;
           var restingStyle = window.getComputedStyle(button);
-          var toState = { transform: restingStyle.transform, filter: restingStyle.filter };
+          var toState = { transform: restingStyle.transform, filter: restingStyle.filter, boxShadow: restingStyle.boxShadow };
 
           if (typeof button.animate !== "function") {
             removeFeedbackClasses(button);
             buttonStates.delete(button);
+            if (state.resolveAction) state.resolveAction(true);
             return;
           }
 
@@ -1918,6 +1917,10 @@
             easing: "cubic-bezier(0.22, 0.72, 0.28, 1)"
           });
           state.releaseAnimation = releaseAnimation;
+          if (state.resolveAction) {
+            state.resolveAction(true);
+            state.resolveAction = null;
+          }
           releaseAnimation.finished.then(function () {
             if (buttonStates.get(button) !== state) return;
             removeFeedbackClasses(button);
@@ -1959,7 +1962,10 @@
           if (previousState) cancelState(previousState, false);
           var kind = pressKind(button);
           var timing = pressTiming(kind);
+          document.body.classList.add("mobile-press-measuring");
           var restingStyle = window.getComputedStyle(button);
+          var restingState = { transform: restingStyle.transform, filter: restingStyle.filter, boxShadow: restingStyle.boxShadow };
+          document.body.classList.remove("mobile-press-measuring");
           button.classList.add("mobile-press-" + kind, "mobile-press-active");
           var pressedStyle = window.getComputedStyle(button);
           var state = {
@@ -1977,7 +1983,7 @@
             releaseAnimation: null,
             resolveAction: null
           };
-          if (kind === "dialog") {
+          if (shouldDeferAction(button)) {
             mobileActionReady.set(button, new Promise(function (resolve) {
               state.resolveAction = resolve;
             }));
@@ -1990,8 +1996,8 @@
             return;
           }
           state.pressAnimation = button.animate([
-            { transform: restingStyle.transform, filter: restingStyle.filter },
-            { transform: pressedStyle.transform, filter: pressedStyle.filter }
+            restingState,
+            { transform: pressedStyle.transform, filter: pressedStyle.filter, boxShadow: pressedStyle.boxShadow }
           ], {
             duration: timing.press,
             easing: "ease-out",
@@ -2088,19 +2094,15 @@
         bindTap(el("dateTabShift"), function () { setModeSync("shift"); });
         bindTap(el("dateDirectionBack"), function () { setDirectionSync("back"); });
         bindTap(el("dateDirectionForward"), function () { setDirectionSync("forward"); });
-        bindTap(el("calcDateDiffBtn"), calcDateDiff);
-        bindTap(el("resetDateDiffBtn"), resetDateDiff);
-        bindTap(el("calcDateShiftBtn"), calcDateShift);
-        bindTap(el("resetDateShiftBtn"), resetDateShift);
+        bindTap(el("calcDateModeBtn"), function () { activeDateTab === "diff" ? calcDateDiff() : calcDateShift(); });
+        bindTap(el("resetDateModeBtn"), function () { activeDateTab === "diff" ? resetDateDiff() : resetDateShift(); });
         bindTap(el("clearDateHistoryBtn"), clearAllDateHistory);
 
         bindTap(el("directionBack"), function () { setDirectionSync("back"); });
         bindTap(el("directionForward"), function () { setDirectionSync("forward"); });
 
-        bindTap(el("calcDiffBtn"), calcDiff);
-        bindTap(el("resetDiffBtn"), resetDiff);
-        bindTap(el("calcShiftBtn"), calcShift);
-        bindTap(el("resetShiftBtn"), resetShift);
+        bindTap(el("calcModeBtn"), function () { activeTab === "diff" ? calcDiff() : calcShift(); });
+        bindTap(el("resetModeBtn"), function () { activeTab === "diff" ? resetDiff() : resetShift(); });
         bindTap(el("clearHistoryBtn"), clearAllHistory);
         bindTap(el("clearConfirmCancel"), closeClearConfirm);
         bindTap(el("clearConfirmOk"), confirmClearRecords);
