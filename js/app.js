@@ -1383,32 +1383,35 @@
         var oldContent = Array.prototype.slice.call(oldPanel.children).filter(function (node) { return !node.classList.contains("actions"); });
         var newContent = Array.prototype.slice.call(newPanel.children).filter(function (node) { return !node.classList.contains("actions"); });
         var mobileTransition = isMobileLayout();
-        var oldContentDuration = mobileTransition ? 160 : 120;
-        var newContentDuration = mobileTransition ? 300 : 220;
-        var newContentDelay = mobileTransition ? 40 : 0;
-        var layoutDuration = mobileTransition ? 360 : 280;
+        var contentCrossfadeDuration = mobileTransition ? 330 : 220;
+        var layoutDuration = mobileTransition ? 380 : 280;
+        var layoutEasing = mobileTransition ? "cubic-bezier(0.32, 0, 0.20, 1)" : "cubic-bezier(0.22, 0.72, 0.28, 1)";
+        var oldContentFrames = mobileTransition ? [
+          { opacity: 1, offset: 0 },
+          { opacity: 1, offset: 20 / contentCrossfadeDuration },
+          { opacity: 0, offset: 1 }
+        ] : [{ opacity: 1 }, { opacity: 0 }];
+        var newContentFrames = mobileTransition ? [
+          { opacity: 0, offset: 0 },
+          { opacity: 0, offset: 20 / contentCrossfadeDuration },
+          { opacity: 1, offset: 1 }
+        ] : [{ opacity: 0 }, { opacity: 1 }];
 
         if (oldAction) oldAction.style.visibility = "hidden";
         oldContent.forEach(function (node) {
-          container._modeAnimations.push(node.animate([
-            { opacity: 1 },
-            { opacity: 0 }
-          ], { duration: oldContentDuration, easing: "ease-out", fill: "both" }));
+          container._modeAnimations.push(node.animate(oldContentFrames, { duration: contentCrossfadeDuration, easing: "linear", fill: "both" }));
         });
         newContent.forEach(function (node) {
-          container._modeAnimations.push(node.animate([
-            { opacity: 0 },
-            { opacity: 1 }
-          ], { duration: newContentDuration, delay: newContentDelay, easing: "cubic-bezier(0.22, 0.72, 0.28, 1)", fill: "both" }));
+          container._modeAnimations.push(node.animate(newContentFrames, { duration: contentCrossfadeDuration, easing: "linear", fill: "both" }));
         });
         if (newAction) {
           container._modeAnimations.push(newAction.animate([
             { transform: "translateY(" + (oldActionTop - newActionTop) + "px)" },
             { transform: "translateY(0)" }
-          ], { duration: layoutDuration, easing: "cubic-bezier(0.22, 0.72, 0.28, 1)", fill: "both" }));
+          ], { duration: layoutDuration, easing: layoutEasing, fill: "both" }));
         }
 
-        container.style.transition = "height " + layoutDuration + "ms cubic-bezier(0.22, 0.72, 0.28, 1)";
+        container.style.transition = "height " + layoutDuration + "ms " + layoutEasing;
         void container.offsetHeight;
         container.style.height = newHeight + "px";
         container._modeTransitionTimer = window.setTimeout(function () {
@@ -1491,7 +1494,7 @@
       }
       function renderDateHistory(){var h=loadDateHistory(),list=el("dateHistoryList");if(!h.length){list.innerHTML='<li class="empty">暂无日期记录，先去算一条吧</li>';return;}list.innerHTML=h.map(function(item,index){var main="",sub="";if(item.type==="dateDiff"){main=item.start+" → "+item.end;sub="日期差："+item.days+"天";}else{main=item.baseDate+" "+item.directionText+item.days+"天";sub="结果日期："+item.resultDate;}var copy=main+"\n"+sub;return '<li class="history-item" data-history-key="'+escapeHtml(item.timestamp)+'"><div class="history-top"><span>记录 '+(h.length-index)+'</span><span>'+escapeHtml(formatNow(item.timestamp))+'</span></div><div class="history-main">'+escapeHtml(main)+'</div><div class="history-sub">'+escapeHtml(sub)+'</div><div class="history-actions"><button class="history-action-btn history-copy-btn" type="button" data-action="copy" data-text="'+escapeHtml(copy)+'">复制</button><button class="history-action-btn history-delete-btn" type="button" data-action="delete-date" data-index="'+index+'">删除</button></div></li>';}).join("");}
       function calcDateDiff(){var s=getDateInput("dateStartY","dateStartM","dateStartD","开始日期"),e=getDateInput("dateEndY","dateEndM","dateEndD","结束日期");if(!s.ok)return setDateMessage(s.msg,"例如填写 2026 年 06 月 10 日");if(!e.ok)return setDateMessage(e.msg,"例如填写 2026 年 06 月 20 日");var diff=dateDiffDays(s.date,e.date),rev=diff<0;currentDateResult={type:"dateDiff",start:rev?e.text:s.text,end:rev?s.text:e.text,days:Math.abs(diff),timestamp:Date.now()};renderDateResult();addDateHistory(currentDateResult);}
-      function calcDateShift(){var b=getDateInput("dateBaseY","dateBaseM","dateBaseD","基准日期");if(!b.ok)return setDateMessage(b.msg,"例如填写 2026 年 06 月 10 日");var days=Number(el("dateShiftDays").value||0);if(days<=0)return setDateMessage("请输入前移/后退天数","例如 7 天 或 30 天");var dir=el("dateDirection").value,txt=dir==="back"?"前移":"后退",res=addDays(b.date,dir==="back"?-days:days),rt=formatDate(res);currentDateResult={type:"dateShift",baseDate:b.text,directionText:txt,days:days,resultDate:rt,timestamp:Date.now()};renderDateResult();addDateHistory(currentDateResult);var hint=el("dateAccumHint");if(appSettings.accumulation!=="off"){dateToInput(res,"dateBaseY","dateBaseM","dateBaseD");if(hint)hint.innerText="已自动把基准日期更新为 "+rt+"，再点计算会继续累计";}else if(hint){hint.innerText="连续累计已关闭：基准日期保持为 "+b.text;}}
+      function calcDateShift(){var b=getDateInput("dateBaseY","dateBaseM","dateBaseD","基准日期");if(!b.ok)return setDateMessage(b.msg,"例如填写 2026 年 06 月 10 日");var days=Number(el("dateShiftDays").value||0);if(days<=0)return setDateMessage("请输入前移/后退天数","例如 7 天 或 30 天");var dir=el("dateDirection").value,txt=dir==="back"?"前移":"后退",res=addDays(b.date,dir==="back"?-days:days),rt=formatDate(res);currentDateResult={type:"dateShift",baseDate:b.text,directionText:txt,days:days,resultDate:rt,timestamp:Date.now()};renderDateResult();addDateHistory(currentDateResult);var hint=el("dateAccumHint");if(appSettings.accumulation!=="off"){dateToInput(res,"dateBaseY","dateBaseM","dateBaseD");if(hint)hint.innerText="已将基准日期更新为 "+rt+"，再点计算会继续累计";}else if(hint){hint.innerText="连续累计已关闭：基准日期保持为 "+b.text;}}
       function resetDateDiff(){["dateStartY","dateStartM","dateStartD","dateEndY","dateEndM","dateEndD","dateStartNative","dateEndNative"].forEach(function(id){el(id).value=""});currentDateResult=null;renderDateResult();}
       function resetDateShift(){["dateBaseY","dateBaseM","dateBaseD","dateShiftDays","dateBaseNative"].forEach(function(id){el(id).value=""});currentDateResult=null;updateAccumulationHints();renderDateResult();}
       function clearAllDateHistory(){if(historyClearAnimating.date)return;if(!loadDateHistory().length)return setDateMessage("暂无记录可清空","先去算一条吧");openClearConfirm("date");}
@@ -1580,7 +1583,7 @@
         if (appSettings.accumulation !== "off") {
           setTimeValue("baseH", "baseM", resultTime);
           if (hint) {
-            hint.innerText = "已自动把基准时间更新为 " + resultTime + "，再点计算会继续累计";
+            hint.innerText = "已将基准时间更新为 " + resultTime + "，再点计算会继续累计";
           }
         } else if (hint) {
           hint.innerText = "连续累计已关闭：基准时间保持为 " + base.text;
