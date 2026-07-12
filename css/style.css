@@ -3309,7 +3309,7 @@ body.appearance-system.system-dark .history-copy-btn.copied {
 
       /* Read a true resting frame before the browser's native :active style is
          used as the target for the managed mobile press timeline. */
-      body.appearance-crystal.mobile-press-measuring button:not(.tab):not(.direction-tab):active:not(:disabled) {
+      body.mobile-press-measuring button:not(.tab):not(.direction-tab):active:not(:disabled) {
         transform: translateY(0) scale(1) !important;
         filter: none !important;
         transition: none !important;
@@ -3355,17 +3355,17 @@ body.appearance-system.system-dark .history-copy-btn.copied {
       }
 
       button.mobile-press-active {
-        transform: translateY(2.5px) scale(0.985) !important;
+        transform: translateY(2px) scale(0.99) !important;
         filter: brightness(0.98);
         transition: none !important;
       }
 
       button.mobile-press-primary.mobile-press-active {
-        transform: translateY(3px) scale(0.985) !important;
+        transform: translateY(3px) scale(0.988) !important;
       }
 
       button.mobile-press-icon.mobile-press-active {
-        transform: translateY(2px) scale(0.975) !important;
+        transform: translateY(1.5px) scale(0.975) !important;
       }
 
       button.mobile-press-releasing {

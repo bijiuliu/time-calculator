@@ -1874,28 +1874,41 @@
         }
 
         function pressTiming(kind) {
-          if (kind === "primary") return { press: 110, hold: 50, release: 210 };
-          if (kind === "icon") return { press: 90, hold: 40, release: 165 };
-          return { press: 100, hold: 45, release: 185 };
+          if (kind === "primary") return { press: 80, minVisible: 90, release: 180 };
+          if (kind === "icon") return { press: 60, minVisible: 70, release: 140 };
+          return { press: 70, minVisible: 80, release: 160 };
+        }
+
+        function canAnimateButton(button) {
+          if (!button || button.disabled) return false;
+          if (button.matches(".tab, .direction-tab, #settingsReset")) return false;
+          return !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
         }
 
         function removeFeedbackClasses(button) {
           button.classList.remove("mobile-press-active", "mobile-press-releasing", "mobile-press-primary", "mobile-press-secondary", "mobile-press-icon", "mobile-press-dialog");
         }
 
+        function resolveDeferredAction(state, allowed) {
+          if (!state || !state.resolveAction) return;
+          state.resolveAction(allowed === true);
+          state.resolveAction = null;
+        }
+
         function cancelState(state, allowAction) {
           if (!state || state.cancelled) return;
           state.cancelled = true;
-          if (state.holdTimer) window.clearTimeout(state.holdTimer);
+          if (state.releaseTimer) window.clearTimeout(state.releaseTimer);
           if (state.pressAnimation) state.pressAnimation.cancel();
           if (state.releaseAnimation) state.releaseAnimation.cancel();
-          if (state.resolveAction) state.resolveAction(allowAction === true);
+          resolveDeferredAction(state, allowAction);
           removeFeedbackClasses(state.button);
           buttonStates.delete(state.button);
         }
 
-        function startFixedRelease(state) {
-          if (!state || state.cancelled) return;
+        function startRelease(state) {
+          if (!state || state.cancelled || state.releasing) return;
+          state.releasing = true;
           var button = state.button;
           var timing = state.timing;
 
@@ -1911,19 +1924,16 @@
           if (typeof button.animate !== "function") {
             removeFeedbackClasses(button);
             buttonStates.delete(button);
-            if (state.resolveAction) state.resolveAction(true);
+            resolveDeferredAction(state, true);
             return;
           }
 
           var releaseAnimation = button.animate([fromState, toState], {
             duration: timing.release,
-            easing: "cubic-bezier(0.22, 0.72, 0.28, 1)"
+            easing: "cubic-bezier(0.22, 0.80, 0.25, 1)"
           });
           state.releaseAnimation = releaseAnimation;
-          if (state.resolveAction) {
-            state.resolveAction(true);
-            state.resolveAction = null;
-          }
+          resolveDeferredAction(state, true);
           releaseAnimation.finished.then(function () {
             if (buttonStates.get(button) !== state) return;
             removeFeedbackClasses(button);
@@ -1932,13 +1942,13 @@
         }
 
         function scheduleRelease(state) {
-          if (!state || state.cancelled || !state.released || !state.pressFinishedAt) return;
-          var remainingHold = Math.max(0, state.timing.hold - (performance.now() - state.pressFinishedAt));
-          if (state.holdTimer) window.clearTimeout(state.holdTimer);
-          state.holdTimer = window.setTimeout(function () {
-            state.holdTimer = null;
-            startFixedRelease(state);
-          }, remainingHold);
+          if (!state || state.cancelled || !state.released || state.releasing) return;
+          var remainingVisible = Math.max(0, state.timing.minVisible - (performance.now() - state.startedAt));
+          if (state.releaseTimer) window.clearTimeout(state.releaseTimer);
+          state.releaseTimer = window.setTimeout(function () {
+            state.releaseTimer = null;
+            startRelease(state);
+          }, remainingVisible);
         }
 
         function finishPress(cancelled) {
@@ -1953,14 +1963,7 @@
           scheduleRelease(state);
         }
 
-        document.addEventListener("pointerdown", function (e) {
-          if (!isMobileViewport() || e.button !== 0) return;
-          var button = e.target.closest("button");
-          if (!button || button.disabled) return;
-          if (button.matches(".tab, .direction-tab")) return;
-          if (button.matches("#settingsReset")) return;
-          if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-          if (activePress) finishPress(true);
+        function beginPress(button, pointerId, startX, startY) {
           var previousState = buttonStates.get(button);
           if (previousState) cancelState(previousState, false);
           var kind = pressKind(button);
@@ -1975,13 +1978,14 @@
             button: button,
             kind: kind,
             timing: timing,
-            pointerId: e.pointerId,
-            startX: e.clientX,
-            startY: e.clientY,
+            pointerId: pointerId,
+            startX: startX,
+            startY: startY,
+            startedAt: performance.now(),
             released: false,
+            releasing: false,
             cancelled: false,
-            pressFinishedAt: 0,
-            holdTimer: null,
+            releaseTimer: null,
             pressAnimation: null,
             releaseAnimation: null,
             resolveAction: null
@@ -1992,25 +1996,26 @@
             }));
           }
           buttonStates.set(button, state);
-          activePress = state;
 
-          if (typeof button.animate !== "function") {
-            state.pressFinishedAt = performance.now();
-            return;
+          if (typeof button.animate === "function") {
+            state.pressAnimation = button.animate([
+              restingState,
+              { transform: pressedStyle.transform, filter: pressedStyle.filter, boxShadow: pressedStyle.boxShadow }
+            ], {
+              duration: timing.press,
+              easing: "cubic-bezier(0.20, 0, 0, 1)",
+              fill: "both"
+            });
           }
-          state.pressAnimation = button.animate([
-            restingState,
-            { transform: pressedStyle.transform, filter: pressedStyle.filter, boxShadow: pressedStyle.boxShadow }
-          ], {
-            duration: timing.press,
-            easing: "ease-out",
-            fill: "both"
-          });
-          state.pressAnimation.finished.then(function () {
-            if (buttonStates.get(button) !== state || state.cancelled) return;
-            state.pressFinishedAt = performance.now();
-            scheduleRelease(state);
-          }, function () {});
+          return state;
+        }
+
+        document.addEventListener("pointerdown", function (e) {
+          if (!isMobileViewport() || e.button !== 0) return;
+          var button = e.target.closest("button");
+          if (!canAnimateButton(button)) return;
+          if (activePress) finishPress(true);
+          activePress = beginPress(button, e.pointerId, e.clientX, e.clientY);
         });
 
         document.addEventListener("pointermove", function (e) {
@@ -2029,6 +2034,15 @@
           if (!activePress || e.pointerId !== activePress.pointerId) return;
           finishPress(true);
         });
+
+        document.addEventListener("click", function (e) {
+          if (!isMobileViewport() || e.detail === 0) return;
+          var button = e.target.closest("button");
+          if (!canAnimateButton(button) || buttonStates.has(button)) return;
+          var fallbackState = beginPress(button, null, 0, 0);
+          fallbackState.released = true;
+          scheduleRelease(fallbackState);
+        }, true);
 
         window.addEventListener("blur", function () { finishPress(true); });
       }
