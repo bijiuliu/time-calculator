@@ -1381,7 +1381,7 @@
         var newAction = newPanel.querySelector(".actions");
         var newActionTop = newAction ? newAction.getBoundingClientRect().top : 0;
         var mobileTransition = isMobileLayout();
-        var contentCrossfadeDuration = mobileTransition ? 330 : 220;
+        var contentCrossfadeDuration = mobileTransition ? 180 : 160;
         var layoutDuration = mobileTransition ? 380 : 280;
         var layoutEasing = mobileTransition ? "cubic-bezier(0.32, 0, 0.20, 1)" : "cubic-bezier(0.22, 0.72, 0.28, 1)";
         var oldContentFrames = mobileTransition ? [
