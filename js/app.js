@@ -1381,30 +1381,25 @@
         var newAction = newPanel.querySelector(".actions");
         var newActionTop = newAction ? newAction.getBoundingClientRect().top : 0;
         var mobileTransition = isMobileLayout();
-        var contentCrossfadeDuration = mobileTransition ? 180 : 160;
+        var contentCrossfadeDuration = 200;
+        var contentCrossfadeDelay = mobileTransition ? 80 : 60;
         var layoutDuration = mobileTransition ? 380 : 280;
         var layoutEasing = mobileTransition ? "cubic-bezier(0.32, 0, 0.20, 1)" : "cubic-bezier(0.22, 0.72, 0.28, 1)";
-        var oldContentFrames = mobileTransition ? [
-          { opacity: 1, offset: 0 },
-          { opacity: 1, offset: 20 / contentCrossfadeDuration },
-          { opacity: 0, offset: 1 }
-        ] : [{ opacity: 1 }, { opacity: 0 }];
-        var newContentFrames = mobileTransition ? [
-          { opacity: 0, offset: 0 },
-          { opacity: 0, offset: 20 / contentCrossfadeDuration },
-          { opacity: 1, offset: 1 }
-        ] : [{ opacity: 0 }, { opacity: 1 }];
+        var oldContentFrames = [{ opacity: 1 }, { opacity: 0 }];
+        var newContentFrames = [{ opacity: 0 }, { opacity: 1 }];
 
         if (oldAction) oldAction.style.visibility = "hidden";
         // Animate each panel as one compositor layer. Animating every field separately
         // creates many overlapping layers and can trigger tile corruption on older iOS GPUs.
         container._modeAnimations.push(oldPanel.animate(oldContentFrames, {
           duration: contentCrossfadeDuration,
+          delay: contentCrossfadeDelay,
           easing: "linear",
           fill: "both"
         }));
         container._modeAnimations.push(newPanel.animate(newContentFrames, {
           duration: contentCrossfadeDuration,
+          delay: contentCrossfadeDelay,
           easing: "linear",
           fill: "both"
         }));
@@ -1776,6 +1771,8 @@
 
       function bindUnifiedVibration() {
         document.addEventListener("click", function (e) {
+          var sliderTrack = e.target.closest(".tabs, .direction-tabs");
+          if (sliderTrack && Date.now() < (sliderTrack._sliderSuppressClickUntil || 0)) return;
           var target = e.target.closest("button, #resultBox");
           if (!target) return;
           vibrateTap();
@@ -1855,6 +1852,310 @@
           cancelClickUntil = 0;
           runAfterMobilePressFeedback(node, function () { fn(e); });
         });
+      }
+
+      function bindDraggableSegmentedSlider(track, values, commitValue) {
+        if (!track || !values || values.length !== 2) return;
+
+        var tracking = false;
+        var dragging = false;
+        var startedOnSelectedSegment = false;
+        var pointerId = null;
+        var startX = 0;
+        var startY = 0;
+        var rect = null;
+        var thumbWidth = 0;
+        var thumbLeft = 0;
+        var travel = 0;
+        var grabOffset = 0;
+        var progress = 0;
+        var pendingProgress = null;
+        var frameId = 0;
+        var magneticFrameId = 0;
+        var magneticTargetProgress = null;
+        var magneticLastTime = 0;
+        var magneticCaught = false;
+        var magneticVelocity = 0;
+        var magneticSpringMode = null;
+        var holdTimer = 0;
+        var latestClientX = 0;
+        var pendingSnapValue = null;
+        var IOS_SPRING_STIFFNESS = 503.551;
+        var IOS_SPRING_DAMPING = 44.8799;
+
+        function clamp(value, min, max) {
+          return Math.max(min, Math.min(max, value));
+        }
+
+        function activeIndex() {
+          return track.getAttribute("data-active") === values[1] ? 1 : 0;
+        }
+
+        function clearFrame() {
+          if (!frameId) return;
+          cancelAnimationFrame(frameId);
+          frameId = 0;
+        }
+
+        function renderProgress(value) {
+          progress = clamp(value, 0, 1);
+          track.style.setProperty("--slider-drag-x", (progress * travel).toFixed(3) + "px");
+        }
+
+        function queueProgress(value) {
+          pendingProgress = clamp(value, 0, 1);
+          if (frameId) return;
+          frameId = requestAnimationFrame(function () {
+            frameId = 0;
+            if (pendingProgress === null) return;
+            renderProgress(pendingProgress);
+            pendingProgress = null;
+          });
+        }
+
+        function flushProgress() {
+          clearFrame();
+          if (pendingProgress === null) return;
+          renderProgress(pendingProgress);
+          pendingProgress = null;
+        }
+
+        function progressFromClientX(clientX) {
+          if (!rect || travel <= 0) return activeIndex();
+          var centerStart = rect.left + thumbLeft + thumbWidth / 2;
+          return clamp((clientX - grabOffset - centerStart) / travel, 0, 1);
+        }
+
+        function absoluteProgressFromClientX(clientX) {
+          if (!rect || travel <= 0) return activeIndex();
+          var centerStart = rect.left + thumbLeft + thumbWidth / 2;
+          return clamp((clientX - centerStart) / travel, 0, 1);
+        }
+
+        function indexFromClientX(clientX) {
+          if (!rect) return activeIndex();
+          return clientX < rect.left + rect.width / 2 ? 0 : 1;
+        }
+
+        function stopMagneticFollow() {
+          if (magneticFrameId) cancelAnimationFrame(magneticFrameId);
+          magneticFrameId = 0;
+          magneticTargetProgress = null;
+          magneticLastTime = 0;
+          magneticCaught = false;
+          magneticVelocity = 0;
+          magneticSpringMode = null;
+        }
+
+        function clearHoldTimer() {
+          if (!holdTimer) return;
+          window.clearTimeout(holdTimer);
+          holdTimer = 0;
+        }
+
+        function activateDragging() {
+          if (!tracking || dragging) return;
+          clearHoldTimer();
+          dragging = true;
+          track.classList.add("slider-dragging");
+          if (track.setPointerCapture && pointerId !== null) {
+            try { track.setPointerCapture(pointerId); } catch (error) {}
+          }
+          if (startedOnSelectedSegment) {
+            queueProgress(progressFromClientX(latestClientX));
+          } else {
+            queueMagneticProgress(absoluteProgressFromClientX(latestClientX));
+          }
+        }
+
+        function runMagneticFollow(timestamp) {
+          magneticFrameId = 0;
+          if (magneticTargetProgress === null) return;
+          if (magneticSpringMode === "follow" && (!dragging || startedOnSelectedSegment)) return;
+
+          var dt = (magneticLastTime ? Math.min(32, timestamp - magneticLastTime) : 16.67) / 1000;
+          magneticLastTime = timestamp;
+          var nextProgress = progress;
+          var remaining = dt;
+
+          while (remaining > 0) {
+            var step = Math.min(remaining, 1 / 120);
+            var acceleration = IOS_SPRING_STIFFNESS * (magneticTargetProgress - nextProgress)
+              - IOS_SPRING_DAMPING * magneticVelocity;
+            magneticVelocity += acceleration * step;
+            nextProgress += magneticVelocity * step;
+            remaining -= step;
+          }
+          nextProgress = clamp(nextProgress, 0, 1);
+
+          if (Math.abs(magneticTargetProgress - nextProgress) * travel <= 2
+            && Math.abs(magneticVelocity) * travel <= 30) {
+            nextProgress = magneticTargetProgress;
+            magneticVelocity = 0;
+            magneticCaught = true;
+          }
+
+          renderProgress(nextProgress);
+          if (!magneticCaught) {
+            magneticFrameId = requestAnimationFrame(runMagneticFollow);
+          } else if (magneticSpringMode === "snap") {
+            var value = pendingSnapValue;
+            pendingSnapValue = null;
+            if (value !== null && track.getAttribute("data-active") !== value) commitValue(value);
+            clearInteractionStyles();
+          }
+        }
+
+        function queueMagneticProgress(value) {
+          magneticTargetProgress = clamp(value, 0, 1);
+          magneticSpringMode = "follow";
+          if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            magneticCaught = true;
+            renderProgress(magneticTargetProgress);
+            return;
+          }
+          if (magneticCaught) {
+            queueProgress(magneticTargetProgress);
+            return;
+          }
+          if (!magneticFrameId) magneticFrameId = requestAnimationFrame(runMagneticFollow);
+        }
+
+        function clearInteractionStyles() {
+          clearHoldTimer();
+          stopMagneticFollow();
+          track.classList.remove("slider-dragging", "slider-snapping");
+          track.style.removeProperty("--slider-drag-x");
+          track.style.removeProperty("--slider-snap-duration");
+        }
+
+        function finalizePendingSnap() {
+          var value = pendingSnapValue;
+          pendingSnapValue = null;
+          if (value !== null && track.getAttribute("data-active") !== value) commitValue(value);
+          clearInteractionStyles();
+        }
+
+        function snapTo(targetIndex, shouldCommit) {
+          flushProgress();
+          var targetProgress = targetIndex ? 1 : 0;
+          var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+          if (reduceMotion) {
+            renderProgress(targetProgress);
+            if (shouldCommit && track.getAttribute("data-active") !== values[targetIndex]) commitValue(values[targetIndex]);
+            clearInteractionStyles();
+            return;
+          }
+
+          if (magneticFrameId) cancelAnimationFrame(magneticFrameId);
+          magneticFrameId = 0;
+          magneticTargetProgress = targetProgress;
+          magneticLastTime = 0;
+          magneticCaught = false;
+          magneticSpringMode = "snap";
+          pendingSnapValue = shouldCommit ? values[targetIndex] : null;
+          track.classList.remove("slider-snapping");
+          track.classList.add("slider-dragging");
+          magneticFrameId = requestAnimationFrame(runMagneticFollow);
+        }
+
+        function releasePointer() {
+          if (pointerId === null || !track.hasPointerCapture || !track.hasPointerCapture(pointerId)) return;
+          try { track.releasePointerCapture(pointerId); } catch (error) {}
+        }
+
+        track.addEventListener("pointerdown", function (e) {
+          if (e.pointerType === "mouse" && e.button !== 0) return;
+          finalizePendingSnap();
+
+          var pseudoStyle = window.getComputedStyle(track, "::before");
+          rect = track.getBoundingClientRect();
+          thumbWidth = parseFloat(pseudoStyle.width) || 0;
+          thumbLeft = parseFloat(pseudoStyle.left) || 0;
+          travel = Math.max(0, rect.width - thumbLeft * 2 - thumbWidth);
+          progress = activeIndex();
+          startX = e.clientX;
+          startY = e.clientY;
+          latestClientX = e.clientX;
+          pointerId = e.pointerId;
+          tracking = true;
+          dragging = false;
+
+          var currentThumbLeft = rect.left + thumbLeft + progress * travel;
+          startedOnSelectedSegment = indexFromClientX(e.clientX) === activeIndex();
+          grabOffset = e.clientX - (currentThumbLeft + thumbWidth / 2);
+          holdTimer = window.setTimeout(function () {
+            holdTimer = 0;
+            startedOnSelectedSegment = false;
+            activateDragging();
+          }, 160);
+        });
+
+        track.addEventListener("pointermove", function (e) {
+          if (!tracking || e.pointerId !== pointerId) return;
+          latestClientX = e.clientX;
+          var dx = e.clientX - startX;
+          var dy = e.clientY - startY;
+          var threshold = e.pointerType === "mouse" ? 4 : 6;
+
+          if (!dragging) {
+            if (Math.abs(dy) > threshold && Math.abs(dy) > Math.abs(dx)) {
+              clearHoldTimer();
+              tracking = false;
+              pointerId = null;
+              return;
+            }
+            if (Math.abs(dx) < threshold) return;
+            activateDragging();
+          }
+
+          if (e.cancelable) e.preventDefault();
+          if (startedOnSelectedSegment) {
+            queueProgress(progressFromClientX(e.clientX));
+          } else {
+            queueMagneticProgress(absoluteProgressFromClientX(e.clientX));
+          }
+        }, { passive: false });
+
+        track.addEventListener("pointerup", function (e) {
+          if (!tracking || e.pointerId !== pointerId) return;
+          clearHoldTimer();
+          tracking = false;
+          releasePointer();
+          pointerId = null;
+          if (!dragging) return;
+
+          dragging = false;
+          if (startedOnSelectedSegment) {
+            flushProgress();
+          }
+          var targetIndex = startedOnSelectedSegment
+            ? (progress >= 0.5 ? 1 : 0)
+            : indexFromClientX(e.clientX);
+          track._sliderSuppressClickUntil = Date.now() + 600;
+          snapTo(targetIndex, values[targetIndex] !== track.getAttribute("data-active"));
+        });
+
+        track.addEventListener("pointercancel", function (e) {
+          if (!tracking || e.pointerId !== pointerId) return;
+          clearHoldTimer();
+          tracking = false;
+          releasePointer();
+          pointerId = null;
+          clearFrame();
+          pendingProgress = null;
+          if (!dragging) return;
+          dragging = false;
+          stopMagneticFollow();
+          track._sliderSuppressClickUntil = Date.now() + 600;
+          snapTo(activeIndex(), false);
+        });
+
+        track.addEventListener("click", function (e) {
+          if (Date.now() >= (track._sliderSuppressClickUntil || 0)) return;
+          e.preventDefault();
+          e.stopImmediatePropagation();
+        }, true);
       }
 
       function bindMobilePressFeedback() {
@@ -2121,6 +2422,11 @@
 
         bindTap(el("directionBack"), function () { setDirectionSync("back"); });
         bindTap(el("directionForward"), function () { setDirectionSync("forward"); });
+
+        bindDraggableSegmentedSlider(el("tabDiff").parentElement, ["diff", "shift"], setModeSync);
+        bindDraggableSegmentedSlider(el("dateTabDiff").parentElement, ["diff", "shift"], setModeSync);
+        bindDraggableSegmentedSlider(el("directionBack").parentElement, ["back", "forward"], setDirectionSync);
+        bindDraggableSegmentedSlider(el("dateDirectionBack").parentElement, ["back", "forward"], setDirectionSync);
 
         bindTap(el("calcModeBtn"), function () { activeTab === "diff" ? calcDiff() : calcShift(); });
         bindTap(el("resetModeBtn"), function () { activeTab === "diff" ? resetDiff() : resetShift(); });
