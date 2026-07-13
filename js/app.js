@@ -1380,8 +1380,6 @@
         var newHeight = newPanel.getBoundingClientRect().height;
         var newAction = newPanel.querySelector(".actions");
         var newActionTop = newAction ? newAction.getBoundingClientRect().top : 0;
-        var oldContent = Array.prototype.slice.call(oldPanel.children).filter(function (node) { return !node.classList.contains("actions"); });
-        var newContent = Array.prototype.slice.call(newPanel.children).filter(function (node) { return !node.classList.contains("actions"); });
         var mobileTransition = isMobileLayout();
         var contentCrossfadeDuration = mobileTransition ? 330 : 220;
         var layoutDuration = mobileTransition ? 380 : 280;
@@ -1398,12 +1396,18 @@
         ] : [{ opacity: 0 }, { opacity: 1 }];
 
         if (oldAction) oldAction.style.visibility = "hidden";
-        oldContent.forEach(function (node) {
-          container._modeAnimations.push(node.animate(oldContentFrames, { duration: contentCrossfadeDuration, easing: "linear", fill: "both" }));
-        });
-        newContent.forEach(function (node) {
-          container._modeAnimations.push(node.animate(newContentFrames, { duration: contentCrossfadeDuration, easing: "linear", fill: "both" }));
-        });
+        // Animate each panel as one compositor layer. Animating every field separately
+        // creates many overlapping layers and can trigger tile corruption on older iOS GPUs.
+        container._modeAnimations.push(oldPanel.animate(oldContentFrames, {
+          duration: contentCrossfadeDuration,
+          easing: "linear",
+          fill: "both"
+        }));
+        container._modeAnimations.push(newPanel.animate(newContentFrames, {
+          duration: contentCrossfadeDuration,
+          easing: "linear",
+          fill: "both"
+        }));
         if (newAction) {
           container._modeAnimations.push(newAction.animate([
             { transform: "translateY(" + (oldActionTop - newActionTop) + "px)" },
