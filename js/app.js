@@ -544,6 +544,8 @@
         setInputMode(appSettings.inputMode, false);
         applyAppearanceSettings();
         updateAccumulationHints();
+        renderResult(true);
+        renderDateResult(true);
 
         var nextHistoryLimit = getHistoryLimit();
         if (nextHistoryLimit < previousHistoryLimit) {
@@ -1057,7 +1059,8 @@
           el("resultValue").innerText = currentResult.resultTime;
           el("resultTip").innerText =
             currentResult.baseTime + " " + currentResult.directionText + " " +
-            formatHM(currentResult.shiftTotal) + " = " + currentResult.resultTime + "，再点计算可继续累计";
+            formatHM(currentResult.shiftTotal) + " = " + currentResult.resultTime +
+            (appSettings.accumulation === "off" ? "" : "，再次计算可累加");
         }
         if (!valueOnly) animateResultDisplay("resultBox", false);
       }
@@ -1548,7 +1551,7 @@
       }
       function dateDiffDays(a,b){return Math.round((Date.UTC(b.getFullYear(),b.getMonth(),b.getDate())-Date.UTC(a.getFullYear(),a.getMonth(),a.getDate()))/86400000);}
       function addDays(d,days){var r=new Date(d.getFullYear(),d.getMonth(),d.getDate());r.setDate(r.getDate()+days);return r;}
-      function renderDateResult(){if(!currentDateResult){el("dateResultValue").innerText="结果会显示在这里";el("dateResultTip").innerText=activeDateTab==="diff"?"日期差会显示相差天数":"示例：2026年6月10日 前移7天 = 2026年6月3日";return;}if(currentDateResult.type==="dateDiff"){el("dateResultValue").innerText=currentDateResult.days+"天";el("dateResultTip").innerText=currentDateResult.start+" 到 "+currentDateResult.end;}else{el("dateResultValue").innerText=currentDateResult.resultDate;el("dateResultTip").innerText=currentDateResult.baseDate+" "+currentDateResult.directionText+currentDateResult.days+"天 = "+currentDateResult.resultDate+"，再点计算可继续累计";}animateResultDisplay("dateResultBox");}
+      function renderDateResult(skipAnimation){if(!currentDateResult){el("dateResultValue").innerText="结果会显示在这里";el("dateResultTip").innerText=activeDateTab==="diff"?"日期差会显示相差天数":"示例：2026年6月10日 前移7天 = 2026年6月3日";return;}if(currentDateResult.type==="dateDiff"){el("dateResultValue").innerText=currentDateResult.days+"天";el("dateResultTip").innerText=currentDateResult.start+" 到 "+currentDateResult.end;}else{el("dateResultValue").innerText=currentDateResult.resultDate;el("dateResultTip").innerText=currentDateResult.baseDate+" "+currentDateResult.directionText+currentDateResult.days+"天 = "+currentDateResult.resultDate+(appSettings.accumulation==="off"?"":"，再次计算可累加");}if(!skipAnimation)animateResultDisplay("dateResultBox");}
       function loadDateHistory(){try{var d=JSON.parse(localStorage.getItem(DATE_STORAGE_KEY)||"[]");return Array.isArray(d)?d:[]}catch(e){return[]}}
       function saveDateHistory(h){localStorage.setItem(DATE_STORAGE_KEY,JSON.stringify(h));}
       function addDateHistory(r){
