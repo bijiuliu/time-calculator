@@ -57,6 +57,31 @@
       letter-spacing: 0.3px;
     }
 
+    .calculator-brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      margin: 4px 0 8px;
+    }
+
+    .calculator-brand .title {
+      margin: 0;
+    }
+
+    .calculator-brand-icon {
+      width: 34px;
+      height: 34px;
+      flex: 0 0 34px;
+      display: block;
+      object-fit: cover;
+      border-radius: 9px;
+      border: 1px solid rgba(255, 255, 255, 0.88);
+      box-shadow:
+        0 3px 8px rgba(42, 91, 139, 0.14),
+        inset 0 1px 0 rgba(255, 255, 255, 0.92);
+    }
+
     .subtitle {
       margin: 0 0 16px;
       text-align: center;
@@ -402,6 +427,60 @@
       margin-top: 10px;
     }
 
+    .history-list.history-clear-layout-locked {
+      overflow-anchor: none;
+      overflow: hidden;
+    }
+
+    .history-list.history-clear-layout-locked > .empty {
+      opacity: 0;
+    }
+
+    .history-list.history-clear-settling {
+      transition: height 260ms cubic-bezier(0.32, 0.72, 0, 1);
+    }
+
+    .history-list.history-clear-settling > .empty.history-clear-empty-visible {
+      opacity: 1;
+      transition: opacity 190ms cubic-bezier(0.22, 0.61, 0.36, 1) 55ms;
+    }
+
+    .history-clear-snapshot-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      overflow: visible;
+      pointer-events: none;
+      contain: layout style;
+    }
+
+    .history-clear-snapshot {
+      position: absolute;
+      box-sizing: border-box;
+      margin: 0 !important;
+      list-style: none;
+      pointer-events: none;
+      transform-origin: center;
+      will-change: transform, opacity;
+      transition:
+        transform var(--history-clear-duration, 340ms) cubic-bezier(0.32, 0.72, 0, 1),
+        opacity calc(var(--history-clear-duration, 340ms) - 35ms) cubic-bezier(0.22, 0.61, 0.36, 1),
+        box-shadow calc(var(--history-clear-duration, 340ms) - 35ms) cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+
+    .history-clear-snapshot.history-clear-snapshot-active {
+      opacity: 0;
+      transform: translate3d(-68px, -1px, 0) scale(0.99);
+      box-shadow: 0 0 0 rgba(15, 23, 42, 0);
+    }
+
+    body.appearance-crystal .history-clear-snapshot.history-clear-snapshot-active {
+      transform: translate3d(-78px, -1px, 0) scale(0.985);
+      box-shadow:
+        0 0 0 rgba(53, 112, 171, 0),
+        inset 0 0 0 rgba(255, 255, 255, 0);
+    }
+
     .history-item {
       padding: 13px 14px;
       border-radius: 20px;
@@ -484,6 +563,7 @@
       body { padding: 12px; }
       .card { border-radius: 30px; padding: 20px 16px 18px; }
       .title { font-size: 28px; }
+      .calculator-brand-icon { width: 30px; height: 30px; flex-basis: 30px; border-radius: 8px; }
       .subtitle { font-size: 14px; }
       .tab { font-size: 18px; height: 54px; }
       .direction-tabs { width: 74%; }
@@ -500,13 +580,24 @@
       }
     }
   
+    .tool-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 42px;
+      margin-bottom: -6px;
+      position: relative;
+      z-index: 5;
+    }
+
     .top-actions {
       display: flex;
       justify-content: flex-end;
       align-items: center;
       gap: 8px;
       min-height: 42px;
-      margin-bottom: -6px;
+      margin-bottom: 0;
       position: relative;
       z-index: 5;
       pointer-events: none;
@@ -820,7 +911,7 @@
     }
 
   
-    .app-switch-wrap{display:flex;justify-content:flex-start;align-items:center;min-height:42px;margin-bottom:-42px;position:relative;z-index:3}
+    .app-switch-wrap{display:flex;justify-content:flex-start;align-items:center;min-height:42px;margin-bottom:0;position:relative;z-index:3}
     .app-switch-btn{width:auto;height:42px;padding:0 14px;border-radius:18px;border:1px solid #dbeafe;background:#eff6ff;color:#1d4ed8;font-size:15px;font-weight:900;box-shadow:0 8px 16px rgba(37,99,235,.08)}
     .calculator-panel{display:none}.calculator-panel.active{display:block}
     .date-box{width:100%;min-height:72px;border:1.5px solid var(--border);border-radius:28px;background:#fff;display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;padding:8px 12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}
@@ -828,7 +919,7 @@
     .date-num{width:100%;height:50px;border:0;outline:none;background:transparent;text-align:center;font-size:24px;font-weight:900;color:#111827;padding:0;appearance:textfield;-moz-appearance:textfield}
     .date-num::-webkit-outer-spin-button,.date-num::-webkit-inner-spin-button{appearance:none;-webkit-appearance:none;margin:0}
     .date-sep{width:22px;text-align:center;color:#64748b;font-size:16px;font-weight:900}
-    @media(max-width:430px){.app-switch-btn{height:40px;font-size:14px;padding:0 12px}.app-switch-wrap{margin-bottom:-40px}.date-box{min-height:68px;border-radius:26px;padding:7px 10px}.date-num{font-size:22px;height:48px}.date-sep{width:20px;font-size:15px}}
+    @media(max-width:430px){.app-switch-btn{height:40px;font-size:14px;padding:0 12px}.app-switch-wrap{margin-bottom:0}.date-box{min-height:68px;border-radius:26px;padding:7px 10px}.date-num{font-size:22px;height:48px}.date-sep{width:20px;font-size:15px}}
   
     .notice-content-mode {
       display: none;
@@ -2100,16 +2191,16 @@
 }
 
 body.appearance-crystal .history-toast {
-  color: #155b94;
+  color: #354278;
   background:
-    linear-gradient(125deg, rgba(255, 255, 255, 0.64), transparent 38%),
-    linear-gradient(145deg, rgba(245, 252, 255, 0.78), rgba(188, 221, 244, 0.68));
-  border: 1px solid rgba(255, 255, 255, 0.86);
+    linear-gradient(125deg, rgba(255, 255, 255, 0.62), transparent 42%),
+    linear-gradient(145deg, rgba(219, 216, 244, 0.98), rgba(154, 157, 211, 0.97));
+  border: 1px solid rgba(255, 255, 255, 0.93);
   box-shadow:
-    0 4px 0 rgba(67, 126, 170, 0.16),
-    0 12px 24px rgba(41, 83, 120, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.92);
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.72);
+    0 4px 0 rgba(66, 64, 137, 0.22),
+    0 12px 27px rgba(58, 59, 128, 0.23),
+    inset 0 1px 0 rgba(255, 255, 255, 0.82);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(10px) saturate(125%);
   -webkit-backdrop-filter: blur(10px) saturate(125%);
   animation: crystalHistoryToastIn 220ms cubic-bezier(0.20, 0.72, 0.26, 1) both;
@@ -4115,51 +4206,6 @@ body.appearance-system.system-dark .history-copy-btn.copied {
         inset 0 0 0 rgba(255, 255, 255, 0);
     }
 
-    .history-item.history-clear-removing {
-      overflow: hidden;
-      pointer-events: none;
-      will-change: transform, opacity, height, padding, margin;
-      transition:
-        transform 250ms cubic-bezier(0.18, 0.66, 0.22, 1),
-        opacity 220ms ease-out,
-        height 250ms cubic-bezier(0.20, 0.72, 0.22, 1),
-        padding 250ms cubic-bezier(0.20, 0.72, 0.22, 1),
-        margin 250ms cubic-bezier(0.20, 0.72, 0.22, 1),
-        border-width 220ms ease,
-        box-shadow 220ms ease;
-    }
-
-    .history-item.history-clear-removing-active {
-      opacity: 0;
-      transform: translateX(-48px) scale(0.985);
-      box-shadow: 0 0 0 rgba(15, 23, 42, 0);
-    }
-
-    .history-item.history-clear-collapsing {
-      padding-top: 0;
-      padding-bottom: 0;
-      border-width: 0;
-    }
-
-    body.appearance-crystal .history-item.history-clear-removing {
-      transition:
-        transform 280ms cubic-bezier(0.16, 0.68, 0.20, 1),
-        opacity 240ms ease-out,
-        height 280ms cubic-bezier(0.18, 0.74, 0.20, 1),
-        padding 280ms cubic-bezier(0.18, 0.74, 0.20, 1),
-        margin 280ms cubic-bezier(0.18, 0.74, 0.20, 1),
-        border-width 240ms ease,
-        box-shadow 240ms ease;
-    }
-
-    body.appearance-crystal .history-item.history-clear-removing-active {
-      opacity: 0;
-      transform: translateX(-60px) scale(0.98);
-      box-shadow:
-        0 0 0 rgba(53, 112, 171, 0),
-        inset 0 0 0 rgba(255, 255, 255, 0);
-    }
-
     /* 分段选择器最终交互锁：任何外观与触摸态都只允许共享滑块移动 */
     .tabs > .tab,
     .tabs > .tab:hover:not(:disabled),
@@ -4192,9 +4238,7 @@ body.appearance-system.system-dark .history-copy-btn.copied {
 
     @media (prefers-reduced-motion: reduce) {
       .history-item.history-removing,
-      body.appearance-crystal .history-item.history-removing,
-      .history-item.history-clear-removing,
-      body.appearance-crystal .history-item.history-clear-removing {
+      body.appearance-crystal .history-item.history-removing {
         transition:
           opacity 90ms linear,
           height 120ms linear,
@@ -4204,15 +4248,45 @@ body.appearance-system.system-dark .history-copy-btn.copied {
       }
 
       .history-item.history-removing-active,
-      body.appearance-crystal .history-item.history-removing-active,
-      .history-item.history-clear-removing-active,
-      body.appearance-crystal .history-item.history-clear-removing-active {
+      body.appearance-crystal .history-item.history-removing-active {
         transform: none;
       }
     }
 
     /* Mobile-only experience refinements; desktop presentation remains unchanged. */
     @media (max-width: 640px) {
+      .tool-toolbar {
+        min-height: 40px;
+        margin-bottom: 10px;
+        gap: 8px;
+      }
+
+      .top-actions {
+        min-height: 40px;
+        gap: 6px;
+      }
+
+      .top-actions .notice-open:not(.settings-open) {
+        height: 40px;
+        padding-left: 13px;
+        padding-right: 13px;
+      }
+
+      .app-switch-wrap {
+        min-height: 40px;
+      }
+
+      .app-switch-btn {
+        height: 40px;
+        padding-left: 12px;
+        padding-right: 12px;
+        font-size: 14px;
+      }
+
+      .calculator-brand {
+        margin-top: 0;
+      }
+
       body.appearance-crystal .history-toast {
         backdrop-filter: blur(8px) saturate(120%);
         -webkit-backdrop-filter: blur(8px) saturate(120%);

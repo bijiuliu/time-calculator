@@ -1183,11 +1183,20 @@
         var isCrystal = document.body.classList.contains("appearance-crystal");
         var duration = reduceMotion ? 120 : (isCrystal ? 420 : 380);
         var finished = false;
+        var fallbackTimer = 0;
 
         function finish() {
           if (finished) return;
           finished = true;
-          onDone();
+          if (fallbackTimer) window.clearTimeout(fallbackTimer);
+          item.removeEventListener("transitionend", handleTransitionEnd);
+          if (item.parentElement) item.remove();
+          onDone(list);
+        }
+
+        function handleTransitionEnd(event) {
+          if (event.target !== item || event.propertyName !== "height") return;
+          finish();
         }
 
         item.style.height = item.offsetHeight + "px";
@@ -1206,10 +1215,30 @@
           }
         });
 
-        window.setTimeout(finish, duration + 30);
+        item.addEventListener("transitionend", handleTransitionEnd);
+        fallbackTimer = window.setTimeout(finish, duration + 100);
       }
 
-      function deleteHistoryItem(index, timestamp) {
+      function syncHistoryListAfterRemoval(list, emptyText) {
+        if (!list) return;
+        var items = Array.prototype.slice.call(list.querySelectorAll(".history-item"));
+        if (!items.length) {
+          list.innerHTML = '<li class="empty">' + emptyText + '</li>';
+          return;
+        }
+
+        items.forEach(function (item, index) {
+          var label = item.querySelector(".history-top span:first-child");
+          var deleteButton = item.querySelector(".history-delete-btn");
+          if (label) label.textContent = "记录 " + (items.length - index);
+          if (deleteButton) deleteButton.setAttribute("data-index", String(index));
+          item.querySelectorAll(".history-action-btn").forEach(function (button) {
+            button.disabled = false;
+          });
+        });
+      }
+
+      function deleteHistoryItem(index, timestamp, list) {
         var history = loadHistory();
         if (timestamp) {
           var matchedIndex = history.findIndex(function (item) {
@@ -1223,7 +1252,8 @@
         }
         history.splice(index, 1);
         saveHistory(history);
-        renderHistory();
+        if (list) syncHistoryListAfterRemoval(list, "暂无记录，先去算一条吧");
+        else renderHistory();
         setMessage("已删除该条记录", "历史记录已更新");
       }
 
@@ -1242,36 +1272,78 @@
 
         historyClearAnimating[type] = true;
         var isCrystal = document.body.classList.contains("appearance-crystal");
-        var duration = isCrystal ? 280 : 250;
-        var stagger = 60;
+        var duration = isCrystal ? 370 : 340;
+        var stagger = 52;
+        var lockedListHeight = list.offsetHeight;
+        var snapshotLayer = document.createElement("div");
+        var snapshots = [];
+
+        snapshotLayer.className = "history-clear-snapshot-layer";
+        snapshotLayer.setAttribute("aria-hidden", "true");
+        list.classList.add("history-clear-layout-locked");
+        list.style.height = lockedListHeight + "px";
 
         items.forEach(function (item, index) {
+          var rect = item.getBoundingClientRect();
+          var snapshot = item.cloneNode(true);
+
           item.querySelectorAll(".history-action-btn").forEach(function (button) {
             button.disabled = true;
           });
 
-          window.setTimeout(function () {
-            item.style.height = item.offsetHeight + "px";
-            item.style.boxSizing = "border-box";
-            item.classList.add("history-clear-removing");
-            void item.offsetHeight;
-
-            requestAnimationFrame(function () {
-              item.classList.add("history-clear-removing-active", "history-clear-collapsing");
-              item.style.height = "0px";
-              if (item.previousElementSibling) {
-                item.style.marginTop = "0px";
-              } else if (item.nextElementSibling) {
-                item.style.marginBottom = "-10px";
-              }
-            });
-          }, index * stagger);
+          snapshot.classList.add("history-clear-snapshot");
+          snapshot.querySelectorAll("button").forEach(function (button) {
+            button.disabled = true;
+            button.tabIndex = -1;
+          });
+          snapshot.style.left = rect.left + "px";
+          snapshot.style.top = rect.top + "px";
+          snapshot.style.width = rect.width + "px";
+          snapshot.style.height = rect.height + "px";
+          snapshot.style.setProperty("--history-clear-duration", duration + "ms");
+          snapshotLayer.appendChild(snapshot);
+          snapshots.push(snapshot);
         });
 
+        document.body.appendChild(snapshotLayer);
+        onDone();
+
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            snapshots.forEach(function (snapshot, index) {
+              window.setTimeout(function () {
+                snapshot.classList.add("history-clear-snapshot-active");
+              }, index * stagger);
+            });
+          });
+        });
+
+        var lastSnapshotStart = (items.length - 1) * stagger;
+        var settleLead = 90;
+
         window.setTimeout(function () {
-          historyClearAnimating[type] = false;
-          onDone();
-        }, (items.length - 1) * stagger + duration + 40);
+          var emptyItem = list.querySelector(".empty");
+          list.style.height = "auto";
+          var settledHeight = list.offsetHeight;
+          list.style.height = lockedListHeight + "px";
+          void list.offsetHeight;
+          list.classList.add("history-clear-settling");
+
+          requestAnimationFrame(function () {
+            list.style.height = settledHeight + "px";
+            if (emptyItem) emptyItem.classList.add("history-clear-empty-visible");
+          });
+
+          window.setTimeout(function () {
+            list.classList.remove("history-clear-layout-locked", "history-clear-settling");
+            list.style.removeProperty("height");
+            historyClearAnimating[type] = false;
+          }, 275);
+        }, lastSnapshotStart + duration - settleLead);
+
+        window.setTimeout(function () {
+          if (snapshotLayer.parentElement) snapshotLayer.remove();
+        }, lastSnapshotStart + duration + 20);
       }
 
       function clearAllHistory() {
@@ -1498,7 +1570,7 @@
       function resetDateShift(){["dateBaseY","dateBaseM","dateBaseD","dateShiftDays","dateBaseNative"].forEach(function(id){el(id).value=""});currentDateResult=null;updateAccumulationHints();renderDateResult();}
       function clearAllDateHistory(){if(historyClearAnimating.date)return;if(!loadDateHistory().length)return setDateMessage("暂无记录可清空","先去算一条吧");openClearConfirm("date");}
       function doClearDateHistory(){localStorage.removeItem(DATE_STORAGE_KEY);renderDateHistory();setDateMessage("已清空全部日期记录","日期记录已删除");}
-      function deleteDateHistoryItem(index){var h=loadDateHistory();if(index<0||index>=h.length){renderDateHistory();return;}h.splice(index,1);saveDateHistory(h);renderDateHistory();setDateMessage("已删除该条日期记录","日期记录已更新");}
+      function deleteDateHistoryItem(index,list){var h=loadDateHistory();if(index<0||index>=h.length){renderDateHistory();return;}h.splice(index,1);saveDateHistory(h);if(list)syncHistoryListAfterRemoval(list,"暂无日期记录，先去算一条吧");else renderDateHistory();setDateMessage("已删除该条日期记录","日期记录已更新");}
 
       function calcDiff() {
         var start = getTime("startH", "startM", "开始时间");
@@ -1752,7 +1824,9 @@
 
       function confirmClearRecords() {
         var type = el("clearConfirmType").value;
+        var preservedScrollY = window.scrollY || window.pageYOffset || 0;
         closeClearConfirm();
+        window.scrollTo(0, preservedScrollY);
         if (type === "date") {
           animateClearHistory("date", doClearDateHistory);
         } else {
@@ -2442,8 +2516,8 @@
           if (action === "delete") {
             var historyItem = btn.closest(".history-item");
             var timestamp = historyItem ? historyItem.getAttribute("data-timestamp") : "";
-            animateHistoryRemoval(btn, function () {
-              deleteHistoryItem(Number(btn.getAttribute("data-index")), timestamp);
+            animateHistoryRemoval(btn, function (list) {
+              deleteHistoryItem(Number(btn.getAttribute("data-index")), timestamp, list);
             });
           }
         });
@@ -2453,8 +2527,8 @@
           e.preventDefault(); e.stopPropagation(); var action = btn.getAttribute("data-action");
           if (action === "copy") return copyText(btn.getAttribute("data-text") || "", btn);
           if (action === "delete-date") {
-            animateHistoryRemoval(btn, function () {
-              deleteDateHistoryItem(Number(btn.getAttribute("data-index")));
+            animateHistoryRemoval(btn, function (list) {
+              deleteDateHistoryItem(Number(btn.getAttribute("data-index")), list);
             });
           }
         });

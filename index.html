@@ -9,7 +9,7 @@
   <link rel="manifest" href="./manifest.webmanifest?v=1" />
   <title>时间计算器 Pro</title>
   <!-- 拆分版：页面结构在这里，样式在 css/style.css，逻辑在 js/app.js -->
-  <link rel="stylesheet" href="./css/style.css?v=1.5.0-input109">
+  <link rel="stylesheet" href="./css/style.css?v=1.5.0-input122">
 </head>
 <body>
   <script>
@@ -31,18 +31,23 @@
   </script>
   <main class="shell">
     <section class="card">
-      <div class="app-switch-wrap"><button id="appSwitchBtn" class="app-switch-btn" type="button">日期计算器</button></div>
-      <div class="top-actions">
+      <div class="tool-toolbar">
+        <div class="app-switch-wrap"><button id="appSwitchBtn" class="app-switch-btn" type="button">日期计算器</button></div>
+        <div class="top-actions">
       <button id="settingsBtn" class="notice-open settings-open" type="button" aria-label="设置" title="设置">
         <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.09a2 2 0 0 1 1 1.74v.5a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
           <circle cx="12" cy="12" r="3" />
         </svg>
       </button>
-      <button id="noticeBtn" class="notice-open" type="button">公告</button>
-    </div>
+          <button id="noticeBtn" class="notice-open" type="button">公告</button>
+        </div>
+      </div>
     <section id="timeCalculatorPanel" class="calculator-panel active">
-      <h1 class="title">时间计算器</h1>
+      <div class="calculator-brand">
+        <img class="calculator-brand-icon" src="./assets/icons/icon-192.png" alt="" aria-hidden="true" decoding="async">
+        <h1 class="title">时间计算器</h1>
+      </div>
       <p class="subtitle">支持时间差计算，也支持前移/后退指定时长</p>
 
       <div class="tabs">
@@ -137,7 +142,10 @@
       </section>
 
       <section id="dateCalculatorPanel" class="calculator-panel">
-        <h1 class="title">日期计算器</h1>
+        <div class="calculator-brand">
+          <img class="calculator-brand-icon" src="./assets/icons/icon-192.png" alt="" aria-hidden="true" decoding="async">
+          <h1 class="title">日期计算器</h1>
+        </div>
           <p class="subtitle">支持日期差计算，也支持日期前移/后退指定天数</p>
 
         <div class="tabs">
@@ -702,6 +710,6 @@
     </div>
   </div>
 
-  <script src="./js/app.js?v=1.5.0-input109"></script>
+  <script src="./js/app.js?v=1.5.0-input122"></script>
 </body>
 </html>
