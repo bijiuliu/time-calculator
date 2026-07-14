@@ -1059,8 +1059,7 @@
           el("resultValue").innerText = currentResult.resultTime;
           el("resultTip").innerText =
             currentResult.baseTime + " " + currentResult.directionText + " " +
-            formatHM(currentResult.shiftTotal) + " = " + currentResult.resultTime +
-            (appSettings.accumulation === "off" ? "" : "，再次计算可累加");
+            formatHM(currentResult.shiftTotal) + " = " + currentResult.resultTime;
         }
         if (!valueOnly) animateResultDisplay("resultBox", false);
       }
@@ -1506,7 +1505,38 @@
         }, layoutDuration + 10);
       }
 
-      function setDateTab(tab, shouldAnimate){var previous=activeDateTab;activeDateTab=tab;el("dateTabDiff").classList.toggle("active",tab==="diff");el("dateTabShift").classList.toggle("active",tab==="shift");el("dateTabDiff").setAttribute("aria-selected",tab==="diff"?"true":"false");el("dateTabShift").setAttribute("aria-selected",tab==="shift"?"true":"false");el("dateTabDiff").parentElement.setAttribute("data-active",tab);transitionModePanel("dateModePanels",previous==="diff"?"datePanelDiff":"datePanelShift",tab==="diff"?"datePanelDiff":"datePanelShift",shouldAnimate!==false);el("dateAccumHint").hidden=tab!=="shift";currentDateResult=null;renderDateResult();}
+      function setDateTab(tab, shouldAnimate) {
+        var previous = activeDateTab;
+        activeDateTab = tab;
+        el("dateTabDiff").classList.toggle("active", tab === "diff");
+        el("dateTabShift").classList.toggle("active", tab === "shift");
+        el("dateTabDiff").setAttribute("aria-selected", tab === "diff" ? "true" : "false");
+        el("dateTabShift").setAttribute("aria-selected", tab === "shift" ? "true" : "false");
+        el("dateTabDiff").parentElement.setAttribute("data-active", tab);
+        var anchor = el("dateModeAnchor");
+        var anchorLabel = el("dateModeAnchorLabel");
+        var startInputs = el("dateModeStartInputs");
+        var baseInputs = el("dateModeBaseInputs");
+        if (anchor) anchor.setAttribute("data-active", tab);
+        if (anchorLabel) anchorLabel.innerText = tab === "diff" ? "开始日期" : "基准日期";
+        if (startInputs) {
+          startInputs.classList.toggle("active", tab === "diff");
+          startInputs.setAttribute("aria-hidden", tab === "diff" ? "false" : "true");
+        }
+        if (baseInputs) {
+          baseInputs.classList.toggle("active", tab === "shift");
+          baseInputs.setAttribute("aria-hidden", tab === "shift" ? "false" : "true");
+        }
+        transitionModePanel(
+          "dateModePanels",
+          previous === "diff" ? "datePanelDiff" : "datePanelShift",
+          tab === "diff" ? "datePanelDiff" : "datePanelShift",
+          shouldAnimate !== false
+        );
+        el("dateAccumHint").hidden = tab !== "shift";
+        currentDateResult = null;
+        renderDateResult();
+      }
       function setDateDirection(value){el("dateDirection").value=value;var b=value==="back";el("dateDirectionBack").classList.toggle("active",b);el("dateDirectionForward").classList.toggle("active",!b);el("dateDirectionBack").setAttribute("aria-pressed",b?"true":"false");el("dateDirectionForward").setAttribute("aria-pressed",b?"false":"true");el("dateDirectionBack").parentElement.setAttribute("data-active",value);}
       function clampDateInputs(){
         var nextDateInput = {
@@ -1551,7 +1581,7 @@
       }
       function dateDiffDays(a,b){return Math.round((Date.UTC(b.getFullYear(),b.getMonth(),b.getDate())-Date.UTC(a.getFullYear(),a.getMonth(),a.getDate()))/86400000);}
       function addDays(d,days){var r=new Date(d.getFullYear(),d.getMonth(),d.getDate());r.setDate(r.getDate()+days);return r;}
-      function renderDateResult(skipAnimation){if(!currentDateResult){el("dateResultValue").innerText="结果会显示在这里";el("dateResultTip").innerText=activeDateTab==="diff"?"日期差会显示相差天数":"示例：2026年6月10日 前移7天 = 2026年6月3日";return;}if(currentDateResult.type==="dateDiff"){el("dateResultValue").innerText=currentDateResult.days+"天";el("dateResultTip").innerText=currentDateResult.start+" 到 "+currentDateResult.end;}else{el("dateResultValue").innerText=currentDateResult.resultDate;el("dateResultTip").innerText=currentDateResult.baseDate+" "+currentDateResult.directionText+currentDateResult.days+"天 = "+currentDateResult.resultDate+(appSettings.accumulation==="off"?"":"，再次计算可累加");}if(!skipAnimation)animateResultDisplay("dateResultBox");}
+      function renderDateResult(skipAnimation){if(!currentDateResult){el("dateResultValue").innerText="结果会显示在这里";el("dateResultTip").innerText=activeDateTab==="diff"?"日期差会显示相差天数":"示例：2026年6月10日 前移7天 = 2026年6月3日";return;}if(currentDateResult.type==="dateDiff"){el("dateResultValue").innerText=currentDateResult.days+"天";el("dateResultTip").innerText=currentDateResult.start+" 到 "+currentDateResult.end;}else{el("dateResultValue").innerText=currentDateResult.resultDate;el("dateResultTip").innerText=currentDateResult.baseDate+" "+currentDateResult.directionText+currentDateResult.days+"天 = "+currentDateResult.resultDate;}if(!skipAnimation)animateResultDisplay("dateResultBox");}
       function loadDateHistory(){try{var d=JSON.parse(localStorage.getItem(DATE_STORAGE_KEY)||"[]");return Array.isArray(d)?d:[]}catch(e){return[]}}
       function saveDateHistory(h){localStorage.setItem(DATE_STORAGE_KEY,JSON.stringify(h));}
       function addDateHistory(r){
@@ -1687,6 +1717,20 @@
         el("tabDiff").setAttribute("aria-selected", tab === "diff" ? "true" : "false");
         el("tabShift").setAttribute("aria-selected", tab === "shift" ? "true" : "false");
         el("tabDiff").parentElement.setAttribute("data-active", tab);
+        var anchor = el("timeModeAnchor");
+        var anchorLabel = el("timeModeAnchorLabel");
+        var startInputs = el("timeModeStartInputs");
+        var baseInputs = el("timeModeBaseInputs");
+        if (anchor) anchor.setAttribute("data-active", tab);
+        if (anchorLabel) anchorLabel.innerText = tab === "diff" ? "开始时间" : "基准时间";
+        if (startInputs) {
+          startInputs.classList.toggle("active", tab === "diff");
+          startInputs.setAttribute("aria-hidden", tab === "diff" ? "false" : "true");
+        }
+        if (baseInputs) {
+          baseInputs.classList.toggle("active", tab === "shift");
+          baseInputs.setAttribute("aria-hidden", tab === "shift" ? "false" : "true");
+        }
         transitionModePanel(
           "timeModePanels",
           previous === "diff" ? "panelDiff" : "panelShift",

@@ -217,11 +217,15 @@
       gap: 12px;
     }
 
-    /* 保持时间/日期“前移/后退”面板高度一致 */
-    #datePanelShift,
+    /* 标准界面：统一各模式最后一个输入框到操作按钮的垂直间距 */
+    #datePanelShift {
+      height: 235px;
+      min-height: 235px;
+    }
+
     #panelShift {
-      height: 358px;
-      min-height: 358px;
+      height: 235px;
+      min-height: 235px;
     }
 
     /* 上次上移过多，这里取消负间距，只统一提示文字间距 */
@@ -573,10 +577,14 @@
       .time-box, .mini-box, select { min-height: 68px; border-radius: 26px; }
       .history-action-btn { min-width: 58px; height: 32px; font-size: 13px; border-radius: 13px; }
       #timeCalculatorPanel #panelShift .actions { margin-top: 0; }
-      #panelShift,
       #datePanelShift {
-        height: 348px;
-        min-height: 348px;
+        height: 231px;
+        min-height: 231px;
+      }
+
+      #panelShift {
+        height: 231px;
+        min-height: 231px;
       }
     }
   
@@ -902,6 +910,230 @@
       }
     }
 
+    /* 普通风格顶部工具栏：低饱和灰蓝色阶与扁平表面 */
+    body:not(.appearance-crystal) {
+      --toolbar-flat-bg: #f5f8fb;
+      --toolbar-flat-bg-hover: #eff4f8;
+      --toolbar-flat-bg-active: #e8f0f6;
+      --toolbar-flat-border: #e0e8ef;
+      --toolbar-flat-color: #3d5870;
+    }
+
+    body.appearance-dark:not(.appearance-crystal),
+    body.appearance-system.system-dark:not(.appearance-crystal) {
+      --toolbar-flat-bg: #1f2a38;
+      --toolbar-flat-bg-hover: #263547;
+      --toolbar-flat-bg-active: #2d3d51;
+      --toolbar-flat-border: #36485c;
+      --toolbar-flat-color: #d4e2ef;
+    }
+
+    body:not(.appearance-crystal) .app-switch-btn,
+    body:not(.appearance-crystal) #noticeBtn,
+    body:not(.appearance-crystal) .settings-open {
+      background-color: var(--toolbar-flat-bg);
+      box-shadow: none;
+      background-image: none;
+      border-color: var(--toolbar-flat-border);
+      color: var(--toolbar-flat-color);
+      transition:
+        transform 120ms ease,
+        background-color 140ms ease,
+        border-color 140ms ease,
+        color 140ms ease;
+    }
+
+    body:not(.appearance-crystal) .app-switch-btn:hover:not(:disabled),
+    body:not(.appearance-crystal) #noticeBtn:hover:not(:disabled),
+    body:not(.appearance-crystal) .settings-open:hover:not(:disabled) {
+      background-color: var(--toolbar-flat-bg-hover);
+    }
+
+    body:not(.appearance-crystal) .app-switch-btn:active:not(:disabled),
+    body:not(.appearance-crystal) #noticeBtn:active:not(:disabled),
+    body:not(.appearance-crystal) .settings-open:active:not(:disabled),
+    body:not(.appearance-crystal) .app-switch-btn.mobile-press-active,
+    body:not(.appearance-crystal) #noticeBtn.mobile-press-active,
+    body:not(.appearance-crystal) .settings-open.mobile-press-active {
+      background-color: var(--toolbar-flat-bg-active);
+      box-shadow: none;
+    }
+
+    /* 立体风格按钮：柔光表面、边缘高光和双层悬浮阴影 */
+    body.appearance-crystal .btn-primary,
+    body.appearance-crystal .notice-ok,
+    body.appearance-crystal .changelog-ok,
+    body.appearance-crystal #settingsDone {
+      background: linear-gradient(145deg, #35a0eb 0%, #1178d4 58%, #0a68c1 100%);
+      border-color: rgba(255, 255, 255, 0.52);
+      box-shadow:
+        0 2px 3px rgba(8, 73, 138, 0.22),
+        0 12px 24px rgba(8, 88, 169, 0.20),
+        inset 1px 1px 1px rgba(255, 255, 255, 0.46),
+        inset -1px -1px 1px rgba(6, 73, 139, 0.09);
+    }
+
+    body.appearance-crystal .btn-secondary,
+    body.appearance-crystal .confirm-cancel {
+      background: linear-gradient(145deg, rgba(249, 252, 254, 0.94), rgba(218, 233, 243, 0.90));
+      border-color: rgba(255, 255, 255, 0.86);
+      box-shadow:
+        0 2px 3px rgba(48, 76, 99, 0.12),
+        0 10px 20px rgba(49, 78, 103, 0.11),
+        inset 1px 1px 1px rgba(255, 255, 255, 0.94),
+        inset -1px -1px 1px rgba(90, 124, 151, 0.07);
+    }
+
+    body.appearance-crystal .app-switch-btn,
+    body.appearance-crystal #noticeBtn,
+    body.appearance-crystal .settings-open,
+    body.appearance-crystal .settings-back,
+    body.appearance-crystal .notice-back,
+    body.appearance-crystal .notice-x,
+    body.appearance-crystal .changelog-never {
+      background: linear-gradient(145deg, rgba(251, 253, 255, 0.94), rgba(220, 234, 243, 0.90));
+      border-color: rgba(255, 255, 255, 0.86);
+      box-shadow:
+        0 2px 3px rgba(47, 76, 100, 0.12),
+        0 8px 16px rgba(48, 78, 104, 0.11),
+        inset 1px 1px 1px rgba(255, 255, 255, 0.95),
+        inset -1px -1px 1px rgba(88, 122, 150, 0.07);
+    }
+
+    body.appearance-crystal .clear-btn {
+      background: linear-gradient(145deg, rgba(255, 249, 251, 0.94), rgba(243, 226, 232, 0.90));
+      border-color: rgba(255, 255, 255, 0.86);
+      box-shadow:
+        0 2px 3px rgba(122, 59, 76, 0.12),
+        0 8px 16px rgba(105, 61, 73, 0.10),
+        inset 1px 1px 1px rgba(255, 255, 255, 0.95),
+        inset -1px -1px 1px rgba(151, 91, 108, 0.07);
+    }
+
+    body.appearance-crystal .confirm-ok {
+      overflow: hidden;
+      background: linear-gradient(145deg, #fff9fb, #f3e3e9);
+      border-color: rgba(255, 255, 255, 0.90);
+      box-shadow:
+        0 2px 3px rgba(124, 57, 76, 0.13),
+        0 11px 22px rgba(102, 60, 72, 0.13),
+        inset 1px 1px 1px rgba(255, 255, 255, 0.96),
+        inset -1px -1px 1px rgba(151, 91, 108, 0.08);
+    }
+
+    body.appearance-crystal .history-copy-btn,
+    body.appearance-crystal .history-delete-btn {
+      box-shadow:
+        0 1px 2px rgba(58, 76, 94, 0.12),
+        0 6px 12px rgba(58, 77, 96, 0.09),
+        inset 1px 1px 1px rgba(255, 255, 255, 0.90),
+        inset -1px -1px 1px rgba(91, 115, 136, 0.06);
+    }
+
+    body.appearance-crystal .btn-primary:active:not(:disabled),
+    body.appearance-crystal .notice-ok:active:not(:disabled),
+    body.appearance-crystal .changelog-ok:active:not(:disabled),
+    body.appearance-crystal #settingsDone:active:not(:disabled),
+    body.appearance-crystal .btn-primary.mobile-press-active,
+    body.appearance-crystal .notice-ok.mobile-press-active,
+    body.appearance-crystal .changelog-ok.mobile-press-active,
+    body.appearance-crystal #settingsDone.mobile-press-active {
+      box-shadow:
+        0 1px 2px rgba(8, 73, 138, 0.18),
+        0 4px 8px rgba(8, 88, 169, 0.13),
+        inset 0 2px 4px rgba(7, 72, 138, 0.12);
+    }
+
+    body.appearance-crystal .btn-secondary:active:not(:disabled),
+    body.appearance-crystal .confirm-cancel:active:not(:disabled),
+    body.appearance-crystal .app-switch-btn:active:not(:disabled),
+    body.appearance-crystal #noticeBtn:active:not(:disabled),
+    body.appearance-crystal .settings-open:active:not(:disabled),
+    body.appearance-crystal .settings-back:active:not(:disabled),
+    body.appearance-crystal .notice-back:active:not(:disabled),
+    body.appearance-crystal .notice-x:active:not(:disabled),
+    body.appearance-crystal .changelog-never:active:not(:disabled),
+    body.appearance-crystal .mobile-press-secondary.mobile-press-active,
+    body.appearance-crystal .mobile-press-icon.mobile-press-active {
+      box-shadow:
+        0 1px 2px rgba(48, 76, 99, 0.10),
+        0 4px 8px rgba(49, 78, 103, 0.08),
+        inset 0 2px 4px rgba(70, 101, 126, 0.08);
+    }
+
+    body.appearance-crystal .clear-btn:active:not(:disabled),
+    body.appearance-crystal .clear-btn.mobile-press-active,
+    body.appearance-crystal .confirm-ok:active:not(:disabled),
+    body.appearance-crystal .confirm-ok.mobile-press-active {
+      box-shadow:
+        0 1px 2px rgba(124, 57, 76, 0.11),
+        0 4px 8px rgba(102, 60, 72, 0.09),
+        inset 0 2px 4px rgba(133, 71, 89, 0.08);
+    }
+
+    body.appearance-crystal.mobile-press-measuring .btn-primary:active:not(:disabled),
+    body.appearance-crystal.mobile-press-measuring .notice-ok:active:not(:disabled),
+    body.appearance-crystal.mobile-press-measuring .changelog-ok:active:not(:disabled),
+    body.appearance-crystal.mobile-press-measuring #settingsDone:active:not(:disabled) {
+      box-shadow:
+        0 2px 3px rgba(8, 73, 138, 0.22),
+        0 12px 24px rgba(8, 88, 169, 0.20),
+        inset 1px 1px 1px rgba(255, 255, 255, 0.46),
+        inset -1px -1px 1px rgba(6, 73, 139, 0.09) !important;
+    }
+
+    body.appearance-crystal.mobile-press-measuring .btn-secondary:active:not(:disabled),
+    body.appearance-crystal.mobile-press-measuring .confirm-cancel:active:not(:disabled),
+    body.appearance-crystal.mobile-press-measuring .app-switch-btn:active:not(:disabled),
+    body.appearance-crystal.mobile-press-measuring #noticeBtn:active:not(:disabled),
+    body.appearance-crystal.mobile-press-measuring .settings-open:active:not(:disabled),
+    body.appearance-crystal.mobile-press-measuring .settings-back:active:not(:disabled),
+    body.appearance-crystal.mobile-press-measuring .notice-back:active:not(:disabled),
+    body.appearance-crystal.mobile-press-measuring .notice-x:active:not(:disabled),
+    body.appearance-crystal.mobile-press-measuring .changelog-never:active:not(:disabled) {
+      box-shadow:
+        0 2px 3px rgba(47, 76, 100, 0.12),
+        0 8px 16px rgba(48, 78, 104, 0.11),
+        inset 1px 1px 1px rgba(255, 255, 255, 0.95),
+        inset -1px -1px 1px rgba(88, 122, 150, 0.07) !important;
+    }
+
+    body.appearance-crystal.mobile-press-measuring .clear-btn:active:not(:disabled) {
+      box-shadow:
+        0 2px 3px rgba(122, 59, 76, 0.12),
+        0 8px 16px rgba(105, 61, 73, 0.10),
+        inset 1px 1px 1px rgba(255, 255, 255, 0.95),
+        inset -1px -1px 1px rgba(151, 91, 108, 0.07) !important;
+    }
+
+    body.appearance-crystal.mobile-press-measuring .confirm-ok:active:not(:disabled) {
+      box-shadow:
+        0 2px 3px rgba(124, 57, 76, 0.13),
+        0 11px 22px rgba(102, 60, 72, 0.13),
+        inset 1px 1px 1px rgba(255, 255, 255, 0.96),
+        inset -1px -1px 1px rgba(151, 91, 108, 0.08) !important;
+    }
+
+    @keyframes stereoSecondaryClick {
+      0%, 100% {
+        transform: translateY(0) scale(1);
+        filter: brightness(1);
+        box-shadow:
+          0 2px 3px rgba(47, 76, 100, 0.12),
+          0 8px 16px rgba(48, 78, 104, 0.11),
+          inset 1px 1px 1px rgba(255, 255, 255, 0.95),
+          inset -1px -1px 1px rgba(88, 122, 150, 0.07);
+      }
+      46% {
+        transform: translateY(2px) scale(0.99);
+        filter: brightness(0.99);
+        box-shadow:
+          0 1px 2px rgba(48, 76, 99, 0.10),
+          0 4px 8px rgba(49, 78, 103, 0.08),
+          inset 0 2px 4px rgba(70, 101, 126, 0.08);
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .accum-hint,
       .accum-hint[hidden] {
@@ -1042,6 +1274,48 @@
 
     @media (max-width: 430px) {
       .native-picker { font-size: 22px; height: 48px; }
+    }
+
+    /* 模式共用的首个时间/日期框：固定框体，只切换内部输入层 */
+    .time-mode-anchor-box,
+    .use-native-pickers .time-box.time-mode-anchor-box,
+    .date-mode-anchor-box,
+    .use-native-pickers .date-box.date-mode-anchor-box {
+      display: block;
+    }
+
+    .time-mode-input-layer,
+    .date-mode-input-layer {
+      display: none;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .time-mode-input-layer {
+      grid-template-columns: 1fr auto 1fr;
+    }
+
+    .date-mode-input-layer {
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+    }
+
+    .time-mode-input-layer.active,
+    .date-mode-input-layer.active {
+      display: grid;
+    }
+
+    .use-native-pickers .time-mode-input-layer.active,
+    .use-native-pickers .date-mode-input-layer.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .use-native-pickers .time-mode-input-layer:not(.active),
+    .use-native-pickers .date-mode-input-layer:not(.active) {
+      display: none;
     }
 
     .settings-overlay {
@@ -1430,29 +1704,45 @@
       line-height: 1.45;
     }
 
-    body.density-compact #datePanelDiff,
-    body.density-compact #panelDiff {
-      height: 246px;
-      min-height: 246px;
+    body.density-compact #datePanelDiff {
+      height: 128px;
+      min-height: 128px;
     }
 
-    body.density-compact #datePanelShift,
+    body.density-compact #panelDiff {
+      height: 128px;
+      min-height: 128px;
+    }
+
+    body.density-compact #datePanelShift {
+      height: 208px;
+      min-height: 208px;
+    }
+
     body.density-compact #panelShift {
-      height: 318px;
-      min-height: 318px;
+      height: 208px;
+      min-height: 208px;
     }
 
     @media (max-width: 430px) {
-      body.density-compact #datePanelDiff,
-      body.density-compact #panelDiff {
-        height: 236px;
-        min-height: 236px;
+      body.density-compact #datePanelDiff {
+        height: 124px;
+        min-height: 124px;
       }
 
-      body.density-compact #datePanelShift,
+      body.density-compact #panelDiff {
+        height: 124px;
+        min-height: 124px;
+      }
+
+      body.density-compact #datePanelShift {
+        height: 206px;
+        min-height: 206px;
+      }
+
       body.density-compact #panelShift {
-        height: 312px;
-        min-height: 312px;
+        height: 206px;
+        min-height: 206px;
       }
     }
 
@@ -1931,10 +2221,14 @@
       box-sizing: border-box;
     }
 
-    #panelDiff,
     #datePanelDiff {
-      height: 262px;
-      min-height: 262px;
+      height: 134px;
+      min-height: 134px;
+    }
+
+    #panelDiff {
+      height: 134px;
+      min-height: 134px;
     }
 
     #panelDiff .field,
@@ -1954,10 +2248,14 @@
         min-height: 68px;
       }
 
-      #panelDiff,
       #datePanelDiff {
-        height: 250px;
-        min-height: 250px;
+        height: 130px;
+        min-height: 130px;
+      }
+
+      #panelDiff {
+        height: 130px;
+        min-height: 130px;
       }
     }
 
@@ -2466,20 +2764,14 @@ body.appearance-system.system-dark .history-copy-btn.copied {
       text-shadow: 0 0 22px rgba(62, 204, 255, 0.34);
     }
 
-    body.appearance-crystal .history,
-    body.appearance-crystal .settings-block,
-    body.appearance-crystal .notice-block {
+    body.appearance-crystal .history {
       color: #e8f3ff;
       background: linear-gradient(145deg, rgba(13, 35, 59, 0.88), rgba(6, 22, 40, 0.90));
       border-color: rgba(99, 164, 220, 0.22);
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
     }
 
-    body.appearance-crystal .history-item,
-    body.appearance-crystal .setting-option,
-    body.appearance-crystal .settings-menu-item,
-    body.appearance-crystal .notice-menu-item,
-    body.appearance-crystal .version-item {
+    body.appearance-crystal .history-item {
       color: #dfeeff;
       background: linear-gradient(145deg, rgba(18, 43, 70, 0.90), rgba(7, 23, 42, 0.94));
       border-color: rgba(106, 173, 228, 0.21);
@@ -2539,10 +2831,7 @@ body.appearance-system.system-dark .history-copy-btn.copied {
       -webkit-backdrop-filter: blur(14px) saturate(120%);
     }
 
-    body.appearance-crystal .settings-dialog,
-    body.appearance-crystal .notice-dialog,
-    body.appearance-crystal .confirm-dialog,
-    body.appearance-crystal .changelog-dialog {
+    body.appearance-crystal .confirm-dialog {
       color: #e7f2ff;
       background: linear-gradient(145deg, rgba(13, 32, 54, 0.98), rgba(4, 16, 31, 0.98));
       border-color: rgba(116, 190, 244, 0.24);
@@ -4355,4 +4644,502 @@ body.appearance-system.system-dark .history-copy-btn.copied {
           inset 0 2px 4px rgba(120, 66, 79, 0.10);
       }
 
+    }
+
+    /* 立体风格 2.0：以表面色阶为主、阴影为辅的统一高程体系 */
+    body.appearance-crystal {
+      --stereo-canvas-start: #d7e8f3;
+      --stereo-canvas-mid: #edf5fa;
+      --stereo-canvas-end: #dcebf4;
+      --stereo-card-start: rgba(223, 237, 246, 0.97);
+      --stereo-card-end: rgba(204, 223, 236, 0.96);
+      --stereo-inset: rgba(174, 201, 220, 0.48);
+      --stereo-inset-focus: rgba(190, 216, 233, 0.58);
+      --stereo-surface: rgba(240, 248, 252, 0.78);
+      --stereo-surface-strong: rgba(247, 251, 254, 0.91);
+      --stereo-stroke: rgba(255, 255, 255, 0.70);
+      --stereo-ink: #18334c;
+      --stereo-muted: #60778d;
+      --stereo-accent: #0b70cc;
+      --stereo-shadow-key: rgba(45, 76, 103, 0.13);
+      --stereo-shadow-ambient: rgba(48, 80, 108, 0.10);
+      color: var(--stereo-ink);
+      background:
+        radial-gradient(circle at 13% 5%, rgba(182, 219, 242, 0.62), transparent 35%),
+        radial-gradient(circle at 92% 24%, rgba(218, 229, 247, 0.46), transparent 33%),
+        linear-gradient(145deg, var(--stereo-canvas-start) 0%, var(--stereo-canvas-mid) 48%, var(--stereo-canvas-end) 100%);
+    }
+
+    body.appearance-crystal .card {
+      background:
+        linear-gradient(125deg, rgba(255, 255, 255, 0.24), transparent 32%),
+        linear-gradient(145deg, var(--stereo-card-start), var(--stereo-card-end)) !important;
+      border-color: rgba(255, 255, 255, 0.76);
+      box-shadow:
+        0 2px 3px rgba(40, 70, 96, 0.09),
+        0 22px 48px rgba(43, 74, 101, 0.16),
+        inset 0 1px 0 rgba(255, 255, 255, 0.84),
+        inset 0 -1px 0 rgba(89, 125, 155, 0.08);
+    }
+
+    body.appearance-crystal .subtitle,
+    body.appearance-crystal .label,
+    body.appearance-crystal .direction-label,
+    body.appearance-crystal .result-label,
+    body.appearance-crystal .result-tip,
+    body.appearance-crystal .history-sub,
+    body.appearance-crystal .history-top,
+    body.appearance-crystal .accum-hint {
+      color: var(--stereo-muted);
+      text-shadow: none;
+    }
+
+    body.appearance-crystal .tabs,
+    body.appearance-crystal .direction-tabs {
+      background-image: none;
+      background-color: var(--stereo-inset);
+      border-color: rgba(255, 255, 255, 0.50);
+      box-shadow:
+        inset 0 3px 7px rgba(43, 77, 105, 0.15),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.58),
+        0 1px 0 rgba(255, 255, 255, 0.30);
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+
+    body.appearance-crystal .tabs::before,
+    body.appearance-crystal .direction-tabs::before {
+      background: linear-gradient(145deg, rgba(252, 254, 255, 0.94), rgba(226, 238, 246, 0.92)) !important;
+      border-color: rgba(255, 255, 255, 0.88) !important;
+      box-shadow:
+        0 2px 3px rgba(43, 72, 98, 0.12),
+        0 7px 14px rgba(45, 76, 104, 0.11),
+        inset 0 1px 0 rgba(255, 255, 255, 0.96) !important;
+    }
+
+    body.appearance-crystal .tabs > .tab,
+    body.appearance-crystal .direction-tabs > .direction-tab {
+      color: #5a738a;
+      text-shadow: none;
+    }
+
+    body.appearance-crystal .tabs > .tab.active,
+    body.appearance-crystal .direction-tabs > .direction-tab.active {
+      color: var(--stereo-accent);
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.72);
+    }
+
+    body.appearance-crystal .time-box,
+    body.appearance-crystal .date-box,
+    body.appearance-crystal .mini-box {
+      background-image: none;
+      background-color: rgba(183, 208, 225, 0.38);
+      border-color: rgba(255, 255, 255, 0.57);
+      box-shadow:
+        inset 0 3px 7px rgba(45, 80, 108, 0.14),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.62);
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+
+    body.appearance-crystal .time-box:focus-within,
+    body.appearance-crystal .date-box:focus-within,
+    body.appearance-crystal .mini-box:focus-within {
+      background-color: var(--stereo-inset-focus);
+      border-color: rgba(56, 135, 205, 0.55);
+      box-shadow:
+        inset 0 3px 7px rgba(45, 80, 108, 0.15),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.67),
+        0 0 0 3px rgba(36, 125, 205, 0.09);
+    }
+
+    body.appearance-crystal .time-num,
+    body.appearance-crystal .date-num,
+    body.appearance-crystal .mini-input,
+    body.appearance-crystal .native-picker,
+    body.appearance-crystal .colon,
+    body.appearance-crystal .date-sep {
+      color: var(--stereo-ink);
+      text-shadow: none;
+    }
+
+    body.appearance-crystal .time-num::placeholder,
+    body.appearance-crystal .date-num::placeholder,
+    body.appearance-crystal .mini-input::placeholder {
+      color: #6c8295;
+      opacity: 0.94;
+    }
+
+    body.appearance-crystal button::before {
+      left: 18%;
+      right: 18%;
+      height: 14%;
+      opacity: 0.12;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.32), transparent);
+    }
+
+    body.appearance-crystal .btn-primary,
+    body.appearance-crystal .notice-ok,
+    body.appearance-crystal .changelog-ok,
+    body.appearance-crystal #settingsDone {
+      background: linear-gradient(145deg, #35a0eb 0%, #1178d4 58%, #0a68c1 100%);
+      border-color: rgba(255, 255, 255, 0.52);
+      box-shadow:
+        0 2px 3px rgba(8, 73, 138, 0.22),
+        0 12px 24px rgba(8, 88, 169, 0.20),
+        inset 1px 1px 1px rgba(255, 255, 255, 0.46),
+        inset -1px -1px 1px rgba(6, 73, 139, 0.09);
+    }
+
+    body.appearance-crystal .btn-primary::before,
+    body.appearance-crystal .notice-ok::before,
+    body.appearance-crystal .changelog-ok::before,
+    body.appearance-crystal #settingsDone::before {
+      height: 17%;
+      opacity: 0.24;
+    }
+
+    body.appearance-crystal .btn-secondary,
+    body.appearance-crystal .confirm-cancel {
+      background: linear-gradient(145deg, rgba(249, 252, 254, 0.94), rgba(218, 233, 243, 0.90));
+      border-color: rgba(255, 255, 255, 0.86);
+      box-shadow:
+        0 2px 3px rgba(48, 76, 99, 0.12),
+        0 10px 20px rgba(49, 78, 103, 0.11),
+        inset 1px 1px 1px rgba(255, 255, 255, 0.94),
+        inset -1px -1px 1px rgba(90, 124, 151, 0.07);
+    }
+
+    body.appearance-crystal .app-switch-btn,
+    body.appearance-crystal #noticeBtn,
+    body.appearance-crystal .settings-open,
+    body.appearance-crystal .settings-back,
+    body.appearance-crystal .notice-back,
+    body.appearance-crystal .notice-x,
+    body.appearance-crystal .changelog-never {
+      background: linear-gradient(145deg, rgba(251, 253, 255, 0.94), rgba(220, 234, 243, 0.90));
+      border-color: rgba(255, 255, 255, 0.86);
+      box-shadow:
+        0 2px 3px rgba(47, 76, 100, 0.12),
+        0 8px 16px rgba(48, 78, 104, 0.11),
+        inset 1px 1px 1px rgba(255, 255, 255, 0.95),
+        inset -1px -1px 1px rgba(88, 122, 150, 0.07);
+    }
+
+    body.appearance-crystal .calculator-brand-icon {
+      border-color: rgba(255, 255, 255, 0.88);
+      box-shadow:
+        0 1px 2px rgba(42, 75, 101, 0.12),
+        0 5px 12px rgba(43, 79, 109, 0.11);
+    }
+
+    body.appearance-crystal .result-box {
+      background-color: var(--stereo-surface);
+      background-image: linear-gradient(145deg, rgba(250, 253, 255, 0.70), rgba(224, 239, 248, 0.64));
+      border-color: rgba(255, 255, 255, 0.76);
+      box-shadow:
+        0 2px 3px rgba(40, 72, 99, 0.12),
+        0 13px 27px rgba(41, 76, 106, 0.13),
+        inset 0 1px 0 rgba(255, 255, 255, 0.88);
+      transform: translateY(-1px) scale(1);
+    }
+
+    body.appearance-crystal .result-value {
+      color: #0862b6;
+      text-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.78),
+        0 5px 13px rgba(25, 90, 148, 0.10);
+    }
+
+    body.appearance-crystal .history {
+      background-image: none;
+      background-color: rgba(197, 217, 231, 0.42);
+      border-color: rgba(255, 255, 255, 0.54);
+      box-shadow:
+        inset 0 2px 5px rgba(45, 78, 105, 0.08),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.48);
+    }
+
+    body.appearance-crystal .history-item {
+      background-color: var(--stereo-surface-strong);
+      background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.52), rgba(226, 239, 247, 0.46));
+      border-color: rgba(255, 255, 255, 0.72);
+      box-shadow:
+        0 1px 2px rgba(43, 73, 98, 0.09),
+        0 7px 15px rgba(44, 76, 103, 0.09),
+        inset 0 1px 0 rgba(255, 255, 255, 0.88);
+    }
+
+    body.appearance-crystal .clear-btn {
+      background: linear-gradient(145deg, rgba(255, 249, 251, 0.94), rgba(243, 226, 232, 0.90));
+      border-color: rgba(255, 255, 255, 0.86);
+      box-shadow:
+        0 2px 3px rgba(122, 59, 76, 0.12),
+        0 8px 16px rgba(105, 61, 73, 0.10),
+        inset 1px 1px 1px rgba(255, 255, 255, 0.95),
+        inset -1px -1px 1px rgba(151, 91, 108, 0.07);
+    }
+
+    body.appearance-crystal .confirm-ok {
+      overflow: hidden;
+      background: linear-gradient(145deg, #fff9fb, #f3e3e9);
+      border-color: rgba(255, 255, 255, 0.90);
+      box-shadow:
+        0 2px 3px rgba(124, 57, 76, 0.13),
+        0 11px 22px rgba(102, 60, 72, 0.13),
+        inset 1px 1px 1px rgba(255, 255, 255, 0.96),
+        inset -1px -1px 1px rgba(151, 91, 108, 0.08);
+    }
+
+    body.appearance-crystal .confirm-ok:active:not(:disabled),
+    body.appearance-crystal .confirm-ok.mobile-press-active {
+      box-shadow:
+        0 1px 2px rgba(124, 57, 76, 0.11),
+        0 4px 8px rgba(102, 60, 72, 0.09),
+        inset 0 2px 4px rgba(133, 71, 89, 0.08);
+    }
+
+    body.appearance-crystal.mobile-press-measuring .confirm-ok:active:not(:disabled) {
+      box-shadow:
+        0 2px 3px rgba(124, 57, 76, 0.13),
+        0 11px 22px rgba(102, 60, 72, 0.13),
+        inset 1px 1px 1px rgba(255, 255, 255, 0.96),
+        inset -1px -1px 1px rgba(151, 91, 108, 0.08) !important;
+    }
+
+    body.appearance-crystal .history-copy-btn,
+    body.appearance-crystal .history-delete-btn {
+      box-shadow:
+        0 1px 2px rgba(58, 76, 94, 0.12),
+        0 6px 12px rgba(58, 77, 96, 0.09),
+        inset 1px 1px 1px rgba(255, 255, 255, 0.90),
+        inset -1px -1px 1px rgba(91, 115, 136, 0.06);
+    }
+
+    body.appearance-crystal .btn-primary:active:not(:disabled),
+    body.appearance-crystal .notice-ok:active:not(:disabled),
+    body.appearance-crystal .changelog-ok:active:not(:disabled),
+    body.appearance-crystal #settingsDone:active:not(:disabled),
+    body.appearance-crystal .btn-primary.mobile-press-active,
+    body.appearance-crystal .notice-ok.mobile-press-active,
+    body.appearance-crystal .changelog-ok.mobile-press-active,
+    body.appearance-crystal #settingsDone.mobile-press-active {
+      box-shadow:
+        0 1px 2px rgba(8, 73, 138, 0.18),
+        0 4px 8px rgba(8, 88, 169, 0.13),
+        inset 0 2px 4px rgba(7, 72, 138, 0.12);
+    }
+
+    body.appearance-crystal .btn-secondary:active:not(:disabled),
+    body.appearance-crystal .confirm-cancel:active:not(:disabled),
+    body.appearance-crystal .app-switch-btn:active:not(:disabled),
+    body.appearance-crystal #noticeBtn:active:not(:disabled),
+    body.appearance-crystal .settings-open:active:not(:disabled),
+    body.appearance-crystal .settings-back:active:not(:disabled),
+    body.appearance-crystal .notice-back:active:not(:disabled),
+    body.appearance-crystal .notice-x:active:not(:disabled),
+    body.appearance-crystal .changelog-never:active:not(:disabled),
+    body.appearance-crystal .mobile-press-secondary.mobile-press-active,
+    body.appearance-crystal .mobile-press-icon.mobile-press-active {
+      box-shadow:
+        0 1px 2px rgba(48, 76, 99, 0.10),
+        0 4px 8px rgba(49, 78, 103, 0.08),
+        inset 0 2px 4px rgba(70, 101, 126, 0.08);
+    }
+
+    body.appearance-crystal .clear-btn:active:not(:disabled),
+    body.appearance-crystal .clear-btn.mobile-press-active {
+      box-shadow:
+        0 1px 2px rgba(124, 57, 76, 0.11),
+        0 4px 8px rgba(102, 60, 72, 0.09),
+        inset 0 2px 4px rgba(133, 71, 89, 0.08);
+    }
+
+    body.appearance-crystal.mobile-press-measuring .btn-primary:active:not(:disabled),
+    body.appearance-crystal.mobile-press-measuring .notice-ok:active:not(:disabled),
+    body.appearance-crystal.mobile-press-measuring .changelog-ok:active:not(:disabled),
+    body.appearance-crystal.mobile-press-measuring #settingsDone:active:not(:disabled) {
+      box-shadow:
+        0 2px 3px rgba(8, 73, 138, 0.22),
+        0 12px 24px rgba(8, 88, 169, 0.20),
+        inset 1px 1px 1px rgba(255, 255, 255, 0.46),
+        inset -1px -1px 1px rgba(6, 73, 139, 0.09) !important;
+    }
+
+    body.appearance-crystal.mobile-press-measuring .btn-secondary:active:not(:disabled),
+    body.appearance-crystal.mobile-press-measuring .confirm-cancel:active:not(:disabled),
+    body.appearance-crystal.mobile-press-measuring .app-switch-btn:active:not(:disabled),
+    body.appearance-crystal.mobile-press-measuring #noticeBtn:active:not(:disabled),
+    body.appearance-crystal.mobile-press-measuring .settings-open:active:not(:disabled),
+    body.appearance-crystal.mobile-press-measuring .settings-back:active:not(:disabled),
+    body.appearance-crystal.mobile-press-measuring .notice-back:active:not(:disabled),
+    body.appearance-crystal.mobile-press-measuring .notice-x:active:not(:disabled),
+    body.appearance-crystal.mobile-press-measuring .changelog-never:active:not(:disabled) {
+      box-shadow:
+        0 2px 3px rgba(47, 76, 100, 0.12),
+        0 8px 16px rgba(48, 78, 104, 0.11),
+        inset 1px 1px 1px rgba(255, 255, 255, 0.95),
+        inset -1px -1px 1px rgba(88, 122, 150, 0.07) !important;
+    }
+
+    body.appearance-crystal.mobile-press-measuring .clear-btn:active:not(:disabled) {
+      box-shadow:
+        0 2px 3px rgba(122, 59, 76, 0.12),
+        0 8px 16px rgba(105, 61, 73, 0.10),
+        inset 1px 1px 1px rgba(255, 255, 255, 0.95),
+        inset -1px -1px 1px rgba(151, 91, 108, 0.07) !important;
+    }
+
+    @keyframes stereoSecondaryClick {
+      0%, 100% {
+        transform: translateY(0) scale(1);
+        filter: brightness(1);
+        box-shadow:
+          0 2px 3px rgba(47, 76, 100, 0.12),
+          0 8px 16px rgba(48, 78, 104, 0.11),
+          inset 1px 1px 1px rgba(255, 255, 255, 0.95),
+          inset -1px -1px 1px rgba(88, 122, 150, 0.07);
+      }
+      46% {
+        transform: translateY(2px) scale(0.99);
+        filter: brightness(0.99);
+        box-shadow:
+          0 1px 2px rgba(48, 76, 99, 0.10),
+          0 4px 8px rgba(49, 78, 103, 0.08),
+          inset 0 2px 4px rgba(70, 101, 126, 0.08);
+      }
+    }
+
+    body.appearance-crystal .confirm-dialog {
+      border-color: rgba(255, 255, 255, 0.78);
+      box-shadow:
+        0 3px 7px rgba(38, 67, 92, 0.13),
+        0 24px 54px rgba(37, 69, 97, 0.20),
+        inset 0 1px 0 rgba(255, 255, 255, 0.86);
+    }
+
+    /* 立体风格弹窗：统一提高外层与内部表面的通透度 */
+    body.appearance-crystal .settings-overlay,
+    body.appearance-crystal .notice-overlay,
+    body.appearance-crystal .confirm-overlay,
+    body.appearance-crystal .changelog-overlay {
+      background: rgba(35, 65, 101, 0.14);
+    }
+
+    body.appearance-crystal .settings-dialog,
+    body.appearance-crystal .notice-dialog,
+    body.appearance-crystal .confirm-dialog,
+    body.appearance-crystal .changelog-dialog {
+      background:
+        linear-gradient(125deg, rgba(255, 255, 255, 0.15), transparent 30%),
+        linear-gradient(145deg, rgba(239, 248, 254, 0.54), rgba(207, 229, 244, 0.44));
+    }
+
+    body.appearance-crystal .settings-dialog .settings-block,
+    body.appearance-crystal .notice-dialog .notice-block,
+    body.appearance-crystal .settings-dialog .setting-option,
+    body.appearance-crystal .settings-dialog .settings-menu-item,
+    body.appearance-crystal .notice-dialog .notice-menu-item,
+    body.appearance-crystal .notice-dialog .version-item {
+      background-color: rgba(238, 247, 253, 0.56);
+    }
+
+    @media (max-width: 640px) {
+      body.appearance-crystal .settings-overlay,
+      body.appearance-crystal .notice-overlay,
+      body.appearance-crystal .confirm-overlay,
+      body.appearance-crystal .changelog-overlay {
+        background: rgba(55, 78, 103, 0.10);
+      }
+
+      body.appearance-crystal .settings-dialog,
+      body.appearance-crystal .notice-dialog,
+      body.appearance-crystal .confirm-dialog,
+      body.appearance-crystal .changelog-dialog {
+        background:
+          linear-gradient(125deg, rgba(255, 255, 255, 0.10), transparent 30%),
+          linear-gradient(145deg, rgba(244, 250, 255, 0.40), rgba(218, 235, 248, 0.32));
+      }
+
+      body.appearance-crystal .settings-dialog .settings-block,
+      body.appearance-crystal .notice-dialog .notice-block,
+      body.appearance-crystal .settings-dialog .setting-option,
+      body.appearance-crystal .settings-dialog .settings-menu-item,
+      body.appearance-crystal .notice-dialog .notice-menu-item,
+      body.appearance-crystal .notice-dialog .version-item {
+        background-color: rgba(241, 248, 253, 0.50);
+      }
+    }
+
+    @keyframes crystalResultScreenPress {
+      0%, 100% {
+        transform: translateY(-1px) scale(1);
+        box-shadow:
+          0 2px 3px rgba(40, 72, 99, 0.12),
+          0 13px 27px rgba(41, 76, 106, 0.13),
+          inset 0 1px 0 rgba(255, 255, 255, 0.88);
+      }
+      24% {
+        transform: translateY(1px) scale(0.997);
+        box-shadow:
+          0 1px 2px rgba(40, 72, 99, 0.10),
+          0 6px 13px rgba(41, 76, 106, 0.09),
+          inset 0 1px 0 rgba(255, 255, 255, 0.72);
+      }
+    }
+
+    @keyframes crystalResultScreenPressMobile {
+      0%, 100% {
+        transform: translateY(-1px) scale(1);
+        box-shadow:
+          0 1px 2px rgba(40, 72, 99, 0.11),
+          0 9px 19px rgba(41, 76, 106, 0.11),
+          inset 0 1px 0 rgba(255, 255, 255, 0.84);
+      }
+      24% {
+        transform: translateY(1px) scale(0.997);
+        box-shadow:
+          0 1px 1px rgba(40, 72, 99, 0.09),
+          0 4px 9px rgba(41, 76, 106, 0.08),
+          inset 0 1px 0 rgba(255, 255, 255, 0.68);
+      }
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      body.appearance-crystal .time-box:hover,
+      body.appearance-crystal .date-box:hover,
+      body.appearance-crystal .mini-box:hover {
+        background-color: rgba(192, 216, 232, 0.48);
+        border-color: rgba(255, 255, 255, 0.68);
+      }
+    }
+
+    @media (max-width: 640px) {
+      body.appearance-crystal {
+        background:
+          radial-gradient(circle at 14% 6%, rgba(182, 219, 242, 0.54), transparent 36%),
+          linear-gradient(145deg, #d8e9f4 0%, #edf5fa 52%, #dcebf4 100%);
+      }
+
+      body.appearance-crystal .card {
+        box-shadow:
+          0 1px 2px rgba(40, 70, 96, 0.08),
+          0 15px 32px rgba(43, 74, 101, 0.13),
+          inset 0 1px 0 rgba(255, 255, 255, 0.82);
+      }
+
+      body.appearance-crystal .time-box,
+      body.appearance-crystal .date-box,
+      body.appearance-crystal .mini-box {
+        box-shadow:
+          inset 0 3px 6px rgba(45, 80, 108, 0.13),
+          inset 0 -1px 0 rgba(255, 255, 255, 0.58);
+      }
+
+      body.appearance-crystal .result-box {
+        box-shadow:
+          0 1px 2px rgba(40, 72, 99, 0.11),
+          0 9px 19px rgba(41, 76, 106, 0.11),
+          inset 0 1px 0 rgba(255, 255, 255, 0.84);
+      }
     }

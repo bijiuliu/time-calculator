@@ -9,7 +9,7 @@
   <link rel="manifest" href="./manifest.webmanifest?v=1" />
   <title>时间计算器 Pro</title>
   <!-- 拆分版：页面结构在这里，样式在 css/style.css，逻辑在 js/app.js -->
-  <link rel="stylesheet" href="./css/style.css?v=1.5.0-input124">
+  <link rel="stylesheet" href="./css/style.css?v=1.5.0-input145">
 </head>
 <body>
   <script>
@@ -55,18 +55,26 @@
         <button id="tabShift" class="tab" type="button">前移/后退</button>
       </div>
 
-      <div id="timeModePanels" class="mode-panels">
-      <section id="panelDiff" class="panel active">
-        <div class="field">
-          <label class="label">开始时间</label>
-          <div class="time-box">
+      <div id="timeModeAnchor" class="field time-mode-anchor" data-active="diff">
+        <label id="timeModeAnchorLabel" class="label">开始时间</label>
+        <div class="time-box time-mode-anchor-box">
+          <div id="timeModeStartInputs" class="time-mode-input-layer active" data-mode="diff" aria-hidden="false">
             <input id="startNative" class="native-picker" type="time" aria-label="开始时间">
             <input id="startH" class="time-num" type="number" inputmode="numeric" min="0" max="23" placeholder="00" aria-label="开始小时">
             <span class="colon">:</span>
             <input id="startM" class="time-num" type="number" inputmode="numeric" min="0" max="59" placeholder="00" aria-label="开始分钟">
           </div>
+          <div id="timeModeBaseInputs" class="time-mode-input-layer" data-mode="shift" aria-hidden="true">
+            <input id="baseNative" class="native-picker" type="time" aria-label="基准时间">
+            <input id="baseH" class="time-num" type="number" inputmode="numeric" min="0" max="23" placeholder="00" aria-label="基准小时">
+            <span class="colon">:</span>
+            <input id="baseM" class="time-num" type="number" inputmode="numeric" min="0" max="59" placeholder="00" aria-label="基准分钟">
+          </div>
         </div>
+      </div>
 
+      <div id="timeModePanels" class="mode-panels">
+      <section id="panelDiff" class="panel active">
         <div class="field">
           <label class="label">结束时间</label>
           <div class="time-box">
@@ -80,16 +88,6 @@
       </section>
 
       <section id="panelShift" class="panel">
-        <div class="field">
-          <label class="label">基准时间</label>
-          <div class="time-box">
-            <input id="baseNative" class="native-picker" type="time" aria-label="基准时间">
-            <input id="baseH" class="time-num" type="number" inputmode="numeric" min="0" max="23" placeholder="00" aria-label="基准小时">
-            <span class="colon">:</span>
-            <input id="baseM" class="time-num" type="number" inputmode="numeric" min="0" max="59" placeholder="00" aria-label="基准分钟">
-          </div>
-        </div>
-
         <div class="field">
           <label class="label direction-label">计算方向</label>
           <input id="direction" type="hidden" value="back">
@@ -153,14 +151,26 @@
           <button id="dateTabShift" class="tab" type="button">前移/后退</button>
         </div>
 
+        <div id="dateModeAnchor" class="field date-mode-anchor" data-active="diff">
+          <label id="dateModeAnchorLabel" class="label">开始日期</label>
+          <div class="date-box date-native-wrap date-mode-anchor-box">
+            <div id="dateModeStartInputs" class="date-mode-input-layer active" data-mode="diff" aria-hidden="false">
+              <input id="dateStartNative" class="native-picker date-native-picker" type="date" aria-label="开始日期">
+              <input id="dateStartY" class="date-num" type="number" inputmode="numeric" placeholder="年"><span class="date-sep">年</span>
+              <input id="dateStartM" class="date-num" type="number" inputmode="numeric" placeholder="月"><span class="date-sep">月</span>
+              <input id="dateStartD" class="date-num" type="number" inputmode="numeric" placeholder="日">
+            </div>
+            <div id="dateModeBaseInputs" class="date-mode-input-layer" data-mode="shift" aria-hidden="true">
+              <input id="dateBaseNative" class="native-picker date-native-picker" type="date" aria-label="基准日期">
+              <input id="dateBaseY" class="date-num" type="number" inputmode="numeric" placeholder="年"><span class="date-sep">年</span>
+              <input id="dateBaseM" class="date-num" type="number" inputmode="numeric" placeholder="月"><span class="date-sep">月</span>
+              <input id="dateBaseD" class="date-num" type="number" inputmode="numeric" placeholder="日">
+            </div>
+          </div>
+        </div>
+
         <div id="dateModePanels" class="mode-panels">
         <section id="datePanelDiff" class="panel active">
-          <div class="field"><label class="label">开始日期</label><div class="date-box date-native-wrap">
-            <input id="dateStartNative" class="native-picker date-native-picker" type="date" aria-label="开始日期">
-            <input id="dateStartY" class="date-num" type="number" inputmode="numeric" placeholder="年"><span class="date-sep">年</span>
-            <input id="dateStartM" class="date-num" type="number" inputmode="numeric" placeholder="月"><span class="date-sep">月</span>
-            <input id="dateStartD" class="date-num" type="number" inputmode="numeric" placeholder="日">
-          </div></div>
           <div class="field"><label class="label">结束日期</label><div class="date-box date-native-wrap">
             <input id="dateEndNative" class="native-picker date-native-picker" type="date" aria-label="结束日期">
             <input id="dateEndY" class="date-num" type="number" inputmode="numeric" placeholder="年"><span class="date-sep">年</span>
@@ -170,12 +180,6 @@
         </section>
 
         <section id="datePanelShift" class="panel">
-          <div class="field"><label class="label">基准日期</label><div class="date-box date-native-wrap">
-            <input id="dateBaseNative" class="native-picker date-native-picker" type="date" aria-label="基准日期">
-            <input id="dateBaseY" class="date-num" type="number" inputmode="numeric" placeholder="年"><span class="date-sep">年</span>
-            <input id="dateBaseM" class="date-num" type="number" inputmode="numeric" placeholder="月"><span class="date-sep">月</span>
-            <input id="dateBaseD" class="date-num" type="number" inputmode="numeric" placeholder="日">
-          </div></div>
           <div class="field"><label class="label direction-label">计算方向</label><input id="dateDirection" type="hidden" value="back"><div class="direction-tabs">
             <button id="dateDirectionBack" class="direction-tab active" type="button">前移</button><button id="dateDirectionForward" class="direction-tab" type="button">后退</button>
           </div></div>
@@ -710,6 +714,6 @@
     </div>
   </div>
 
-  <script src="./js/app.js?v=1.5.0-input124"></script>
+  <script src="./js/app.js?v=1.5.0-input145"></script>
 </body>
 </html>
