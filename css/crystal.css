@@ -1,0 +1,819 @@
+/* 当前质感主题与相关交互覆盖。
+   本文件必须在 style.css 与 crystal-legacy.css 之后加载。 */
+
+    /* 立体风格 3.0：使用用户提供的冰蓝流体背景，并针对浅色画面重建玻璃层级 */
+    body.appearance-crystal {
+      --stereo-ink: #18364f;
+      --stereo-muted: #5c7489;
+      --stereo-accent: #0875cf;
+      background-color: #e7f0f7;
+      background-image:
+        linear-gradient(180deg, rgba(238, 246, 252, 0.10), rgba(207, 226, 240, 0.15)),
+        url("../assets/ui/stereo-glass-background.jpeg?v=2") !important;
+      background-repeat: no-repeat !important;
+      background-position: center top !important;
+      background-size: cover !important;
+      background-attachment: fixed !important;
+    }
+
+    body.appearance-crystal .shell::before,
+    body.appearance-crystal .shell::after {
+      display: none;
+    }
+
+    body.appearance-crystal .card {
+      background: rgba(255, 255, 255, 0.20) !important;
+      border: 1px solid rgba(255, 255, 255, 0.30);
+      border-radius: 32px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.10);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+    }
+
+    body.appearance-crystal .card::before {
+      opacity: 0.32;
+    }
+
+    body.appearance-crystal .card::after {
+      opacity: 0.26;
+    }
+
+    body.appearance-crystal .tabs,
+    body.appearance-crystal .direction-tabs {
+      background-color: rgba(172, 199, 219, 0.42);
+      border-color: rgba(255, 255, 255, 0.58);
+      box-shadow:
+        inset 0 3px 7px rgba(53, 87, 114, 0.13),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.66),
+        0 1px 0 rgba(255, 255, 255, 0.36);
+    }
+
+    body.appearance-crystal .tabs::before,
+    body.appearance-crystal .direction-tabs::before {
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.90), rgba(224, 237, 246, 0.84)) !important;
+      box-shadow:
+        0 2px 3px rgba(47, 77, 101, 0.10),
+        0 7px 15px rgba(48, 80, 106, 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 0.96) !important;
+    }
+
+    body.appearance-crystal .time-box,
+    body.appearance-crystal .date-box,
+    body.appearance-crystal .mini-box {
+      background-color: rgba(177, 203, 221, 0.34);
+      border-color: rgba(255, 255, 255, 0.62);
+      box-shadow:
+        inset 0 3px 8px rgba(48, 82, 109, 0.13),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.72),
+        0 1px 0 rgba(255, 255, 255, 0.28);
+    }
+
+    body.appearance-crystal .time-box:focus-within,
+    body.appearance-crystal .date-box:focus-within,
+    body.appearance-crystal .mini-box:focus-within {
+      background-color: rgba(202, 223, 237, 0.54);
+      border-color: rgba(43, 133, 207, 0.52);
+      box-shadow:
+        inset 0 3px 8px rgba(48, 82, 109, 0.12),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.78),
+        0 0 0 3px rgba(25, 122, 199, 0.09);
+    }
+
+    body.appearance-crystal .result-box {
+      background-color: rgba(236, 246, 252, 0.57);
+      background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.63), rgba(211, 231, 243, 0.47));
+      border-color: rgba(255, 255, 255, 0.76);
+      box-shadow:
+        0 2px 3px rgba(43, 75, 101, 0.10),
+        0 14px 28px rgba(48, 82, 109, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.90);
+    }
+
+    body.appearance-crystal .history {
+      background-color: rgba(184, 208, 225, 0.32);
+      border-color: rgba(255, 255, 255, 0.55);
+    }
+
+    body.appearance-crystal .history-item {
+      background-color: rgba(244, 249, 252, 0.72);
+      background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.55), rgba(218, 234, 244, 0.44));
+    }
+
+    body.appearance-crystal .btn-primary,
+    body.appearance-crystal .notice-ok,
+    body.appearance-crystal .changelog-ok,
+    body.appearance-crystal #settingsDone {
+      background: linear-gradient(145deg, #3da9ee 0%, #117dcc 58%, #096ab6 100%);
+      box-shadow:
+        0 2px 3px rgba(8, 73, 128, 0.20),
+        0 12px 24px rgba(14, 93, 153, 0.18),
+        inset 1px 1px 1px rgba(255, 255, 255, 0.48),
+        inset -1px -1px 1px rgba(6, 70, 122, 0.10);
+    }
+
+    @media (max-width: 640px) {
+      body.appearance-crystal {
+        background-attachment: scroll !important;
+        background-position: center top !important;
+      }
+
+      body.appearance-crystal .card {
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+      }
+    }
+
+    /* 立体风格 4.0：仅替换视觉材质，完整保留现有形状、尺寸、位置与布局 */
+    body.appearance-crystal {
+      --text: #173552;
+      --muted: #617994;
+      --primary: #1679e8;
+      --primary2: #57a9ff;
+      --border: rgba(255, 255, 255, 0.38);
+      color: #173552;
+    }
+
+    body.appearance-crystal .card {
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.24), rgba(222, 238, 250, 0.13)) !important;
+      border-color: rgba(255, 255, 255, 0.42);
+      box-shadow:
+        0 4px 30px rgba(32, 66, 96, 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 0.68),
+        inset 0 -1px 0 rgba(105, 153, 190, 0.08);
+      backdrop-filter: blur(12px) saturate(112%);
+      -webkit-backdrop-filter: blur(12px) saturate(112%);
+    }
+
+    body.appearance-crystal .card::before {
+      background: radial-gradient(ellipse at 22% 0%, rgba(255, 255, 255, 0.38), transparent 68%);
+      opacity: 0.52;
+    }
+
+    body.appearance-crystal .card::after {
+      background:
+        linear-gradient(125deg, rgba(255, 255, 255, 0.20), transparent 25%, transparent 74%, rgba(116, 190, 232, 0.08));
+      opacity: 0.72;
+    }
+
+    body.appearance-crystal .title,
+    body.appearance-crystal .history-title,
+    body.appearance-crystal .history-main,
+    body.appearance-crystal .setting-label,
+    body.appearance-crystal .settings-menu-main,
+    body.appearance-crystal .notice-menu-main,
+    body.appearance-crystal .settings-header h2,
+    body.appearance-crystal .notice-header h2,
+    body.appearance-crystal .confirm-title,
+    body.appearance-crystal .changelog-title {
+      color: #173552;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.62);
+    }
+
+    body.appearance-crystal .subtitle,
+    body.appearance-crystal .label,
+    body.appearance-crystal .direction-label,
+    body.appearance-crystal .result-label,
+    body.appearance-crystal .result-tip,
+    body.appearance-crystal .history-sub,
+    body.appearance-crystal .history-top,
+    body.appearance-crystal .accum-hint,
+    body.appearance-crystal .settings-subtitle,
+    body.appearance-crystal .notice-subtitle,
+    body.appearance-crystal .settings-menu-sub,
+    body.appearance-crystal .notice-menu-sub,
+    body.appearance-crystal .settings-tip,
+    body.appearance-crystal .confirm-text {
+      color: #617994;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.38);
+    }
+
+    body.appearance-crystal .tabs,
+    body.appearance-crystal .direction-tabs {
+      background-image: none;
+      background-color: rgba(198, 220, 237, 0.24);
+      border-color: rgba(255, 255, 255, 0.36);
+      box-shadow:
+        inset 0 3px 8px rgba(46, 82, 113, 0.10),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.52),
+        0 1px 0 rgba(255, 255, 255, 0.24);
+      backdrop-filter: blur(6px) saturate(108%) !important;
+      -webkit-backdrop-filter: blur(6px) saturate(108%) !important;
+    }
+
+    body.appearance-crystal .tabs::before,
+    body.appearance-crystal .direction-tabs::before {
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.62), rgba(223, 238, 248, 0.42)) !important;
+      border-color: rgba(255, 255, 255, 0.58) !important;
+      box-shadow:
+        0 5px 14px rgba(49, 83, 111, 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 0.78) !important;
+    }
+
+    body.appearance-crystal .tabs > .tab,
+    body.appearance-crystal .direction-tabs > .direction-tab {
+      color: #607893;
+      text-shadow: none;
+    }
+
+    body.appearance-crystal .tabs > .tab.active,
+    body.appearance-crystal .direction-tabs > .direction-tab.active {
+      color: #155c9f;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.62);
+    }
+
+    body.appearance-crystal .time-box,
+    body.appearance-crystal .date-box,
+    body.appearance-crystal .mini-box {
+      background-image: none;
+      background-color: rgba(204, 224, 239, 0.20);
+      border-color: rgba(255, 255, 255, 0.38);
+      box-shadow:
+        inset 0 3px 9px rgba(42, 78, 108, 0.10),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.58),
+        0 1px 0 rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(6px) saturate(108%) !important;
+      -webkit-backdrop-filter: blur(6px) saturate(108%) !important;
+    }
+
+    body.appearance-crystal .time-box:focus-within,
+    body.appearance-crystal .date-box:focus-within,
+    body.appearance-crystal .mini-box:focus-within {
+      background-color: rgba(217, 235, 247, 0.30);
+      border-color: rgba(70, 151, 215, 0.45);
+      box-shadow:
+        inset 0 3px 9px rgba(42, 78, 108, 0.09),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.64),
+        0 0 0 3px rgba(43, 135, 207, 0.08);
+    }
+
+    body.appearance-crystal .time-num,
+    body.appearance-crystal .date-num,
+    body.appearance-crystal .mini-input,
+    body.appearance-crystal .native-picker,
+    body.appearance-crystal .colon,
+    body.appearance-crystal .date-sep {
+      color: #183957;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.48);
+    }
+
+    body.appearance-crystal .btn-primary,
+    body.appearance-crystal .notice-ok,
+    body.appearance-crystal .changelog-ok,
+    body.appearance-crystal #settingsDone {
+      color: #ffffff;
+      background:
+        radial-gradient(ellipse at 25% 0%, rgba(255, 255, 255, 0.42), transparent 38%),
+        linear-gradient(145deg, rgba(84, 173, 255, 0.96), rgba(20, 116, 230, 0.96));
+      border-color: rgba(255, 255, 255, 0.48);
+      box-shadow:
+        0 3px 5px rgba(18, 83, 154, 0.18),
+        0 12px 24px rgba(18, 104, 202, 0.19),
+        inset 0 1px 0 rgba(255, 255, 255, 0.52),
+        inset 0 -1px 0 rgba(4, 67, 151, 0.15);
+    }
+
+    body.appearance-crystal .btn-secondary,
+    body.appearance-crystal .confirm-cancel {
+      color: #294a68;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.40), rgba(221, 237, 247, 0.25));
+      border-color: rgba(255, 255, 255, 0.48);
+      box-shadow:
+        0 8px 20px rgba(47, 81, 109, 0.09),
+        inset 0 1px 0 rgba(255, 255, 255, 0.68);
+      backdrop-filter: blur(7px) saturate(108%);
+      -webkit-backdrop-filter: blur(7px) saturate(108%);
+    }
+
+    body.appearance-crystal .result-box {
+      background-color: rgba(255, 255, 255, 0.27);
+      background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.42), rgba(213, 233, 246, 0.22));
+      border-color: rgba(255, 255, 255, 0.46);
+      box-shadow:
+        0 10px 26px rgba(42, 77, 106, 0.09),
+        inset 0 1px 0 rgba(255, 255, 255, 0.64);
+      backdrop-filter: blur(8px) saturate(110%);
+      -webkit-backdrop-filter: blur(8px) saturate(110%);
+    }
+
+    body.appearance-crystal .result-value {
+      color: #155f9f;
+      text-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.66),
+        0 4px 12px rgba(39, 100, 151, 0.08);
+    }
+
+    body.appearance-crystal .history,
+    body.appearance-crystal .settings-block,
+    body.appearance-crystal .notice-block {
+      background-color: rgba(207, 226, 240, 0.18);
+      background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.20), rgba(204, 227, 242, 0.10));
+      border-color: rgba(255, 255, 255, 0.34);
+      box-shadow:
+        inset 0 2px 7px rgba(43, 79, 108, 0.07),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.42);
+      backdrop-filter: blur(6px) saturate(108%);
+      -webkit-backdrop-filter: blur(6px) saturate(108%);
+    }
+
+    body.appearance-crystal .history-item,
+    body.appearance-crystal .setting-option,
+    body.appearance-crystal .settings-menu-item,
+    body.appearance-crystal .notice-menu-item,
+    body.appearance-crystal .version-item {
+      color: #24445f;
+      background-color: rgba(255, 255, 255, 0.28);
+      background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.32), rgba(215, 233, 245, 0.16));
+      border-color: rgba(255, 255, 255, 0.40);
+      box-shadow:
+        0 7px 18px rgba(44, 78, 105, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.58);
+      backdrop-filter: blur(7px) saturate(108%);
+      -webkit-backdrop-filter: blur(7px) saturate(108%);
+    }
+
+    body.appearance-crystal .clear-btn,
+    body.appearance-crystal .confirm-ok {
+      background: linear-gradient(145deg, rgba(255, 247, 250, 0.44), rgba(242, 223, 230, 0.24));
+      border-color: rgba(255, 255, 255, 0.46);
+      box-shadow:
+        0 7px 18px rgba(112, 66, 80, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.64);
+      backdrop-filter: blur(7px);
+      -webkit-backdrop-filter: blur(7px);
+    }
+
+    body.appearance-crystal .history-action-btn {
+      background: rgba(238, 248, 255, 0.30);
+      border-color: rgba(255, 255, 255, 0.42);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.52);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+
+    /* 历史记录超限提示：冷紫色半透明玻璃。 */
+    body.appearance-crystal .history-toast {
+      width: max-content;
+      max-width: min(calc(100vw - 32px), 420px);
+      box-sizing: border-box;
+      overflow: hidden;
+      isolation: isolate;
+      white-space: nowrap;
+      color: #3f3474;
+      background-color: rgba(171, 156, 225, 0.38);
+      background-image:
+        linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.66) 0%,
+          rgba(224, 215, 252, 0.48) 42%,
+          rgba(157, 143, 218, 0.42) 100%
+        );
+      border-color: rgba(255, 255, 255, 0.76);
+      box-shadow:
+        0 14px 34px rgba(91, 72, 154, 0.20),
+        0 3px 9px rgba(92, 75, 151, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.86),
+        inset 0 -1px 0 rgba(102, 81, 166, 0.12);
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.58);
+      backdrop-filter: blur(14px) saturate(128%);
+      -webkit-backdrop-filter: blur(14px) saturate(128%);
+    }
+
+    @media (max-width: 300px) {
+      body.appearance-crystal .history-toast {
+        white-space: normal;
+      }
+    }
+
+    body.appearance-crystal .settings-overlay,
+    body.appearance-crystal .notice-overlay,
+    body.appearance-crystal .confirm-overlay,
+    body.appearance-crystal .changelog-overlay {
+      background: rgba(63, 91, 117, 0.16);
+      backdrop-filter: blur(12px) saturate(106%);
+      -webkit-backdrop-filter: blur(12px) saturate(106%);
+    }
+
+    body.appearance-crystal .settings-dialog,
+    body.appearance-crystal .notice-dialog,
+    body.appearance-crystal .confirm-dialog,
+    body.appearance-crystal .changelog-dialog {
+      color: #24445f;
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.34), rgba(207, 229, 244, 0.20));
+      border-color: rgba(255, 255, 255, 0.48);
+      box-shadow:
+        0 28px 70px rgba(37, 69, 96, 0.20),
+        inset 0 1px 0 rgba(255, 255, 255, 0.70);
+      backdrop-filter: blur(18px) saturate(112%);
+      -webkit-backdrop-filter: blur(18px) saturate(112%);
+    }
+
+    @media (max-width: 640px) {
+      body.appearance-crystal .card {
+        backdrop-filter: blur(10px) saturate(110%);
+        -webkit-backdrop-filter: blur(10px) saturate(110%);
+      }
+    }
+
+    /* 顶部及弹窗圆形图标按钮：完整动画统一为普通次按钮 */
+    body.appearance-crystal .tool-toolbar .mist-glass-icon-btn,
+    body.appearance-crystal .tool-toolbar #noticeBtn.mist-glass-icon-btn,
+    body.appearance-crystal .settings-dialog .mist-glass-icon-btn,
+    body.appearance-crystal .notice-dialog .mist-glass-icon-btn {
+      transition:
+        transform 190ms cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 190ms ease,
+        filter 190ms ease,
+        color 150ms ease !important;
+    }
+
+    body.appearance-crystal .tool-toolbar .mist-glass-icon-btn:active:not(:disabled),
+    body.appearance-crystal .tool-toolbar #noticeBtn.mist-glass-icon-btn:active:not(:disabled),
+    body.appearance-crystal .settings-dialog .mist-glass-icon-btn:active:not(:disabled),
+    body.appearance-crystal .notice-dialog .mist-glass-icon-btn:active:not(:disabled),
+    body.appearance-crystal .tool-toolbar .mist-glass-icon-btn.mobile-press-active,
+    body.appearance-crystal .tool-toolbar #noticeBtn.mist-glass-icon-btn.mobile-press-active,
+    body.appearance-crystal .settings-dialog .mist-glass-icon-btn.mobile-press-active,
+    body.appearance-crystal .notice-dialog .mist-glass-icon-btn.mobile-press-active {
+      transform: translateY(3px) scale(0.985) !important;
+      filter: brightness(0.98) !important;
+      transition-duration: 85ms !important;
+      box-shadow:
+        0 1px 2px rgba(48, 76, 99, 0.10),
+        0 4px 8px rgba(49, 78, 103, 0.08),
+        inset 0 2px 4px rgba(70, 101, 126, 0.08) !important;
+    }
+
+    /* 移动端丝滑按压：清空与圆形图标仅由 WAAPI 驱动 transform */
+    @media (max-width: 640px) {
+      body.appearance-crystal .btn-secondary,
+      body.appearance-crystal .tool-toolbar .mist-glass-icon-btn,
+      body.appearance-crystal .tool-toolbar #noticeBtn.mist-glass-icon-btn,
+      body.appearance-crystal .settings-dialog .mist-glass-icon-btn,
+      body.appearance-crystal .notice-dialog .mist-glass-icon-btn {
+        transition: none !important;
+      }
+
+      body.appearance-crystal .btn-secondary:active:not(:disabled),
+      body.appearance-crystal .btn-secondary.mobile-press-active,
+      body.appearance-crystal .tool-toolbar .mist-glass-icon-btn:active:not(:disabled),
+      body.appearance-crystal .tool-toolbar #noticeBtn.mist-glass-icon-btn:active:not(:disabled),
+      body.appearance-crystal .settings-dialog .mist-glass-icon-btn:active:not(:disabled),
+      body.appearance-crystal .notice-dialog .mist-glass-icon-btn:active:not(:disabled),
+      body.appearance-crystal .tool-toolbar .mist-glass-icon-btn.mobile-press-active,
+      body.appearance-crystal .tool-toolbar #noticeBtn.mist-glass-icon-btn.mobile-press-active,
+      body.appearance-crystal .settings-dialog .mist-glass-icon-btn.mobile-press-active,
+      body.appearance-crystal .notice-dialog .mist-glass-icon-btn.mobile-press-active {
+        transform: translate3d(0, 2px, 0) scale(0.985) !important;
+        filter: none !important;
+        transition: none !important;
+      }
+    }
+
+    /* 立体模式：设置/公告按钮完整回弹后，由弹窗动效柔和接管。 */
+    body.appearance-crystal.mobile-press-measuring .tool-toolbar .settings-open:active:not(:disabled),
+    body.appearance-crystal.mobile-press-measuring .tool-toolbar #noticeBtn:active:not(:disabled) {
+      transform: translateY(-1px) scale(1) !important;
+      filter: none !important;
+      transition: none !important;
+    }
+
+    body.appearance-crystal .tool-toolbar .settings-open.mobile-press-releasing,
+    body.appearance-crystal .tool-toolbar #noticeBtn.mobile-press-releasing {
+      transition: none !important;
+    }
+
+    body.appearance-crystal .tool-toolbar .settings-open.mobile-press-active,
+    body.appearance-crystal .tool-toolbar #noticeBtn.mobile-press-active {
+      transform: scale(0.94) translateY(2px) !important;
+      filter: none !important;
+      transition: none !important;
+    }
+
+    /* 触屏浏览器会在轻点后保留 :hover。禁止这个粘滞状态把顶部切换、
+       设置和公告按钮停在桌面悬停使用的 -3px 位置；桌面效果保持不变。 */
+    @media (hover: none) {
+      body.appearance-crystal .tool-toolbar .app-switch-btn:hover:not(:disabled):not(.mobile-press-active),
+      body.appearance-crystal .tool-toolbar .settings-open:hover:not(:disabled):not(.mobile-press-active),
+      body.appearance-crystal .tool-toolbar #noticeBtn:hover:not(:disabled):not(.mobile-press-active) {
+        color: var(--mist-button-icon) !important;
+        transform: translateY(-1px) scale(1) !important;
+        filter: none !important;
+        box-shadow:
+          1px 3px 5px rgba(101, 98, 111, 0.10),
+          6px 13px 19px rgba(102, 98, 112, 0.20),
+          12px 20px 30px rgba(133, 129, 143, 0.10),
+          -4px -5px 12px rgba(255, 255, 255, 0.92) !important;
+      }
+    }
+
+    /* 浅色、深色、跟随系统：设置/公告采用短按压与独立回弹。
+       弹窗在回弹开始时挂载，不再等待回弹结束后的额外两帧。 */
+    body:not(.appearance-crystal).mobile-press-measuring .tool-toolbar .settings-open:active:not(:disabled),
+    body:not(.appearance-crystal).mobile-press-measuring .tool-toolbar #noticeBtn:active:not(:disabled) {
+      transform: translateY(0) scale(1) !important;
+      filter: none !important;
+      transition: none !important;
+    }
+
+    body:not(.appearance-crystal) .tool-toolbar .settings-open.mobile-press-releasing,
+    body:not(.appearance-crystal) .tool-toolbar #noticeBtn.mobile-press-releasing {
+      transition: none !important;
+    }
+
+    body:not(.appearance-crystal) .tool-toolbar .settings-open.mobile-press-active,
+    body:not(.appearance-crystal) .tool-toolbar #noticeBtn.mobile-press-active {
+      transform: translateY(1px) scale(0.97) !important;
+      filter: brightness(0.98) !important;
+      transition: none !important;
+    }
+
+    /* 非质感弹窗：遮罩只淡入淡出，blur 始终保持 8px；面板动画
+       与遮罩分层，避免模糊数值插值造成掉帧。 */
+    body:not(.appearance-crystal) .settings-overlay,
+    body:not(.appearance-crystal) .notice-overlay {
+      isolation: isolate;
+      background: transparent !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      animation: none !important;
+    }
+
+    body:not(.appearance-crystal) .settings-overlay::before,
+    body:not(.appearance-crystal) .notice-overlay::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 1;
+      background: rgba(15, 23, 42, 0.38);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    body:not(.appearance-crystal) .settings-dialog,
+    body:not(.appearance-crystal) .notice-dialog {
+      position: relative;
+      z-index: 1;
+      animation: none !important;
+    }
+
+    body:not(.appearance-crystal) .settings-overlay.crystal-dialog-entering::before,
+    body:not(.appearance-crystal) .notice-overlay.crystal-dialog-entering::before {
+      opacity: 0;
+      transition: opacity 160ms ease-out;
+    }
+
+    body:not(.appearance-crystal) .settings-overlay.crystal-dialog-entering .settings-dialog,
+    body:not(.appearance-crystal) .notice-overlay.crystal-dialog-entering .notice-dialog {
+      opacity: 0;
+      transform: translate3d(0, 10px, 0) scale(0.99);
+      transform-origin: 85% 0%;
+      transition:
+        transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 160ms ease-out;
+    }
+
+    body:not(.appearance-crystal) .settings-overlay.crystal-dialog-entering.crystal-dialog-entered::before,
+    body:not(.appearance-crystal) .notice-overlay.crystal-dialog-entering.crystal-dialog-entered::before {
+      opacity: 1;
+    }
+
+    body:not(.appearance-crystal) .settings-overlay.crystal-dialog-entering.crystal-dialog-entered .settings-dialog,
+    body:not(.appearance-crystal) .notice-overlay.crystal-dialog-entering.crystal-dialog-entered .notice-dialog {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+
+    body:not(.appearance-crystal) .settings-overlay.closing,
+    body:not(.appearance-crystal) .notice-overlay.closing {
+      pointer-events: none;
+      animation: none !important;
+    }
+
+    body:not(.appearance-crystal) .settings-overlay.closing::before,
+    body:not(.appearance-crystal) .notice-overlay.closing::before {
+      opacity: 0;
+      transition: opacity 160ms cubic-bezier(0.4, 0, 1, 1);
+    }
+
+    body:not(.appearance-crystal) .settings-overlay.closing .settings-dialog,
+    body:not(.appearance-crystal) .notice-overlay.closing .notice-dialog {
+      opacity: 0;
+      transform: translate3d(0, 8px, 0) scale(0.99);
+      transform-origin: 85% 0%;
+      animation: none !important;
+      transition:
+        transform 160ms cubic-bezier(0.4, 0, 1, 1),
+        opacity 160ms cubic-bezier(0.4, 0, 1, 1);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body:not(.appearance-crystal) .settings-overlay::before,
+      body:not(.appearance-crystal) .notice-overlay::before,
+      body:not(.appearance-crystal) .settings-dialog,
+      body:not(.appearance-crystal) .notice-dialog {
+        transition: none !important;
+      }
+    }
+
+    /* 立体模式设置/公告弹窗：遮罩与面板分层动画，材质参数保持不变。 */
+    body.appearance-crystal .settings-overlay,
+    body.appearance-crystal .notice-overlay {
+      --crystal-overlay-filter: blur(12px) saturate(106%);
+      isolation: isolate;
+      background: transparent !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      animation: none !important;
+    }
+
+    body.appearance-crystal .settings-overlay::before,
+    body.appearance-crystal .notice-overlay::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 1;
+      background: rgba(63, 91, 117, 0.16);
+      backdrop-filter: var(--crystal-overlay-filter);
+      -webkit-backdrop-filter: var(--crystal-overlay-filter);
+    }
+
+    body.appearance-crystal .settings-dialog,
+    body.appearance-crystal .notice-dialog {
+      position: relative;
+      z-index: 1;
+      animation: none !important;
+    }
+
+    body.appearance-crystal .settings-overlay.crystal-dialog-entering::before,
+    body.appearance-crystal .notice-overlay.crystal-dialog-entering::before,
+    body.appearance-crystal .changelog-overlay.crystal-dialog-entering::before {
+      opacity: 0;
+      will-change: opacity;
+      transition: opacity 240ms cubic-bezier(0.2, 0, 0.2, 1);
+    }
+
+    body.appearance-crystal .settings-overlay.crystal-dialog-entering .settings-dialog,
+    body.appearance-crystal .notice-overlay.crystal-dialog-entering .notice-dialog,
+    body.appearance-crystal .changelog-overlay.crystal-dialog-entering .changelog-dialog {
+      opacity: 0;
+      transform: translate3d(0, 12px, 0) scale(0.99);
+      transform-origin: 50% 25%;
+      will-change: transform, opacity;
+      transition:
+        transform 320ms cubic-bezier(0.22, 0.72, 0.28, 1),
+        opacity 220ms cubic-bezier(0.2, 0, 0.2, 1) 20ms;
+    }
+
+    body.appearance-crystal .settings-overlay.crystal-dialog-entering.crystal-dialog-entered::before,
+    body.appearance-crystal .notice-overlay.crystal-dialog-entering.crystal-dialog-entered::before,
+    body.appearance-crystal .changelog-overlay.crystal-dialog-entering.crystal-dialog-entered::before {
+      opacity: 1;
+    }
+
+    body.appearance-crystal .settings-overlay.crystal-dialog-entering.crystal-dialog-entered .settings-dialog,
+    body.appearance-crystal .notice-overlay.crystal-dialog-entering.crystal-dialog-entered .notice-dialog,
+    body.appearance-crystal .changelog-overlay.crystal-dialog-entering.crystal-dialog-entered .changelog-dialog {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+
+    body.appearance-crystal .settings-overlay.crystal-dialog-closing::before,
+    body.appearance-crystal .notice-overlay.crystal-dialog-closing::before {
+      opacity: 0;
+      transition: opacity 180ms cubic-bezier(0.4, 0, 1, 1);
+    }
+
+    body.appearance-crystal .settings-overlay.crystal-dialog-closing,
+    body.appearance-crystal .notice-overlay.crystal-dialog-closing {
+      pointer-events: none;
+    }
+
+    body.appearance-crystal .settings-overlay.crystal-dialog-closing .settings-dialog,
+    body.appearance-crystal .notice-overlay.crystal-dialog-closing .notice-dialog {
+      opacity: 0;
+      transform: translate3d(0, 10px, 0) scale(0.99);
+      transform-origin: 85% 0%;
+      transition:
+        transform 180ms cubic-bezier(0.4, 0, 1, 1),
+        opacity 180ms cubic-bezier(0.4, 0, 1, 1);
+    }
+
+    /* 质感模式首页更新日志：退出动效与设置弹窗保持一致。 */
+    body.appearance-crystal .changelog-overlay {
+      --crystal-changelog-overlay-filter: blur(12px) saturate(106%);
+      isolation: isolate;
+      background: transparent !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+
+    body.appearance-crystal .changelog-overlay::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 1;
+      background: rgba(63, 91, 117, 0.16);
+      backdrop-filter: var(--crystal-changelog-overlay-filter);
+      -webkit-backdrop-filter: var(--crystal-changelog-overlay-filter);
+    }
+
+    body.appearance-crystal .changelog-dialog {
+      position: relative;
+      z-index: 1;
+      animation: none !important;
+    }
+
+    body.appearance-crystal .changelog-overlay.crystal-dialog-closing::before {
+      opacity: 0;
+      transition: opacity 180ms cubic-bezier(0.4, 0, 1, 1);
+    }
+
+    body.appearance-crystal .changelog-overlay.crystal-dialog-closing {
+      pointer-events: none;
+    }
+
+    body.appearance-crystal .changelog-overlay.crystal-dialog-closing .changelog-dialog {
+      opacity: 0;
+      transform: translate3d(0, 10px, 0) scale(0.99);
+      transform-origin: 85% 0%;
+      animation: none !important;
+      transition:
+        transform 180ms cubic-bezier(0.4, 0, 1, 1),
+        opacity 180ms cubic-bezier(0.4, 0, 1, 1);
+    }
+
+    @media (hover: none), (max-width: 640px), (prefers-reduced-motion: reduce) {
+      body.appearance-crystal .settings-overlay,
+      body.appearance-crystal .notice-overlay {
+        --crystal-overlay-filter: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body.appearance-crystal .settings-overlay::before,
+      body.appearance-crystal .notice-overlay::before,
+      body.appearance-crystal .changelog-overlay::before,
+      body.appearance-crystal .settings-dialog,
+      body.appearance-crystal .notice-dialog,
+      body.appearance-crystal .changelog-dialog {
+        transition: none !important;
+      }
+    }
+
+    /* 更新日志中的“质感外观”：所有显示模式统一使用质感模式的冰蓝玻璃材质。 */
+    .changelog-crystal-btn,
+    body.appearance-dark .changelog-crystal-btn,
+    body.appearance-system.system-dark .changelog-crystal-btn,
+    body.appearance-crystal .changelog-crystal-btn {
+      color: #294a68;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.40), rgba(221, 237, 247, 0.25));
+      border-color: rgba(255, 255, 255, 0.48);
+      box-shadow:
+        0 8px 20px rgba(47, 81, 109, 0.09),
+        inset 0 1px 0 rgba(255, 255, 255, 0.68);
+      backdrop-filter: blur(7px) saturate(108%);
+      -webkit-backdrop-filter: blur(7px) saturate(108%);
+    }
+
+    .changelog-crystal-btn:active:not(:disabled),
+    .changelog-crystal-btn.mobile-press-active,
+    body.appearance-dark .changelog-crystal-btn:active:not(:disabled),
+    body.appearance-system.system-dark .changelog-crystal-btn:active:not(:disabled),
+    body.appearance-crystal .changelog-crystal-btn:active:not(:disabled),
+    body.appearance-crystal .changelog-crystal-btn.mobile-press-active {
+      box-shadow:
+        0 1px 2px rgba(48, 76, 99, 0.10),
+        0 4px 8px rgba(49, 78, 103, 0.08),
+        inset 0 2px 4px rgba(70, 101, 126, 0.08);
+    }
+
+    /* 立体模式固定背景层：切换计算器时不再随内容高度重新计算 cover */
+    body.appearance-crystal {
+      position: relative;
+      isolation: isolate;
+      background-color: #e7f0f7 !important;
+      background-image: none !important;
+    }
+
+    body.appearance-crystal::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background-color: #e7f0f7;
+      background-image:
+        linear-gradient(180deg, rgba(238, 246, 252, 0.10), rgba(207, 226, 240, 0.15)),
+        url("../assets/ui/stereo-glass-background.jpeg?v=2");
+      background-repeat: no-repeat;
+      background-position: center top;
+      background-size: cover;
+    }

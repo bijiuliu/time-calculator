@@ -3,13 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#ffffff" />
+  <meta name="theme-color" content="#eef6ff" />
   <link rel="icon" type="image/png" sizes="32x32" href="./assets/icons/favicon-32.png?v=1" />
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/apple-touch-icon.png?v=1" />
   <link rel="manifest" href="./manifest.webmanifest?v=1" />
   <title>时间计算器 Pro</title>
   <!-- 拆分版：页面结构在这里，样式在 css/style.css，逻辑在 js/app.js -->
-  <link rel="stylesheet" href="./css/style.css?v=1.5.0-input145">
+  <link rel="stylesheet" href="./css/style.css?v=1.9.26-mobile-toast-single-line">
+  <link rel="stylesheet" href="./css/crystal-legacy.css?v=1.9.17-crystal-split">
+  <link rel="stylesheet" href="./css/crystal.css?v=1.9.26-purple-toast-single-line">
 </head>
 <body>
   <script>
@@ -19,28 +21,48 @@
         var saved = JSON.parse(localStorage.getItem("calculatorSettingsV1") || "{}");
         var allowed = ["light", "dark", "system", "crystal"];
         var appearance = allowed.indexOf(saved.appearance) !== -1 ? saved.appearance : "light";
+        var systemDark = appearance === "system" && window.matchMedia &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var effectiveDark = appearance === "dark" || systemDark;
         body.classList.add("appearance-" + appearance);
         if (saved.density === "compact") body.classList.add("density-compact");
-        if (appearance === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-          body.classList.add("system-dark");
-        }
+        if (systemDark) body.classList.add("system-dark");
+        document.documentElement.style.colorScheme = effectiveDark ? "dark" : "light";
+        document.querySelector('meta[name="theme-color"]').setAttribute(
+          "content",
+          appearance === "crystal" ? "#e7f0f7" : effectiveDark ? "#0f172a" : "#eef6ff"
+        );
       } catch (error) {
         body.classList.add("appearance-light");
+        document.documentElement.style.colorScheme = "light";
       }
     })();
   </script>
   <main class="shell">
     <section class="card">
       <div class="tool-toolbar">
-        <div class="app-switch-wrap"><button id="appSwitchBtn" class="app-switch-btn" type="button">日期计算器</button></div>
+        <div class="app-switch-wrap">
+          <button id="appSwitchBtn" class="app-switch-btn mist-glass-icon-btn" type="button" aria-label="切换到日期计算器" title="切换到日期计算器">
+            <svg class="toolbar-icon switch-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M4.5 8h14M15.2 4.8 19 8l-3.8 3.2M19.5 16h-14M8.8 19.2 5 16l3.8-3.2" />
+            </svg>
+            <span class="button-label">日期计算器</span>
+          </button>
+        </div>
         <div class="top-actions">
-      <button id="settingsBtn" class="notice-open settings-open" type="button" aria-label="设置" title="设置">
+      <button id="settingsBtn" class="notice-open settings-open mist-glass-icon-btn" type="button" aria-label="设置" title="设置">
         <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.09a2 2 0 0 1 1 1.74v.5a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
           <circle cx="12" cy="12" r="3" />
         </svg>
       </button>
-          <button id="noticeBtn" class="notice-open" type="button">公告</button>
+          <button id="noticeBtn" class="notice-open mist-glass-icon-btn" type="button" aria-label="公告" title="公告">
+            <svg class="toolbar-icon notice-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+              <path d="M10 21h4" />
+            </svg>
+            <span class="button-label">公告</span>
+          </button>
         </div>
       </div>
     <section id="timeCalculatorPanel" class="calculator-panel active">
@@ -218,11 +240,17 @@
   <div id="settingsOverlay" class="settings-overlay" aria-hidden="true">
     <div class="settings-dialog" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
       <div class="settings-header">
-        <button id="settingsBack" class="settings-back" type="button" aria-label="返回">‹</button>
+        <button id="settingsBack" class="settings-back mist-glass-icon-btn" type="button" aria-label="返回" title="返回">
+          <svg class="dialog-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m15 18-6-6 6-6" /></svg>
+          <span class="button-label">‹</span>
+        </button>
         <div class="settings-header-title-wrap">
           <h2 id="settingsTitle">设置</h2>
         </div>
-        <button id="settingsClose" class="notice-x" type="button" aria-label="关闭">×</button>
+        <button id="settingsClose" class="notice-x mist-glass-icon-btn" type="button" aria-label="关闭" title="关闭">
+          <svg class="dialog-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m7 7 10 10M17 7 7 17" /></svg>
+          <span class="button-label">×</span>
+        </button>
         <div id="settingsSubtitle" class="settings-subtitle">选择要调整的设置分类</div>
       </div>
 
@@ -305,7 +333,7 @@
                 <label class="setting-option"><input type="radio" name="settingAppearance" value="light">浅色</label>
                 <label class="setting-option"><input type="radio" name="settingAppearance" value="dark">深色</label>
                 <label class="setting-option"><input type="radio" name="settingAppearance" value="system">跟随系统</label>
-                <label class="setting-option"><input type="radio" name="settingAppearance" value="crystal">立体风格</label>
+                <label class="setting-option"><input type="radio" name="settingAppearance" value="crystal">质感</label>
               </div>
             </div>
 
@@ -395,7 +423,7 @@
         <ul class="changelog-list">
           <li class="changelog-feature-action">
             <span>新增</span>
-            <button id="changelogCrystalBtn" class="changelog-crystal-btn" type="button" aria-pressed="false">立体风格外观</button>
+            <button id="changelogCrystalBtn" class="changelog-crystal-btn" type="button" aria-pressed="false">质感外观</button>
           </li>
           <li>优化按钮点击动效</li>
           <li>新增历史记录卡片删除动效</li>
@@ -412,11 +440,17 @@
   <div id="noticeOverlay" class="notice-overlay" aria-hidden="true">
     <div class="notice-dialog" role="dialog" aria-modal="true" aria-labelledby="noticeTitle">
       <div class="notice-header">
-        <button id="noticeBack" class="notice-back" type="button" aria-label="返回">‹</button>
+        <button id="noticeBack" class="notice-back mist-glass-icon-btn" type="button" aria-label="返回" title="返回">
+          <svg class="dialog-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m15 18-6-6 6-6" /></svg>
+          <span class="button-label">‹</span>
+        </button>
         <div class="notice-header-title-wrap">
           <h2 id="noticeTitle">使用公告</h2>
         </div>
-        <button id="noticeClose" class="notice-x" type="button" aria-label="关闭">×</button>
+        <button id="noticeClose" class="notice-x mist-glass-icon-btn" type="button" aria-label="关闭" title="关闭">
+          <svg class="dialog-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m7 7 10 10M17 7 7 17" /></svg>
+          <span class="button-label">×</span>
+        </button>
         <div id="noticeSubtitle" class="notice-subtitle">选择要查看的说明内容</div>
       </div>
 
@@ -563,7 +597,7 @@
 
           <section class="notice-block">
             <h3>二、外观设置</h3>
-            <p>支持浅色、深色、跟随系统和立体风格四种显示模式，也支持标准和紧凑两种界面密度。</p>
+            <p>支持浅色、深色、跟随系统和质感四种显示模式，也支持标准和紧凑两种界面密度。</p>
           </section>
 
           <section class="notice-block">
@@ -646,7 +680,7 @@
               <details class="version-item">
                 <summary>v1.5.0</summary>
                 <ul class="notice-list">
-                  <li>新增立体风格外观</li>
+                  <li>新增质感外观</li>
                   <li>优化按钮点击动效</li>
                   <li>新增历史记录卡片删除动效</li>
                   <li>新增模式切换滑块动效</li>
@@ -714,6 +748,14 @@
     </div>
   </div>
 
-  <script src="./js/app.js?v=1.5.0-input145"></script>
+  <script src="./js/core.js?v=1.9.18-js-split"></script>
+  <script src="./js/page-navigation.js?v=1.9.18-js-split"></script>
+  <script src="./js/settings.js?v=1.9.18-js-split"></script>
+  <script src="./js/input.js?v=1.9.18-js-split"></script>
+  <script src="./js/history.js?v=1.9.18-js-split"></script>
+  <script src="./js/calculators.js?v=1.9.18-js-split"></script>
+  <script src="./js/dialogs.js?v=1.9.18-js-split"></script>
+  <script src="./js/interactions.js?v=1.9.18-js-split"></script>
+  <script src="./js/app.js?v=1.9.18-js-split"></script>
 </body>
 </html>
