@@ -257,6 +257,14 @@ body.appearance-crystal .direction-tabs.slider-snapping::before {
     padding: 6px 10px;
     font-size: 17px;
   }
+
+}
+
+@media (hover: none), (max-width: 640px) {
+  body.appearance-crystal .tabs > .tab.active,
+  body.appearance-crystal .direction-tabs > .direction-tab.active {
+    text-shadow: none !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

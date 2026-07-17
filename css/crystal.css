@@ -351,36 +351,103 @@
       -webkit-backdrop-filter: blur(6px);
     }
 
-    /* 历史记录超限提示：冷紫色半透明玻璃。 */
+    /* 历史记录超限提示：方案 3，乳白玻璃 + 紫色历史标记与数量标签。 */
     body.appearance-crystal .history-toast {
+      top: calc(env(safe-area-inset-top, 0px) + 18px);
       width: max-content;
       max-width: min(calc(100vw - 32px), 420px);
       box-sizing: border-box;
       overflow: hidden;
       isolation: isolate;
       white-space: nowrap;
-      color: #3f3474;
-      background-color: rgba(171, 156, 225, 0.38);
+      color: #454052;
+      background-color: rgba(255, 255, 255, 0.18);
       background-image:
         linear-gradient(
           135deg,
-          rgba(255, 255, 255, 0.66) 0%,
-          rgba(224, 215, 252, 0.48) 42%,
-          rgba(157, 143, 218, 0.42) 100%
+          rgba(255, 255, 255, 0.34) 0%,
+          rgba(249, 247, 255, 0.16) 52%,
+          rgba(206, 188, 247, 0.14) 100%
         );
-      border-color: rgba(255, 255, 255, 0.76);
+      border-color: rgba(255, 255, 255, 0.86);
       box-shadow:
-        0 14px 34px rgba(91, 72, 154, 0.20),
-        0 3px 9px rgba(92, 75, 151, 0.12),
-        inset 0 1px 0 rgba(255, 255, 255, 0.86),
-        inset 0 -1px 0 rgba(102, 81, 166, 0.12);
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.58);
-      backdrop-filter: blur(14px) saturate(128%);
-      -webkit-backdrop-filter: blur(14px) saturate(128%);
+        0 0 22px 3px rgba(126, 82, 218, 0.24),
+        0 14px 30px rgba(91, 72, 154, 0.11),
+        inset 0 0 22px rgba(151, 112, 232, 0.18),
+        inset 0 -1px 0 rgba(117, 91, 181, 0.10);
+      text-shadow: none;
+      backdrop-filter: blur(12px) saturate(116%);
+      -webkit-backdrop-filter: blur(12px) saturate(116%);
+    }
+
+    body.appearance-crystal .history-toast-marked {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 50px;
+      padding: 8px 14px 8px 10px;
+    }
+
+    body.appearance-crystal .history-toast-icon {
+      width: 32px;
+      height: 32px;
+      flex: 0 0 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      color: #7253d2;
+      background: linear-gradient(145deg, rgba(210, 195, 255, 0.54), rgba(185, 159, 247, 0.32));
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.76),
+        0 4px 10px rgba(104, 77, 177, 0.12);
+      font-size: 23px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    body.appearance-crystal .history-toast-icon svg {
+      width: 20px;
+      height: 20px;
+      display: block;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.25;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    body.appearance-crystal .history-toast-message {
+      display: inline-flex;
+      align-items: center;
+      white-space: nowrap;
+      color: #454052;
+    }
+
+    body.appearance-crystal .history-toast-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 28px;
+      margin: 0 4px;
+      padding: 2px 9px;
+      border-radius: 9px;
+      color: #fff;
+      background: linear-gradient(145deg, #a88bef, #8664dc);
+      box-shadow:
+        0 5px 12px rgba(112, 78, 190, 0.20),
+        inset 0 1px 0 rgba(255, 255, 255, 0.34);
+      font-weight: 900;
+      line-height: 1;
     }
 
     @media (max-width: 300px) {
       body.appearance-crystal .history-toast {
+        white-space: normal;
+      }
+
+      body.appearance-crystal .history-toast-message {
         white-space: normal;
       }
     }

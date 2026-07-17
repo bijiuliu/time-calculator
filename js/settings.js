@@ -179,8 +179,39 @@
 
         var toast = document.createElement("div");
         toast.className = "history-toast";
-        toast.innerText = text;
         toast.setAttribute("role", "status");
+
+        var crystalLimitMatch = document.body.classList.contains("appearance-crystal") &&
+          /^已保留最近\s*(\d+)\s*条，最早记录已移除$/.exec(text);
+
+        if (crystalLimitMatch) {
+          toast.classList.add("history-toast-marked");
+
+          var icon = document.createElement("span");
+          icon.className = "history-toast-icon";
+          icon.setAttribute("aria-hidden", "true");
+          icon.innerHTML =
+            '<svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">' +
+              '<path d="M3 12a9 9 0 1 0 3-6.7L3 8" />' +
+              '<path d="M3 3v5h5" />' +
+              '<path d="M12 7v5l3 2" />' +
+            '</svg>';
+
+          var message = document.createElement("span");
+          message.className = "history-toast-message";
+          message.appendChild(document.createTextNode("已保留最近 "));
+
+          var count = document.createElement("strong");
+          count.className = "history-toast-count";
+          count.textContent = crystalLimitMatch[1] + " 条";
+          message.appendChild(count);
+          message.appendChild(document.createTextNode("，最早记录已移除"));
+
+          toast.appendChild(icon);
+          toast.appendChild(message);
+        } else {
+          toast.innerText = text;
+        }
 
         document.body.appendChild(toast);
 
@@ -475,5 +506,3 @@
         }
         setModeSync(mode === "shift" ? "shift" : "diff", true);
       }
-
-
