@@ -807,7 +807,8 @@
       }
     }
 
-    /* 更新日志中的“质感外观”：所有外观统一使用质感按钮材质，尺寸和圆角保持不变。 */
+    /* 更新日志中的“质感外观”：所有外观统一使用质感按钮材质与设置按钮的全圆角，尺寸保持不变。
+       这里直接绘制胶囊表面，不拉伸圆形按钮位图，避免出现“外框套内椭圆”的双层轮廓。 */
     .changelog-crystal-btn,
     body.appearance-dark .changelog-crystal-btn,
     body.appearance-system.system-dark .changelog-crystal-btn,
@@ -817,12 +818,16 @@
       overflow: hidden;
       color: #566273;
       background-color: rgba(249, 249, 252, 0.92);
-      background-image: url("../assets/ui/mist-glass-button-base.png");
+      background-image:
+        radial-gradient(105% 150% at 8% 92%, rgba(218, 231, 244, 0.72) 0%, rgba(232, 240, 248, 0.34) 42%, transparent 68%),
+        radial-gradient(105% 150% at 90% 4%, rgba(255, 232, 242, 0.58) 0%, rgba(255, 244, 248, 0.24) 44%, transparent 70%),
+        linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 248, 252, 0.95) 52%, rgba(238, 239, 246, 0.94) 100%);
       background-repeat: no-repeat;
       background-position: 50% 50%;
-      background-size: 102% 102%;
+      background-size: 100% 100%;
       padding: 0 11px;
       border: 1px solid transparent;
+      border-radius: 999px;
       box-shadow:
         1px 3px 5px rgba(101, 98, 111, 0.10),
         6px 13px 19px rgba(102, 98, 112, 0.20),
