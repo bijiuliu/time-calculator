@@ -678,6 +678,17 @@
       -webkit-backdrop-filter: blur(8px);
     }
 
+    /* iOS 浏览器栏显示时只覆盖动态视口，避免底部栏采样到灰色遮罩。 */
+    @supports (-webkit-touch-callout: none) and (height: 100dvh) {
+      @media (max-width: 640px) {
+        body:not(.appearance-crystal) .changelog-overlay {
+          inset: 0 0 auto;
+          height: 100dvh;
+          box-sizing: border-box;
+        }
+      }
+    }
+
     body:not(.appearance-crystal) .changelog-dialog {
       position: relative;
       z-index: 1;
