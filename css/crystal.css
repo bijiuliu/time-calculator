@@ -658,6 +658,65 @@
       animation: standardChangelogPopStable 0.16s ease-out both;
     }
 
+    /* 普通模式首页更新日志：退出参数与设置弹窗完全一致，入场动画保持原样。 */
+    body:not(.appearance-crystal) .changelog-overlay {
+      isolation: isolate;
+      background: transparent !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+
+    body:not(.appearance-crystal) .changelog-overlay::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 1;
+      background: rgba(15, 23, 42, 0.38);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    body:not(.appearance-crystal) .changelog-dialog {
+      position: relative;
+      z-index: 1;
+    }
+
+    body:not(.appearance-crystal) .changelog-overlay.closing {
+      pointer-events: none;
+      animation: none !important;
+    }
+
+    body:not(.appearance-crystal) .changelog-overlay.closing::before {
+      opacity: 0;
+      transition: opacity 160ms cubic-bezier(0.4, 0, 1, 1);
+    }
+
+    @keyframes standardChangelogCloseLikeSettings {
+      from {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+      }
+      to {
+        opacity: 0;
+        transform: translate3d(0, 8px, 0) scale(0.99);
+      }
+    }
+
+    body:not(.appearance-crystal) .changelog-overlay.closing .changelog-dialog {
+      transform-origin: 85% 0%;
+      animation: standardChangelogCloseLikeSettings 160ms cubic-bezier(0.4, 0, 1, 1) forwards !important;
+      transition: none !important;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body:not(.appearance-crystal) .changelog-overlay::before,
+      body:not(.appearance-crystal) .changelog-dialog {
+        transition: none !important;
+      }
+    }
+
     /* 立体模式设置/公告弹窗：遮罩与面板分层动画，材质参数保持不变。 */
     body.appearance-crystal .settings-overlay,
     body.appearance-crystal .notice-overlay {
@@ -908,6 +967,21 @@
           12px 20px 30px rgba(133, 129, 143, 0.10),
           -4px -5px 12px rgba(255, 255, 255, 0.92) !important;
       }
+    }
+
+    /* iOS Safari 动态底部工具栏会缩短视觉视口。弹窗仍按视觉视口居中，
+       仅让遮罩使用大视口高度，避免工具栏的半透明区域露出首页内容。 */
+    .settings-overlay::before,
+    .notice-overlay::before,
+    .changelog-overlay::before {
+      position: fixed !important;
+      top: 0 !important;
+      right: 0 !important;
+      bottom: auto !important;
+      left: 0 !important;
+      width: 100vw;
+      height: 100vh;
+      height: 100lvh;
     }
 
     /* 立体模式固定背景层：切换计算器时不再随内容高度重新计算 cover */
