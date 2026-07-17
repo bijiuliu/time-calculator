@@ -969,21 +969,6 @@
       }
     }
 
-    /* iOS Safari 动态底部工具栏会缩短视觉视口。弹窗仍按视觉视口居中，
-       仅让遮罩使用大视口高度，避免工具栏的半透明区域露出首页内容。 */
-    .settings-overlay::before,
-    .notice-overlay::before,
-    .changelog-overlay::before {
-      position: fixed !important;
-      top: 0 !important;
-      right: 0 !important;
-      bottom: auto !important;
-      left: 0 !important;
-      width: 100vw;
-      height: 100vh;
-      height: 100lvh;
-    }
-
     /* 立体模式固定背景层：切换计算器时不再随内容高度重新计算 cover */
     body.appearance-crystal {
       position: relative;

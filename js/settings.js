@@ -125,7 +125,7 @@
         var effectiveDark = appSettings.appearance === "dark" ||
           (appSettings.appearance === "system" && isSystemDarkMode());
         var themeColor = appSettings.appearance === "crystal"
-          ? "#eef6ff"
+          ? "#e7f0f7"
           : effectiveDark
           ? "#0f172a"
           : "#eef6ff";
@@ -475,4 +475,3 @@
         }
         setModeSync(mode === "shift" ? "shift" : "diff", true);
       }
-
