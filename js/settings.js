@@ -475,3 +475,5 @@
         }
         setModeSync(mode === "shift" ? "shift" : "diff", true);
       }
+
+

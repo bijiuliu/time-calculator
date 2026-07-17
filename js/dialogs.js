@@ -8,23 +8,6 @@
         return appSettings.changelogPopup !== "off";
       }
 
-      function syncChangelogBrowserChrome(isOpen) {
-        var themeMeta = document.querySelector('meta[name="theme-color"]');
-        if (!themeMeta) return;
-
-        var isLightStandardAppearance =
-          !document.body.classList.contains("appearance-crystal") &&
-          !document.body.classList.contains("appearance-dark") &&
-          !document.body.classList.contains("system-dark");
-
-        if (isOpen && isLightStandardAppearance) {
-          themeMeta.setAttribute("content", "#ffffff");
-          return;
-        }
-
-        updateBrowserAppearance();
-      }
-
       function openChangelog() {
         var overlay = el("changelogOverlay");
         if (!overlay) return;
@@ -33,7 +16,6 @@
         el("changelogVersion").innerText = APP_VERSION;
         syncChangelogCrystalButton();
         overlay.classList.remove("closing", "crystal-dialog-closing");
-        syncChangelogBrowserChrome(true);
         overlay.classList.add("show");
         if (document.body.classList.contains("appearance-crystal")) {
           prepareCrystalDialogOpening(overlay);
@@ -54,27 +36,21 @@
           overlay.classList.remove("show", "closing", "crystal-dialog-closing");
           overlay.setAttribute("aria-hidden", "true");
           document.body.classList.remove("notice-lock");
-          syncChangelogBrowserChrome(false);
         }
 
         clearTimeout(changelogCloseAnimationTimer);
         var reduceMotion = prefersReducedMotion();
         var isCrystalAppearance = document.body.classList.contains("appearance-crystal");
-        if (!overlay.classList.contains("show") || reduceMotion) {
+        if (!overlay.classList.contains("show") || !isCrystalAppearance || reduceMotion) {
           finishChangelogClose();
           return;
         }
 
         overlay.classList.add("closing");
         overlay.setAttribute("aria-hidden", "true");
-        if (isCrystalAppearance) {
-          void overlay.offsetWidth;
-          overlay.classList.add("crystal-dialog-closing");
-        }
-        changelogCloseAnimationTimer = window.setTimeout(
-          finishChangelogClose,
-          isCrystalAppearance ? 180 : 160
-        );
+        void overlay.offsetWidth;
+        overlay.classList.add("crystal-dialog-closing");
+        changelogCloseAnimationTimer = window.setTimeout(finishChangelogClose, 180);
       }
 
       function disableChangelogPopupFromDialog() {
