@@ -713,4 +713,3 @@
 
         window.addEventListener("blur", function () { finishPress(true); });
       }
-

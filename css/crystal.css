@@ -409,6 +409,29 @@
       -webkit-backdrop-filter: blur(18px) saturate(112%);
     }
 
+    /* 所有外观共用质感模式的标题栏高度，切换外观时内容纵向位置保持一致。 */
+    .settings-header,
+    .notice-header {
+      grid-template-columns: 48px minmax(0, 1fr) 48px;
+      grid-template-rows: 48px auto;
+      margin-bottom: 12px;
+    }
+
+    body:not(.appearance-crystal) .settings-header .settings-back,
+    body:not(.appearance-crystal) .settings-header .notice-x,
+    body:not(.appearance-crystal) .notice-header .notice-back,
+    body:not(.appearance-crystal) .notice-header .notice-x {
+      align-self: center;
+    }
+
+    @media (max-width: 640px) {
+      .settings-header,
+      .notice-header {
+        grid-template-columns: 46px minmax(0, 1fr) 46px;
+        grid-template-rows: 46px auto;
+      }
+    }
+
     @media (max-width: 640px) {
       body.appearance-crystal .card {
         backdrop-filter: blur(10px) saturate(110%);
@@ -569,7 +592,7 @@
     body:not(.appearance-crystal) .settings-overlay.crystal-dialog-entering .settings-dialog,
     body:not(.appearance-crystal) .notice-overlay.crystal-dialog-entering .notice-dialog {
       opacity: 0;
-      transform: translate3d(0, 10px, 0) scale(0.99);
+      transform: translate3d(0, 10px, 0);
       transform-origin: 85% 0%;
       transition:
         transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -584,7 +607,7 @@
     body:not(.appearance-crystal) .settings-overlay.crystal-dialog-entering.crystal-dialog-entered .settings-dialog,
     body:not(.appearance-crystal) .notice-overlay.crystal-dialog-entering.crystal-dialog-entered .notice-dialog {
       opacity: 1;
-      transform: translate3d(0, 0, 0) scale(1);
+      transform: translate3d(0, 0, 0);
     }
 
     body:not(.appearance-crystal) .settings-overlay.closing,
@@ -617,6 +640,22 @@
       body:not(.appearance-crystal) .notice-dialog {
         transition: none !important;
       }
+    }
+
+    /* 普通模式更新日志保留原有上浮与淡入，只移除会改变内部相对坐标的缩放。 */
+    @keyframes standardChangelogPopStable {
+      from {
+        transform: translate3d(0, 14px, 0);
+        opacity: 0.7;
+      }
+      to {
+        transform: translate3d(0, 0, 0);
+        opacity: 1;
+      }
+    }
+
+    body:not(.appearance-crystal) .changelog-dialog {
+      animation: standardChangelogPopStable 0.16s ease-out both;
     }
 
     /* 立体模式设置/公告弹窗：遮罩与面板分层动画，材质参数保持不变。 */
@@ -768,19 +807,62 @@
       }
     }
 
-    /* 更新日志中的“质感外观”：所有显示模式统一使用质感模式的冰蓝玻璃材质。 */
+    /* 更新日志中的“质感外观”：所有外观统一使用质感按钮材质，尺寸和圆角保持不变。 */
     .changelog-crystal-btn,
     body.appearance-dark .changelog-crystal-btn,
     body.appearance-system.system-dark .changelog-crystal-btn,
     body.appearance-crystal .changelog-crystal-btn {
-      color: #294a68;
-      background: linear-gradient(145deg, rgba(255, 255, 255, 0.40), rgba(221, 237, 247, 0.25));
-      border-color: rgba(255, 255, 255, 0.48);
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      color: #566273;
+      background-color: rgba(249, 249, 252, 0.92);
+      background-image: url("../assets/ui/mist-glass-button-base.png");
+      background-repeat: no-repeat;
+      background-position: 50% 50%;
+      background-size: 102% 102%;
+      padding: 0 11px;
+      border: 1px solid transparent;
       box-shadow:
-        0 8px 20px rgba(47, 81, 109, 0.09),
-        inset 0 1px 0 rgba(255, 255, 255, 0.68);
-      backdrop-filter: blur(7px) saturate(108%);
-      -webkit-backdrop-filter: blur(7px) saturate(108%);
+        1px 3px 5px rgba(101, 98, 111, 0.10),
+        6px 13px 19px rgba(102, 98, 112, 0.20),
+        12px 20px 30px rgba(133, 129, 143, 0.10),
+        -4px -5px 12px rgba(255, 255, 255, 0.92);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      top: -1px;
+      transform: none;
+    }
+
+    .changelog-crystal-btn::before {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      inset: 0;
+      border-radius: inherit;
+      background:
+        radial-gradient(circle at 72% 76%, rgba(255, 255, 255, 0.54) 0 6%, rgba(255, 255, 255, 0.22) 28%, transparent 52%),
+        linear-gradient(145deg, transparent 52%, rgba(255, 255, 255, 0.28) 76%, rgba(255, 255, 255, 0.52) 100%);
+      box-shadow:
+        inset -2px -3px 5px rgba(255, 255, 255, 0.58),
+        inset 1px 1px 2px rgba(255, 255, 255, 0.24);
+      pointer-events: none;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .changelog-crystal-btn:hover:not(:disabled),
+      body.appearance-dark .changelog-crystal-btn:hover:not(:disabled),
+      body.appearance-system.system-dark .changelog-crystal-btn:hover:not(:disabled),
+      body.appearance-crystal .changelog-crystal-btn:hover:not(:disabled) {
+        color: #465264;
+        filter: brightness(1.015);
+        transform: translateY(-2px);
+        box-shadow:
+          1px 3px 5px rgba(101, 98, 111, 0.09),
+          7px 16px 23px rgba(102, 98, 112, 0.22),
+          13px 22px 32px rgba(133, 129, 143, 0.11),
+          -4px -5px 13px rgba(255, 255, 255, 0.96);
+      }
     }
 
     .changelog-crystal-btn:active:not(:disabled),
@@ -789,10 +871,38 @@
     body.appearance-system.system-dark .changelog-crystal-btn:active:not(:disabled),
     body.appearance-crystal .changelog-crystal-btn:active:not(:disabled),
     body.appearance-crystal .changelog-crystal-btn.mobile-press-active {
+      transform: translateY(2px) scale(0.96);
+      filter: brightness(0.995);
       box-shadow:
-        0 1px 2px rgba(48, 76, 99, 0.10),
-        0 4px 8px rgba(49, 78, 103, 0.08),
-        inset 0 2px 4px rgba(70, 101, 126, 0.08);
+        0 3px 7px rgba(101, 98, 112, 0.12),
+        3px 7px 11px rgba(101, 98, 112, 0.14);
+    }
+
+    /* 移动端与质感模式的计算器切换按钮共用按压与回弹参数。 */
+    @media (max-width: 640px) {
+      .changelog-crystal-btn {
+        transition: none !important;
+      }
+
+      .changelog-crystal-btn:active:not(:disabled),
+      .changelog-crystal-btn.mobile-press-active {
+        transform: translate3d(0, 3px, 0) scale(0.985) !important;
+        filter: none !important;
+        transition: none !important;
+      }
+    }
+
+    @media (hover: none) {
+      .changelog-crystal-btn:hover:not(:disabled):not(.mobile-press-active) {
+        color: #566273;
+        transform: none !important;
+        filter: none !important;
+        box-shadow:
+          1px 3px 5px rgba(101, 98, 111, 0.10),
+          6px 13px 19px rgba(102, 98, 112, 0.20),
+          12px 20px 30px rgba(133, 129, 143, 0.10),
+          -4px -5px 12px rgba(255, 255, 255, 0.92) !important;
+      }
     }
 
     /* 立体模式固定背景层：切换计算器时不再随内容高度重新计算 cover */

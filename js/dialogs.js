@@ -181,4 +181,3 @@
           animateClearHistory("time", doClearHistory);
         }
       }
-
