@@ -390,8 +390,8 @@
     body.appearance-crystal .confirm-overlay,
     body.appearance-crystal .changelog-overlay {
       background: rgba(63, 91, 117, 0.16);
-      backdrop-filter: blur(12px) saturate(106%);
-      -webkit-backdrop-filter: blur(12px) saturate(106%);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
     }
 
     body.appearance-crystal .settings-dialog,
@@ -657,7 +657,7 @@
     /* 立体模式设置/公告弹窗：遮罩与面板分层动画，材质参数保持不变。 */
     body.appearance-crystal .settings-overlay,
     body.appearance-crystal .notice-overlay {
-      --crystal-overlay-filter: blur(12px) saturate(106%);
+      --crystal-overlay-filter: none;
       isolation: isolate;
       background: transparent !important;
       backdrop-filter: none !important;
@@ -741,7 +741,7 @@
 
     /* 质感模式首页更新日志：退出动效与设置弹窗保持一致。 */
     body.appearance-crystal .changelog-overlay {
-      --crystal-changelog-overlay-filter: blur(12px) saturate(106%);
+      --crystal-changelog-overlay-filter: none;
       isolation: isolate;
       background: transparent !important;
       backdrop-filter: none !important;
@@ -785,12 +785,8 @@
         opacity 180ms cubic-bezier(0.4, 0, 1, 1);
     }
 
-    @media (hover: none), (max-width: 640px), (prefers-reduced-motion: reduce) {
-      body.appearance-crystal .settings-overlay,
-      body.appearance-crystal .notice-overlay {
-        --crystal-overlay-filter: none;
-      }
-    }
+    /* 设置、公告、确认和更新日志在桌面、平板与手机端统一使用轻蓝灰
+       蒙层；全屏遮罩不模糊页面，模糊只由半透明弹窗自身承担。 */
 
     @media (prefers-reduced-motion: reduce) {
       body.appearance-crystal .settings-overlay::before,
