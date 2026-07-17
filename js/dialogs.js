@@ -17,9 +17,7 @@
         syncChangelogCrystalButton();
         overlay.classList.remove("closing", "crystal-dialog-closing");
         overlay.classList.add("show");
-        if (document.body.classList.contains("appearance-crystal")) {
-          prepareCrystalDialogOpening(overlay);
-        }
+        prepareCrystalDialogOpening(overlay);
         overlay.setAttribute("aria-hidden", "false");
         document.body.classList.add("notice-lock");
       }
@@ -39,18 +37,24 @@
         }
 
         clearTimeout(changelogCloseAnimationTimer);
+        clearCrystalDialogOpening(overlay);
         var reduceMotion = prefersReducedMotion();
         var isCrystalAppearance = document.body.classList.contains("appearance-crystal");
-        if (!overlay.classList.contains("show") || !isCrystalAppearance || reduceMotion) {
+        if (!overlay.classList.contains("show") || reduceMotion) {
           finishChangelogClose();
           return;
         }
 
         overlay.classList.add("closing");
         overlay.setAttribute("aria-hidden", "true");
-        void overlay.offsetWidth;
-        overlay.classList.add("crystal-dialog-closing");
-        changelogCloseAnimationTimer = window.setTimeout(finishChangelogClose, 180);
+        if (isCrystalAppearance) {
+          void overlay.offsetWidth;
+          overlay.classList.add("crystal-dialog-closing");
+        }
+        changelogCloseAnimationTimer = window.setTimeout(
+          finishChangelogClose,
+          isCrystalAppearance ? 180 : 160
+        );
       }
 
       function disableChangelogPopupFromDialog() {

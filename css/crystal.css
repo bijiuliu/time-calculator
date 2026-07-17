@@ -555,7 +555,8 @@
     /* 非质感弹窗：遮罩只淡入淡出，blur 始终保持 8px；面板动画
        与遮罩分层，避免模糊数值插值造成掉帧。 */
     body:not(.appearance-crystal) .settings-overlay,
-    body:not(.appearance-crystal) .notice-overlay {
+    body:not(.appearance-crystal) .notice-overlay,
+    body:not(.appearance-crystal) .changelog-overlay {
       isolation: isolate;
       background: transparent !important;
       backdrop-filter: none !important;
@@ -564,7 +565,8 @@
     }
 
     body:not(.appearance-crystal) .settings-overlay::before,
-    body:not(.appearance-crystal) .notice-overlay::before {
+    body:not(.appearance-crystal) .notice-overlay::before,
+    body:not(.appearance-crystal) .changelog-overlay::before {
       content: "";
       position: absolute;
       inset: 0;
@@ -577,20 +579,23 @@
     }
 
     body:not(.appearance-crystal) .settings-dialog,
-    body:not(.appearance-crystal) .notice-dialog {
+    body:not(.appearance-crystal) .notice-dialog,
+    body:not(.appearance-crystal) .changelog-dialog {
       position: relative;
       z-index: 1;
       animation: none !important;
     }
 
     body:not(.appearance-crystal) .settings-overlay.crystal-dialog-entering::before,
-    body:not(.appearance-crystal) .notice-overlay.crystal-dialog-entering::before {
+    body:not(.appearance-crystal) .notice-overlay.crystal-dialog-entering::before,
+    body:not(.appearance-crystal) .changelog-overlay.crystal-dialog-entering::before {
       opacity: 0;
       transition: opacity 160ms ease-out;
     }
 
     body:not(.appearance-crystal) .settings-overlay.crystal-dialog-entering .settings-dialog,
-    body:not(.appearance-crystal) .notice-overlay.crystal-dialog-entering .notice-dialog {
+    body:not(.appearance-crystal) .notice-overlay.crystal-dialog-entering .notice-dialog,
+    body:not(.appearance-crystal) .changelog-overlay.crystal-dialog-entering .changelog-dialog {
       opacity: 0;
       transform: translate3d(0, 10px, 0);
       transform-origin: 85% 0%;
@@ -600,30 +605,35 @@
     }
 
     body:not(.appearance-crystal) .settings-overlay.crystal-dialog-entering.crystal-dialog-entered::before,
-    body:not(.appearance-crystal) .notice-overlay.crystal-dialog-entering.crystal-dialog-entered::before {
+    body:not(.appearance-crystal) .notice-overlay.crystal-dialog-entering.crystal-dialog-entered::before,
+    body:not(.appearance-crystal) .changelog-overlay.crystal-dialog-entering.crystal-dialog-entered::before {
       opacity: 1;
     }
 
     body:not(.appearance-crystal) .settings-overlay.crystal-dialog-entering.crystal-dialog-entered .settings-dialog,
-    body:not(.appearance-crystal) .notice-overlay.crystal-dialog-entering.crystal-dialog-entered .notice-dialog {
+    body:not(.appearance-crystal) .notice-overlay.crystal-dialog-entering.crystal-dialog-entered .notice-dialog,
+    body:not(.appearance-crystal) .changelog-overlay.crystal-dialog-entering.crystal-dialog-entered .changelog-dialog {
       opacity: 1;
       transform: translate3d(0, 0, 0);
     }
 
     body:not(.appearance-crystal) .settings-overlay.closing,
-    body:not(.appearance-crystal) .notice-overlay.closing {
+    body:not(.appearance-crystal) .notice-overlay.closing,
+    body:not(.appearance-crystal) .changelog-overlay.closing {
       pointer-events: none;
       animation: none !important;
     }
 
     body:not(.appearance-crystal) .settings-overlay.closing::before,
-    body:not(.appearance-crystal) .notice-overlay.closing::before {
+    body:not(.appearance-crystal) .notice-overlay.closing::before,
+    body:not(.appearance-crystal) .changelog-overlay.closing::before {
       opacity: 0;
       transition: opacity 160ms cubic-bezier(0.4, 0, 1, 1);
     }
 
     body:not(.appearance-crystal) .settings-overlay.closing .settings-dialog,
-    body:not(.appearance-crystal) .notice-overlay.closing .notice-dialog {
+    body:not(.appearance-crystal) .notice-overlay.closing .notice-dialog,
+    body:not(.appearance-crystal) .changelog-overlay.closing .changelog-dialog {
       opacity: 0;
       transform: translate3d(0, 8px, 0) scale(0.99);
       transform-origin: 85% 0%;
@@ -636,26 +646,12 @@
     @media (prefers-reduced-motion: reduce) {
       body:not(.appearance-crystal) .settings-overlay::before,
       body:not(.appearance-crystal) .notice-overlay::before,
+      body:not(.appearance-crystal) .changelog-overlay::before,
       body:not(.appearance-crystal) .settings-dialog,
-      body:not(.appearance-crystal) .notice-dialog {
+      body:not(.appearance-crystal) .notice-dialog,
+      body:not(.appearance-crystal) .changelog-dialog {
         transition: none !important;
       }
-    }
-
-    /* 普通模式更新日志保留原有上浮与淡入，只移除会改变内部相对坐标的缩放。 */
-    @keyframes standardChangelogPopStable {
-      from {
-        transform: translate3d(0, 14px, 0);
-        opacity: 0.7;
-      }
-      to {
-        transform: translate3d(0, 0, 0);
-        opacity: 1;
-      }
-    }
-
-    body:not(.appearance-crystal) .changelog-dialog {
-      animation: standardChangelogPopStable 0.16s ease-out both;
     }
 
     /* 立体模式设置/公告弹窗：遮罩与面板分层动画，材质参数保持不变。 */
