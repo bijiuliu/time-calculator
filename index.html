@@ -41,13 +41,6 @@
           <button class="mode-button" data-mode="shift" type="button">往前 / 往后推算</button>
         </div>
 
-        <section class="form-card" id="formCard"></section>
-
-        <div class="calculator-actions">
-          <button class="clear-button" id="clearButton" type="button">清空</button>
-          <button class="calculate-button" id="calculateButton" type="button">开始计算</button>
-        </div>
-
         <section class="result-card" id="resultCard" aria-live="polite">
           <div class="result-head"><span id="resultLabel">时间差</span><span class="result-status"><i></i><span id="resultStatus">等待计算</span></span></div>
           <div class="result-value" id="resultValue"><span class="placeholder-result">--</span></div>
@@ -55,6 +48,13 @@
           <button class="result-copy" id="resultCopy" type="button" hidden>复制结果</button>
           <div class="result-decoration" aria-hidden="true"><span></span><span></span><span></span></div>
         </section>
+
+        <section class="form-card" id="formCard"></section>
+
+        <div class="calculator-actions">
+          <button class="clear-button" id="clearButton" type="button">清空</button>
+          <button class="calculate-button" id="calculateButton" type="button">开始计算</button>
+        </div>
       </section>
 
       <section class="page" id="historyPage" aria-label="计算记录">
