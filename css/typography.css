@@ -1,0 +1,73 @@
+/**
+ * Mobile typography tokens
+ *
+ * All UI font sizes, weights, line-heights and font stacks are maintained here.
+ * Use the variables below in any new component; do not introduce literal
+ * font-size or font-weight values in feature styles.
+ */
+:root {
+  --font-family-sans: system-ui, -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --font-family-numeric: ui-monospace, "SFMono-Regular", "Roboto Mono", Menlo, Consolas, monospace;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --font-size-caption: 12px;
+  --font-size-label: 14px;
+  --font-size-body: 16px;
+  --font-size-title: 20px;
+  --font-size-display: 32px;
+  --font-size-time: 44px;
+
+  --line-height-caption: 1.45;
+  --line-height-label: 1.45;
+  --line-height-body: 1.55;
+  --line-height-title: 1.25;
+}
+
+body {
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-body);
+}
+
+button, input, select, textarea { font-family: inherit; }
+
+/* Brand and navigation */
+.brand strong { font-size: var(--font-size-title); font-weight: var(--font-weight-bold); line-height: var(--line-height-title); }
+.brand small { font-size: var(--font-size-caption); font-weight: var(--font-weight-medium); line-height: var(--line-height-caption); }
+.nav-button { font-size: var(--font-size-caption); font-weight: var(--font-weight-medium); line-height: var(--line-height-caption); }
+
+/* Primary controls */
+.type-button, .mode-button, .direction button, .filter-button, .segmented button { font-size: var(--font-size-label); font-weight: var(--font-weight-medium); line-height: var(--line-height-label); }
+.clear-button, .calculate-button { font-size: var(--font-size-body); font-weight: var(--font-weight-semibold); line-height: var(--line-height-body); }
+.calculate-button { font-weight: var(--font-weight-bold); }
+
+/* Form content */
+.form-heading { font-size: var(--font-size-body); font-weight: var(--font-weight-semibold); line-height: var(--line-height-body); }
+.form-heading span:last-child, .input-card small, .duration-field span, .accumulation-hint, .validation-message { font-size: var(--font-size-caption); font-weight: var(--font-weight-medium); line-height: var(--line-height-caption); }
+.input-card input, .duration-field input { font-family: var(--font-family-numeric); font-weight: var(--font-weight-semibold); }
+
+/* Results */
+.result-head, .time-part small, .total-minutes small, .date-result small { font-size: var(--font-size-label); font-weight: var(--font-weight-medium); line-height: var(--line-height-label); }
+.result-description { font-size: var(--font-size-label); font-weight: var(--font-weight-regular); line-height: var(--line-height-body); }
+.result-copy { font-size: var(--font-size-caption); font-weight: var(--font-weight-medium); line-height: var(--line-height-caption); }
+.placeholder-result, .time-part b, .total-minutes b { font-family: var(--font-family-numeric); font-weight: var(--font-weight-semibold); }
+.date-result b { font-weight: var(--font-weight-semibold); }
+
+/* Secondary pages, sheets and settings */
+.page-heading h1 { font-size: 24px; font-weight: var(--font-weight-bold); line-height: var(--line-height-title); }
+.page-heading p, .text-button, .history-group-title, .history-top, .history-sub, .history-actions button, .settings-section h2, .setting-copy small, .settings-footnote, .sheet-header p, .confirm-dialog p, .toast { font-size: var(--font-size-caption); font-weight: var(--font-weight-medium); line-height: var(--line-height-caption); }
+.history-main, .setting-copy strong, .option-button, .about-content { font-size: var(--font-size-label); font-weight: var(--font-weight-medium); line-height: var(--line-height-label); }
+.empty-state { font-size: var(--font-size-label); font-weight: var(--font-weight-medium); line-height: var(--line-height-label); }
+.sheet-header h2, .confirm-dialog h2 { font-size: var(--font-size-title); font-weight: var(--font-weight-bold); line-height: var(--line-height-title); }
+.about-content h3 { font-size: var(--font-size-label); font-weight: var(--font-weight-semibold); }
+
+/* Utilities for future views */
+.type-caption { font-size: var(--font-size-caption); font-weight: var(--font-weight-medium); line-height: var(--line-height-caption); }
+.type-label { font-size: var(--font-size-label); font-weight: var(--font-weight-medium); line-height: var(--line-height-label); }
+.type-body { font-size: var(--font-size-body); font-weight: var(--font-weight-regular); line-height: var(--line-height-body); }
+.type-title { font-size: var(--font-size-title); font-weight: var(--font-weight-bold); line-height: var(--line-height-title); }
