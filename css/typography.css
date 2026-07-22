@@ -62,6 +62,8 @@ button, input, select, textarea { font-family: inherit; }
 .page-heading h1 { font-size: 24px; font-weight: var(--font-weight-bold); line-height: var(--line-height-title); }
 .page-heading p, .text-button, .history-group-title, .history-top, .history-sub, .history-actions button, .settings-section h2, .setting-copy small, .settings-footnote, .sheet-header p, .confirm-dialog p, .toast { font-size: var(--font-size-caption); font-weight: var(--font-weight-medium); line-height: var(--line-height-caption); }
 .history-main, .setting-copy strong, .option-button, .about-content { font-size: var(--font-size-label); font-weight: var(--font-weight-medium); line-height: var(--line-height-label); }
+.input-mode-option b { font-size: var(--font-size-label); font-weight: var(--font-weight-medium); line-height: var(--line-height-label); }
+.input-mode-option small { font-size: var(--font-size-caption); font-weight: var(--font-weight-medium); line-height: var(--line-height-caption); }
 .empty-state { font-size: var(--font-size-label); font-weight: var(--font-weight-medium); line-height: var(--line-height-label); }
 .sheet-header h2, .confirm-dialog h2 { font-size: var(--font-size-title); font-weight: var(--font-weight-bold); line-height: var(--line-height-title); }
 .about-content h3 { font-size: var(--font-size-label); font-weight: var(--font-weight-semibold); }

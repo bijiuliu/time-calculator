@@ -1,4 +1,4 @@
-const CACHE_NAME="time-calculator-2.0.24-restore-day-unit";
+const CACHE_NAME="time-calculator-2.0.47-static-theme-page";
 const CORE_ASSETS=[
   "./",
   "./index.html",

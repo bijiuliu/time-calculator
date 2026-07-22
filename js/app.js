@@ -5,8 +5,8 @@
   const OLD_TIME_HISTORY_KEY="timeCalculatorHistoryV3";
   const OLD_DATE_HISTORY_KEY="dateCalculatorHistoryV1";
   const OLD_SETTINGS_KEY="calculatorSettingsV1";
-  const DEFAULT_SETTINGS={inputMode:"native",defaultCalculator:"time",defaultMode:"diff",appearance:"light",accumulation:true,vibration:true,historyLimit:10,compact:false};
-  const state={page:"calculator",calculator:"time",mode:"diff",direction:"back",displayMode:"hm",filter:"all",current:null,history:[],settings:{...DEFAULT_SETTINGS}};
+  const DEFAULT_SETTINGS={inputMode:"numeric",defaultCalculator:"time",defaultMode:"diff",appearance:"light",accumulation:true,vibration:true,historyLimit:10,compact:false};
+  const state={page:"calculator",calculator:"time",mode:"diff",direction:"back",displayMode:"hm",filter:"all",current:null,drafts:{},results:{},history:[],settings:{...DEFAULT_SETTINGS}};
   const $=selector=>document.querySelector(selector);
   const $$=selector=>Array.from(document.querySelectorAll(selector));
   const pad=value=>String(value).padStart(2,"0");
@@ -17,7 +17,7 @@
     node.textContent=message;
     node.classList.add("show");
     clearTimeout(toast.timer);
-    toast.timer=setTimeout(()=>node.classList.remove("show"),1500);
+    toast.timer=setTimeout(()=>node.classList.remove("show"),1750);
   }
 
   function haptic(){
@@ -42,7 +42,7 @@
   }
 
   function saveState(){
-    try{localStorage.setItem(STORAGE_KEY,JSON.stringify({history:state.history,settings:state.settings,lastCalculator:state.calculator,lastMode:state.mode}));}catch(error){}
+    try{localStorage.setItem(STORAGE_KEY,JSON.stringify({history:state.history,settings:state.settings,lastCalculator:state.calculator,lastMode:state.mode,drafts:state.drafts,results:state.results}));}catch(error){}
   }
 
   function readJson(key,fallback){
@@ -87,6 +87,8 @@
     if(saved&&typeof saved==="object"){
       if(saved.settings)state.settings={...DEFAULT_SETTINGS,...saved.settings};
       if(Array.isArray(saved.history))state.history=saved.history;
+      if(saved.drafts&&typeof saved.drafts==="object")state.drafts=saved.drafts;
+      if(saved.results&&typeof saved.results==="object")state.results=saved.results;
       if(["time","date"].includes(saved.lastCalculator))state.calculator=saved.lastCalculator;
       if(["diff","shift"].includes(saved.lastMode))state.mode=saved.lastMode;
     }else migrateOldData();
@@ -104,6 +106,7 @@
   }
 
   function applyAppearance(){
+    document.body.classList.add("theme-switching");
     const systemDark=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;
     const light=state.settings.appearance==="light"||(state.settings.appearance==="system"&&!systemDark);
     document.body.classList.toggle("theme-light",light);
@@ -112,6 +115,7 @@
     const meta=document.querySelector('meta[name="theme-color"]');
     if(meta)meta.content=light?"#f8fafc":"#0c0e0f";
     syncThemeToggle();
+    requestAnimationFrame(()=>requestAnimationFrame(()=>document.body.classList.remove("theme-switching")));
   }
 
   function syncThemeToggle(){
@@ -170,6 +174,8 @@
     $$("[data-direction]").forEach(button=>button.addEventListener("click",()=>{
       state.direction=button.dataset.direction;
       $$("[data-direction]").forEach(node=>node.classList.toggle("active",node===button));
+      saveCurrentView();
+      saveState();
       haptic();
     }));
     $$("input[maxlength]").forEach(input=>input.addEventListener("input",()=>{
@@ -178,6 +184,10 @@
       if(/Minute$/.test(input.id)&&Number(input.value)>59)input.value="59";
       if(/Month$/.test(input.id)&&Number(input.value)>12)input.value="12";
       if(/Day$/.test(input.id)&&Number(input.value)>31)input.value="31";
+    }));
+    $$("#formCard input").forEach(input=>input.addEventListener("input",()=>{
+      saveCurrentView();
+      saveState();
     }));
   }
 
@@ -189,7 +199,39 @@
     $("#resultValue").innerHTML='<span class="placeholder-result">--</span>';
     $("#resultDescription").textContent=state.mode==="diff"?"填写开始与结束信息，结果会显示在这里":"填写基准与推算量，结果会显示在这里";
     $("#resultCopy").hidden=true;
-    $("#resultCard").classList.remove("has-result");
+    $("#resultCard").classList.remove("has-result","no-result-animation");
+  }
+
+  function viewKey(){return `${state.calculator}:${state.mode}`;}
+
+  // The form is re-created when a calculator or mode is changed. Keep its
+  // values separately so switching views never discards work in progress.
+  function saveCurrentView(){
+    const inputs={};
+    $$("#formCard input").forEach(input=>{inputs[input.id]=input.value;});
+    state.drafts[viewKey()]={inputs,direction:state.direction,displayMode:state.displayMode};
+    if(state.current)state.results[viewKey()]=state.current;
+  }
+
+  function restoreCurrentView(){
+    const draft=state.drafts[viewKey()];
+    if(draft){
+      Object.entries(draft.inputs||{}).forEach(([id,value])=>{
+        const input=document.getElementById(id);
+        if(input)input.value=value;
+      });
+      if(["back","forward"].includes(draft.direction))state.direction=draft.direction;
+      state.displayMode=draft.displayMode==="minutes"?"minutes":"hm";
+      $$("[data-direction]").forEach(button=>button.classList.toggle("active",button.dataset.direction===state.direction));
+    }else state.displayMode="hm";
+    state.current=state.results[viewKey()]||null;
+    if(state.current)renderCurrentResult(false);else resetResult();
+  }
+
+  function rememberCurrentResult(){
+    state.results[viewKey()]=state.current;
+    saveCurrentView();
+    saveState();
   }
 
   function renderCalculator(){
@@ -197,7 +239,7 @@
     $$(".type-button").forEach(button=>button.classList.toggle("active",button.dataset.calculator===state.calculator));
     $$(".mode-button").forEach(button=>button.classList.toggle("active",button.dataset.mode===state.mode));
     renderForm();
-    resetResult();
+    restoreCurrentView();
     saveState();
   }
 
@@ -263,6 +305,7 @@
     if(!start.ok)return showValidation(start.message);if(!end.ok)return showValidation(end.message);
     const crossedDay=end.minutes<start.minutes,total=(crossedDay?end.minutes+1440:end.minutes)-start.minutes;
     state.current={kind:"time",mode:"diff",start:start.text,end:end.text,totalMinutes:total,crossedDay};
+    rememberCurrentResult();
     addHistory({...state.current,id:Date.now()});
     renderCurrentResult();
   }
@@ -276,9 +319,10 @@
     if(total===0)return showValidation("请输入往前或往后的时长");
     const raw=state.direction==="back"?base.minutes-total:base.minutes+total,result=minutesToTime(raw),crossedDay=raw<0||raw>=1440;
     state.current={kind:"time",mode:"shift",base:base.text,direction:state.direction,amountMinutes:total,result,crossedDay};
+    rememberCurrentResult();
     addHistory({...state.current,id:Date.now()});
     renderCurrentResult();
-    if(state.settings.accumulation)setTimeInput("base",result);
+    if(state.settings.accumulation){setTimeInput("base",result);saveCurrentView();saveState();}
   }
 
   function calculateDateDiff(){
@@ -286,6 +330,7 @@
     if(!start.ok)return showValidation(start.message);if(!end.ok)return showValidation(end.message);
     const difference=dateDiffDays(start.date,end.date),reverse=difference<0;
     state.current={kind:"date",mode:"diff",start:reverse?end.iso:start.iso,end:reverse?start.iso:end.iso,startText:reverse?end.text:start.text,endText:reverse?start.text:end.text,totalDays:Math.abs(difference)};
+    rememberCurrentResult();
     addHistory({...state.current,id:Date.now()});
     renderCurrentResult();
   }
@@ -297,15 +342,21 @@
     if(days<=0)return showValidation("请输入往前或往后的天数");
     const resultDate=addDays(base.date,state.direction==="back"?-days:days);
     state.current={kind:"date",mode:"shift",base:base.iso,baseText:base.text,direction:state.direction,amountDays:days,result:dateToIso(resultDate),resultText:formatDate(resultDate)};
+    rememberCurrentResult();
     addHistory({...state.current,id:Date.now()});
     renderCurrentResult();
-    if(state.settings.accumulation)setDateInput("baseDate",state.current.result);
+    if(state.settings.accumulation){setDateInput("baseDate",state.current.result);saveCurrentView();saveState();}
   }
 
-  function renderCurrentResult(){
+  function renderCurrentResult(animate=true){
     const result=state.current;
     if(!result)return resetResult();
-    $("#resultCard").classList.remove("has-result");void $("#resultCard").offsetWidth;$("#resultCard").classList.add("has-result");
+    const card=$("#resultCard");
+    if(animate){
+      card.classList.remove("no-result-animation","has-result");
+      void card.offsetWidth;
+      card.classList.add("has-result");
+    }else card.classList.add("no-result-animation","has-result");
     $("#resultCopy").hidden=false;
     if(result.kind==="time"&&result.mode==="diff"){
       $("#resultLabel").textContent="时间差";
@@ -413,10 +464,18 @@
     else{$(`#${prefix}Year`).value=year;$(`#${prefix}Month`).value=month;$(`#${prefix}Day`).value=day;}
   }
 
-  function clearCalculator(){renderForm();resetResult();toast("输入已清空");}
+  function clearCalculator(){
+    delete state.drafts[viewKey()];
+    delete state.results[viewKey()];
+    state.current=null;
+    renderForm();
+    resetResult();
+    saveState();
+    toast("输入已清空");
+  }
 
   function syncSettingsUI(){
-    $$("#inputModeSetting button").forEach(button=>button.classList.toggle("active",button.dataset.value===state.settings.inputMode));
+    $$("#inputModeSetting button").forEach(button=>{const active=button.dataset.value===state.settings.inputMode;button.classList.toggle("active",active);button.setAttribute("aria-checked",active);});
     $("#accumulationSetting").checked=state.settings.accumulation;
     $("#vibrationSetting").checked=state.settings.vibration;
     $("#compactSetting").checked=state.settings.compact;
@@ -463,11 +522,11 @@
   function closeConfirm(){$("#confirmOverlay").classList.remove("show");$("#confirmOverlay").setAttribute("aria-hidden","true");}
 
   function bindEvents(){
-    $$(".type-button").forEach(button=>button.addEventListener("click",()=>{state.calculator=button.dataset.calculator;renderCalculator();haptic();}));
-    $$(".mode-button").forEach(button=>button.addEventListener("click",()=>{state.mode=button.dataset.mode;renderCalculator();haptic();}));
+    $$(".type-button").forEach(button=>button.addEventListener("click",()=>{saveCurrentView();state.calculator=button.dataset.calculator;renderCalculator();haptic();}));
+    $$(".mode-button").forEach(button=>button.addEventListener("click",()=>{saveCurrentView();state.mode=button.dataset.mode;renderCalculator();haptic();}));
     $("#calculateButton").addEventListener("click",calculate);
     $("#clearButton").addEventListener("click",clearCalculator);
-    $("#resultValue").addEventListener("click",()=>{if(state.current?.kind==="time"&&state.current.mode==="diff"){state.displayMode=state.displayMode==="hm"?"minutes":"hm";renderCurrentResult();haptic();}});
+    $("#resultValue").addEventListener("click",()=>{if(state.current?.kind==="time"&&state.current.mode==="diff"){state.displayMode=state.displayMode==="hm"?"minutes":"hm";renderCurrentResult(false);haptic();}});
     $("#resultCopy").addEventListener("click",()=>copyText(resultCopyText(state.current)));
     $$(".nav-button").forEach(button=>button.addEventListener("click",()=>setPage(button.dataset.page)));
     $("#headerThemeToggle").addEventListener("click",()=>{

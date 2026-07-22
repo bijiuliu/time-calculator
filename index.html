@@ -58,7 +58,7 @@
       </section>
 
       <section class="page" id="historyPage" aria-label="计算记录">
-        <div class="page-heading"><div><h1>计算记录</h1><p>点击记录可以重新带入计算</p></div><button class="text-button" id="clearAllHistory" type="button">清空全部</button></div>
+        <div class="page-heading"><div><h1>计算记录</h1><p>点击记录可以重新带入计算</p></div><button class="text-button clear-history-button" id="clearAllHistory" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M6 7l1 13h10l1-13"></path><path d="M9 7V4h6v3"></path></svg><span>清空全部</span></button></div>
         <div class="history-filters" role="tablist" aria-label="记录筛选">
           <button class="filter-button active" data-filter="all" type="button">全部</button>
           <button class="filter-button" data-filter="time" type="button">时间</button>
@@ -68,10 +68,10 @@
       </section>
 
       <section class="page" id="settingsPage" aria-label="设置">
-        <div class="page-heading"><div><h1>设置</h1><p>修改会自动保存</p></div><button class="text-button" id="restoreSettings" type="button">恢复默认</button></div>
+        <div class="page-heading"><div><h1>设置</h1><p>修改会自动保存</p></div><button class="text-button restore-settings-button" id="restoreSettings" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7L4 8"></path><path d="M4 4v4h4"></path></svg><span>恢复默认</span></button></div>
 
         <section class="settings-section"><h2>输入与启动</h2><div class="settings-card">
-          <div class="setting-row"><div class="setting-copy"><strong>输入方式</strong><small>系统选择器或分项数字输入</small></div><div class="segmented" id="inputModeSetting"><button data-value="native" type="button">系统</button><button data-value="numeric" type="button">数字</button></div></div>
+          <div class="setting-row input-mode-row"><div class="input-mode-options" id="inputModeSetting" role="radiogroup" aria-label="输入方式"><button class="input-mode-option" data-value="numeric" type="button" role="radio"><i aria-hidden="true">✓</i><b>数字</b><small>手动输入时分与日期</small></button><button class="input-mode-option" data-value="native" type="button" role="radio"><i aria-hidden="true">✓</i><b>系统</b><small>使用设备原生选择器</small></button></div></div>
           <div class="setting-row link-row" data-setting-page="defaultCalculator" role="button"><div class="setting-copy"><strong>默认计算器</strong><small id="defaultCalculatorSummary">时间计算器</small></div><span>›</span></div>
           <div class="setting-row link-row" data-setting-page="defaultMode" role="button"><div class="setting-copy"><strong>默认模式</strong><small id="defaultModeSummary">计算间隔</small></div><span>›</span></div>
         </div></section>
