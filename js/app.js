@@ -15,6 +15,8 @@
   function toast(message){
     const node=$("#toast");
     node.textContent=message;
+    node.classList.remove("has-undo");
+    toast.undo=null;
     node.classList.add("show");
     clearTimeout(toast.timer);
     toast.timer=setTimeout(()=>node.classList.remove("show"),1750);
@@ -429,15 +431,65 @@
       const view=historyPresentation(item);
       return `<article class="history-item ${item.kind}" data-record="${item.id}"><div class="history-top"><span class="history-kind"><i></i>${item.kind==="time"?"时间计算":"日期计算"}</span><span>${formatRecordTime(item.id)}</span></div><div class="history-main">${escapeHtml(view.title)}</div><div class="history-sub">${escapeHtml(view.sub)}</div><div class="history-actions"><button data-action="reuse" type="button">重新带入</button><button data-action="copy" type="button">复制</button><button class="delete" data-action="delete" type="button">删除</button></div></article>`;
     }).join("")}</div></section>`).join("");
-    $$(".history-item").forEach(item=>item.addEventListener("click",event=>{
-      const button=event.target.closest("button");
+    $$(".history-item button").forEach(button=>button.addEventListener("click",()=>{
+      const item=button.closest(".history-item");
       const record=state.history.find(entry=>String(entry.id)===item.dataset.record);if(!record)return;
-      if(!button){reuseRecord(record);return;}
       const action=button.dataset.action;
       if(action==="copy")copyText(resultCopyText(record));
-      if(action==="delete"){state.history=state.history.filter(entry=>entry!==record);saveState();renderHistory();toast("记录已删除");}
+      if(action==="delete")deleteHistoryRecord(item,record,button);
       if(action==="reuse")reuseRecord(record);
     }));
+  }
+
+  function showHistoryUndo(record,title,previous,next){
+    const node=$("#toast"),undoButton=document.createElement("button");
+    undoButton.type="button";undoButton.className="undo-button";undoButton.textContent="撤销";
+    node.replaceChildren(document.createTextNode(`已删除「${title}」`),undoButton);
+    node.classList.add("has-undo","show");
+    const undo=()=>{
+      if(toast.undo?.record!==record)return;
+      const nextIndex=next?state.history.indexOf(next):-1;
+      const previousIndex=previous?state.history.indexOf(previous):-1;
+      const insertAt=nextIndex>=0?nextIndex:previousIndex>=0?previousIndex+1:state.history.length;
+      state.history.splice(insertAt,0,record);saveState();
+      clearTimeout(toast.timer);toast.undo=null;node.classList.remove("has-undo","show");
+      renderHistory();
+      const restored=$$(".history-item").find(entry=>entry.dataset.record===String(record.id));
+      if(restored){
+        const animation=restored.animate([{opacity:0,transform:"translateY(-8px) scale(.98)"},{opacity:1,transform:"none"}],{duration:220,easing:"cubic-bezier(.2,.8,.2,1)"});
+        animation.finished.catch(()=>{});
+      }
+    };
+    toast.undo={record,undo};undoButton.addEventListener("click",undo,{once:true});
+    clearTimeout(toast.timer);
+    toast.timer=setTimeout(()=>{toast.undo=null;node.classList.remove("has-undo","show");},5000);
+  }
+
+  async function deleteHistoryRecord(item,record,button){
+    if(item.dataset.deleting)return;
+    item.dataset.deleting="true";button.disabled=true;
+    const recordIndex=state.history.indexOf(record);
+    const previous=state.history[recordIndex-1]||null;
+    const next=state.history[recordIndex+1]||null;
+    const title=historyPresentation(record).title;
+    const computed=getComputedStyle(item);
+    const height=item.getBoundingClientRect().height;
+    const marginBottom=computed.marginBottom;
+    const paddingTop=computed.paddingTop;
+    const paddingBottom=computed.paddingBottom;
+    item.style.overflow="hidden";
+    item.style.height=`${height}px`;
+    item.style.marginBottom=marginBottom;
+    item.style.paddingTop=paddingTop;
+    item.style.paddingBottom=paddingBottom;
+    const exit=item.animate([{opacity:1,transform:"translateX(0) scale(1)"},{opacity:0,transform:"translateX(-64px) scale(.98)"}],{duration:200,easing:"cubic-bezier(.4,0,1,1)",fill:"forwards"});
+    const collapse=item.animate([{height:`${height}px`,marginBottom,paddingTop,paddingBottom},{height:"0px",marginBottom:"0px",paddingTop:"0px",paddingBottom:"0px",borderTopWidth:"0px",borderBottomWidth:"0px"}],{delay:120,duration:220,easing:"cubic-bezier(.2,.8,.2,1)",fill:"forwards"});
+    state.history=state.history.filter(entry=>entry!==record);saveState();
+    setTimeout(()=>{if(item.isConnected)showHistoryUndo(record,title,previous,next);},120);
+    await Promise.all([exit.finished,collapse.finished]).catch(()=>{});
+    if(!item.isConnected)return;
+    item.remove();
+    if(!$("#historyContainer").querySelector(".history-item"))renderHistory();
   }
 
   function reuseRecord(record){
