@@ -441,6 +441,18 @@
     }));
   }
 
+  function animateHistoryListShift(previousPositions,excludedRecord){
+    $$(".history-item:not(.history-motion-ghost)").forEach(entry=>{
+      if(entry.dataset.record===String(excludedRecord.id))return;
+      const previousPosition=previousPositions.get(entry.dataset.record);
+      if(!previousPosition)return;
+      const offsetY=previousPosition.top-entry.getBoundingClientRect().top;
+      if(Math.abs(offsetY)<.5)return;
+      const animation=entry.animate([{transform:`translateY(${offsetY}px)`},{transform:"translateY(0)"}],{duration:250,easing:"cubic-bezier(.22,1,.36,1)"});
+      animation.finished.catch(()=>{});
+    });
+  }
+
   function showHistoryUndo(record,title,previous,next){
     const node=$("#toast"),undoButton=document.createElement("button");
     undoButton.type="button";undoButton.className="undo-button";undoButton.textContent="撤销";
@@ -454,10 +466,46 @@
       state.history.splice(insertAt,0,record);saveState();
       clearTimeout(toast.timer);toast.undo=null;node.classList.remove("has-undo","show");
       renderHistory();
-      const restored=$$(".history-item").find(entry=>entry.dataset.record===String(record.id));
+      const restored=$$(".history-item:not(.history-motion-ghost)").find(entry=>entry.dataset.record===String(record.id));
       if(restored){
-        const animation=restored.animate([{opacity:0,transform:"translateY(-8px) scale(.98)"},{opacity:1,transform:"none"}],{duration:220,easing:"cubic-bezier(.2,.8,.2,1)"});
-        animation.finished.catch(()=>{});
+        // Expand inside normal flow instead of FLIP-moving the cards below it.
+        // That keeps cards from overlapping, which otherwise exposes a bright
+        // border/background flash while their composited layers cross.
+        const computed=getComputedStyle(restored);
+        const expanded={
+          height:`${restored.getBoundingClientRect().height}px`,
+          marginBottom:computed.marginBottom,
+          paddingTop:computed.paddingTop,
+          paddingBottom:computed.paddingBottom,
+          borderTopWidth:computed.borderTopWidth,
+          borderBottomWidth:computed.borderBottomWidth,
+          opacity:1,
+          transform:"translateX(0) scale(1)"
+        };
+        const collapsed={
+          height:"0px",
+          marginBottom:"0px",
+          paddingTop:"0px",
+          paddingBottom:"0px",
+          borderTopWidth:"0px",
+          borderBottomWidth:"0px",
+          opacity:0,
+          transform:"translateX(-20px) scale(.99)"
+        };
+        Object.assign(restored.style,{boxSizing:"border-box",overflow:"hidden",...collapsed});
+        const animation=restored.animate([collapsed,expanded],{duration:300,easing:"cubic-bezier(.22,1,.36,1)",fill:"forwards"});
+        animation.finished.catch(()=>{}).then(()=>{
+          restored.style.boxSizing="";
+          restored.style.overflow="";
+          restored.style.height="";
+          restored.style.marginBottom="";
+          restored.style.paddingTop="";
+          restored.style.paddingBottom="";
+          restored.style.borderTopWidth="";
+          restored.style.borderBottomWidth="";
+          restored.style.opacity="";
+          restored.style.transform="";
+        });
       }
     };
     toast.undo={record,undo};undoButton.addEventListener("click",undo,{once:true});
@@ -472,24 +520,27 @@
     const previous=state.history[recordIndex-1]||null;
     const next=state.history[recordIndex+1]||null;
     const title=historyPresentation(record).title;
-    const computed=getComputedStyle(item);
-    const height=item.getBoundingClientRect().height;
-    const marginBottom=computed.marginBottom;
-    const paddingTop=computed.paddingTop;
-    const paddingBottom=computed.paddingBottom;
-    item.style.overflow="hidden";
-    item.style.height=`${height}px`;
-    item.style.marginBottom=marginBottom;
-    item.style.paddingTop=paddingTop;
-    item.style.paddingBottom=paddingBottom;
-    const exit=item.animate([{opacity:1,transform:"translateX(0) scale(1)"},{opacity:0,transform:"translateX(-64px) scale(.98)"}],{duration:200,easing:"cubic-bezier(.4,0,1,1)",fill:"forwards"});
-    const collapse=item.animate([{height:`${height}px`,marginBottom,paddingTop,paddingBottom},{height:"0px",marginBottom:"0px",paddingTop:"0px",paddingBottom:"0px",borderTopWidth:"0px",borderBottomWidth:"0px"}],{delay:120,duration:220,easing:"cubic-bezier(.2,.8,.2,1)",fill:"forwards"});
+    const container=$("#historyContainer");
+    const group=item.closest(".history-group");
+    const cardPositions=new Map($$(".history-item:not(.history-motion-ghost)").map(entry=>[entry.dataset.record,entry.getBoundingClientRect()]));
+    const itemRect=item.getBoundingClientRect();
+    const containerRect=container.getBoundingClientRect();
+    const ghost=item.cloneNode(true);
+    ghost.classList.add("history-motion-ghost");
+    container.style.position="relative";
+    ghost.style.cssText+=`;position:absolute;z-index:2;pointer-events:none;top:${itemRect.top-containerRect.top}px;left:${itemRect.left-containerRect.left}px;width:${itemRect.width}px;height:${itemRect.height}px;margin:0`;
+    ghost.querySelectorAll("button").forEach(node=>node.disabled=true);
+    container.appendChild(ghost);
+    const exitFrames=[{opacity:1,transform:"translateX(0) scale(1)"},{opacity:0,transform:"translateX(-56px) scale(.985)"}];
     state.history=state.history.filter(entry=>entry!==record);saveState();
-    setTimeout(()=>{if(item.isConnected)showHistoryUndo(record,title,previous,next);},120);
-    await Promise.all([exit.finished,collapse.finished]).catch(()=>{});
-    if(!item.isConnected)return;
     item.remove();
-    if(!$("#historyContainer").querySelector(".history-item"))renderHistory();
+    if(group&&!group.querySelector(".history-item"))group.remove();
+    animateHistoryListShift(cardPositions,record);
+    showHistoryUndo(record,title,previous,next);
+    const exit=ghost.animate(exitFrames,{duration:250,easing:"cubic-bezier(.4,0,.2,1)",fill:"forwards"});
+    await exit.finished.catch(()=>{});
+    ghost.remove();
+    if(!container.querySelector(".history-item"))renderHistory();
   }
 
   function reuseRecord(record){
@@ -563,8 +614,8 @@
   }
 
   function openAboutSheet(){
-    $("#sheetTitle").textContent="关于时间计算器";$("#sheetSubtitle").textContent="2.0 Beta 版";
-    $("#sheetContent").innerHTML='<div class="about-content"><span class="version-badge">VERSION 2.0.0 · BETA</span><h3>主要功能</h3><ul><li>时间差与自动跨天</li><li>时间往前、往后推算</li><li>日期差与日期推算</li><li>连续累计与两种输入方式</li><li>统一记录、筛选、复制、删除和重新带入</li></ul><h3>数据说明</h3><p>计算记录和设置只保存在当前浏览器。本版本会在首次启动时尝试迁移旧版时间记录、日期记录和常用设置。</p><h3>使用提示</h3><p>时间差结果可以点击数字区域切换“小时＋分钟”和“总分钟”。结束时间早于开始时间时，会自动按次日计算。</p></div>';
+    $("#sheetTitle").textContent="关于时间计算器";$("#sheetSubtitle").textContent="时间计算器 2.0";
+    $("#sheetContent").innerHTML='<div class="about-content"><span class="version-badge">VERSION 2.0</span><h3>主要功能</h3><ul><li>时间差与自动跨天</li><li>时间往前、往后推算</li><li>日期差与日期推算</li><li>连续累计与两种输入方式</li><li>统一记录、筛选、复制、删除和重新带入</li></ul><h3>数据说明</h3><p>计算记录和设置只保存在当前浏览器。本版本会在首次启动时尝试迁移旧版时间记录、日期记录和常用设置。</p><h3>使用提示</h3><p>时间差结果可以点击数字区域切换“小时＋分钟”和“总分钟”。结束时间早于开始时间时，会自动按次日计算。</p></div>';
     showSheet();
   }
 
