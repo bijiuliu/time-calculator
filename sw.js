@@ -1,4 +1,4 @@
-const CACHE_NAME="time-calculator-2.0.47-static-theme-page";
+const CACHE_NAME="time-calculator-2.0.48-no-local-font";
 const CORE_ASSETS=[
   "./",
   "./index.html",
@@ -8,8 +8,7 @@ const CORE_ASSETS=[
   "./assets/icons/icon-192.png",
   "./assets/icons/icon-192-dark.png",
   "./assets/icons/icon-512.png",
-  "./assets/icons/apple-touch-icon.png",
-  "./font/400.css"
+  "./assets/icons/apple-touch-icon.png"
 ];
 
 self.addEventListener("install",event=>{

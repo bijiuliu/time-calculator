@@ -44,7 +44,7 @@
   }
 
   function saveState(){
-    try{localStorage.setItem(STORAGE_KEY,JSON.stringify({history:state.history,settings:state.settings,lastCalculator:state.calculator,lastMode:state.mode,drafts:state.drafts,results:state.results}));}catch(error){}
+    try{localStorage.setItem(STORAGE_KEY,JSON.stringify({history:state.history,settings:state.settings,lastCalculator:state.calculator,lastMode:state.mode}));}catch(error){}
   }
 
   function readJson(key,fallback){
@@ -89,8 +89,6 @@
     if(saved&&typeof saved==="object"){
       if(saved.settings)state.settings={...DEFAULT_SETTINGS,...saved.settings};
       if(Array.isArray(saved.history))state.history=saved.history;
-      if(saved.drafts&&typeof saved.drafts==="object")state.drafts=saved.drafts;
-      if(saved.results&&typeof saved.results==="object")state.results=saved.results;
       if(["time","date"].includes(saved.lastCalculator))state.calculator=saved.lastCalculator;
       if(["diff","shift"].includes(saved.lastMode))state.mode=saved.lastMode;
     }else migrateOldData();
@@ -396,8 +394,8 @@
 
   function addHistory(record){
     if(state.history.length>=state.settings.historyLimit){
-      toast("记录已满，本次结果未保存");
-      return false;
+      state.history.pop();
+      toast("记录已满，最早一条已移除");
     }
     state.history.unshift(record);
     saveState();
@@ -594,7 +592,7 @@
   const sheetDefinitions={
     defaultCalculator:{title:"默认计算器",subtitle:"选择应用打开时优先显示的页面",setting:"defaultCalculator",options:[["time","时间计算器"],["date","日期计算器"],["remember","记住上次使用"]]},
     defaultMode:{title:"默认模式",subtitle:"选择应用打开时优先显示的计算方式",setting:"defaultMode",options:[["diff","计算间隔"],["shift","往前 / 往后推算"],["remember","记住上次模式"]]},
-    historyLimit:{title:"记录数量",subtitle:"达到上限后不再保存新记录",setting:"historyLimit",options:[[10,"10条"],[20,"20条"],[30,"30条"]]},
+    historyLimit:{title:"记录数量",subtitle:"达到上限后自动移除最早记录",setting:"historyLimit",options:[[10,"10条"],[20,"20条"],[30,"30条"]]},
     appearance:{title:"显示模式",subtitle:"切换后立即应用",setting:"appearance",options:[["light","浅色"],["dark","深色"],["system","跟随系统"]]}
   };
 
