@@ -7,6 +7,8 @@
   const OLD_SETTINGS_KEY="calculatorSettingsV1";
   const DEFAULT_SETTINGS={inputMode:"numeric",defaultCalculator:"time",defaultMode:"diff",appearance:"light",accumulation:true,vibration:true,historyLimit:10,compact:false};
   const state={page:"calculator",calculator:"time",mode:"diff",direction:"back",displayMode:"hm",filter:"all",current:null,drafts:{},results:{},history:[],settings:{...DEFAULT_SETTINGS}};
+  const activeHistoryRestoreAnimations=new Map();
+  const activeHistoryShiftAnimations=new Map();
   const $=selector=>document.querySelector(selector);
   const $$=selector=>Array.from(document.querySelectorAll(selector));
   const pad=value=>String(value).padStart(2,"0");
@@ -44,7 +46,7 @@
   }
 
   function saveState(){
-    try{localStorage.setItem(STORAGE_KEY,JSON.stringify({history:state.history,settings:state.settings,lastCalculator:state.calculator,lastMode:state.mode}));}catch(error){}
+    try{localStorage.setItem(STORAGE_KEY,JSON.stringify({history:state.history,settings:state.settings,lastCalculator:state.calculator,lastMode:state.mode,lastDirection:state.direction}));}catch(error){}
   }
 
   function readJson(key,fallback){
@@ -91,6 +93,7 @@
       if(Array.isArray(saved.history))state.history=saved.history;
       if(["time","date"].includes(saved.lastCalculator))state.calculator=saved.lastCalculator;
       if(["diff","shift"].includes(saved.lastMode))state.mode=saved.lastMode;
+      if(["back","forward"].includes(saved.lastDirection))state.direction=saved.lastDirection;
     }else migrateOldData();
 
     if(state.settings.defaultCalculator==="time"||state.settings.defaultCalculator==="date")state.calculator=state.settings.defaultCalculator;
@@ -209,7 +212,7 @@
   function saveCurrentView(){
     const inputs={};
     $$("#formCard input").forEach(input=>{inputs[input.id]=input.value;});
-    state.drafts[viewKey()]={inputs,direction:state.direction,displayMode:state.displayMode};
+    state.drafts[viewKey()]={inputs,displayMode:state.displayMode};
     if(state.current)state.results[viewKey()]=state.current;
   }
 
@@ -220,10 +223,9 @@
         const input=document.getElementById(id);
         if(input)input.value=value;
       });
-      if(["back","forward"].includes(draft.direction))state.direction=draft.direction;
       state.displayMode=draft.displayMode==="minutes"?"minutes":"hm";
-      $$("[data-direction]").forEach(button=>button.classList.toggle("active",button.dataset.direction===state.direction));
     }else state.displayMode="hm";
+    $$("[data-direction]").forEach(button=>button.classList.toggle("active",button.dataset.direction===state.direction));
     state.current=state.results[viewKey()]||null;
     if(state.current)renderCurrentResult(false);else resetResult();
   }
@@ -420,6 +422,7 @@
   function formatRecordTime(timestamp){const date=new Date(timestamp);return `${pad(date.getHours())}:${pad(date.getMinutes())}`;}
 
   function renderHistory(){
+    settleHistoryLayoutAnimations();
     const container=$("#historyContainer");
     const items=state.history.filter(item=>state.filter==="all"||item.kind===state.filter);
     if(!items.length){container.innerHTML='<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M5 6h14M5 12h10M5 18h7"></path></svg>暂无符合条件的记录</div>';return;}
@@ -446,32 +449,105 @@
       if(!previousPosition)return;
       const offsetY=previousPosition.top-entry.getBoundingClientRect().top;
       if(Math.abs(offsetY)<.5)return;
-      const animation=entry.animate([{transform:`translateY(${offsetY}px)`},{transform:"translateY(0)"}],{duration:250,easing:"cubic-bezier(.22,1,.36,1)"});
-      animation.finished.catch(()=>{});
+      const animation=entry.animate([{transform:`translateY(${offsetY}px)`},{transform:"translateY(0)"}],{duration:250,easing:"cubic-bezier(.22,1,.36,1)",fill:"both"});
+      activeHistoryShiftAnimations.set(entry,animation);
+      animation.finished.then(
+        ()=>finishHistoryShiftAnimation(entry,animation),
+        ()=>{if(activeHistoryShiftAnimations.get(entry)===animation)activeHistoryShiftAnimations.delete(entry);}
+      );
     });
   }
 
-  function showHistoryUndo(record,title,previous,next){
+  function finishHistoryShiftAnimation(entry,animation,finishFirst=false){
+    if(activeHistoryShiftAnimations.get(entry)!==animation)return;
+    if(finishFirst){try{animation.finish();}catch(error){}}
+    animation.cancel();
+    activeHistoryShiftAnimations.delete(entry);
+  }
+
+  function settleHistoryShiftAnimations(){
+    if(!activeHistoryShiftAnimations.size)return;
+    Array.from(activeHistoryShiftAnimations.entries()).forEach(([entry,animation])=>{
+      finishHistoryShiftAnimation(entry,animation,true);
+    });
+  }
+
+  function clearHistoryRestoreStyles(entry){
+    entry.style.boxSizing="";
+    entry.style.overflow="";
+    entry.style.height="";
+    entry.style.marginBottom="";
+    entry.style.paddingTop="";
+    entry.style.paddingBottom="";
+    entry.style.borderTopWidth="";
+    entry.style.borderBottomWidth="";
+    entry.style.opacity="";
+    entry.style.transform="";
+  }
+
+  function finishHistoryRestoreAnimation(entry,animation,finishFirst=false){
+    if(activeHistoryRestoreAnimations.get(entry)!==animation)return;
+    if(finishFirst){try{animation.finish();}catch(error){}}
+    clearHistoryRestoreStyles(entry);
+    animation.cancel();
+    activeHistoryRestoreAnimations.delete(entry);
+  }
+
+  function settleHistoryRestoreAnimations(){
+    if(!activeHistoryRestoreAnimations.size)return;
+    Array.from(activeHistoryRestoreAnimations.entries()).forEach(([entry,animation])=>{
+      finishHistoryRestoreAnimation(entry,animation,true);
+    });
+    void $("#historyContainer")?.offsetHeight;
+  }
+
+  function settleHistoryLayoutAnimations(){
+    settleHistoryRestoreAnimations();
+    settleHistoryShiftAnimations();
+    void $("#historyContainer")?.offsetHeight;
+  }
+
+  function getHistoryDeleteOverlay(){
+    let overlay=$("#historyDeleteOverlay");
+    if(overlay)return overlay;
+    overlay=document.createElement("div");
+    overlay.id="historyDeleteOverlay";
+    overlay.className="history-delete-overlay";
+    overlay.setAttribute("aria-hidden","true");
+    document.body.appendChild(overlay);
+    return overlay;
+  }
+
+  function showHistoryUndo(record,title,originalHistory){
     const node=$("#toast"),undoButton=document.createElement("button");
     undoButton.type="button";undoButton.className="undo-button";undoButton.textContent="撤销";
-    node.replaceChildren(document.createTextNode(`已删除「${title}」`),undoButton);
+    const batch=toast.undo?.type==="history-delete"
+      ?toast.undo
+      :{type:"history-delete",originalHistory,records:[]};
+    batch.records.push(record);
+    const message=batch.records.length===1?`已删除「${title}」`:`已删除 ${batch.records.length} 条记录`;
+    node.replaceChildren(document.createTextNode(message),undoButton);
     node.classList.add("has-undo","show");
     const undo=()=>{
-      if(toast.undo?.record!==record)return;
-      const nextIndex=next?state.history.indexOf(next):-1;
-      const previousIndex=previous?state.history.indexOf(previous):-1;
-      const insertAt=nextIndex>=0?nextIndex:previousIndex>=0?previousIndex+1:state.history.length;
-      state.history.splice(insertAt,0,record);saveState();
+      if(toast.undo!==batch)return;
+      const deletedSet=new Set(batch.records);
+      const restored=batch.originalHistory.filter(entry=>deletedSet.has(entry)&&!state.history.includes(entry));
+      restored.forEach(entry=>{
+        const originalIndex=batch.originalHistory.indexOf(entry);
+        const next=batch.originalHistory.slice(originalIndex+1).find(candidate=>state.history.includes(candidate));
+        if(next){state.history.splice(state.history.indexOf(next),0,entry);return;}
+        const previous=batch.originalHistory.slice(0,originalIndex).reverse().find(candidate=>state.history.includes(candidate));
+        const insertAt=previous?state.history.indexOf(previous)+1:state.history.length;
+        state.history.splice(insertAt,0,entry);
+      });
+      saveState();
       clearTimeout(toast.timer);toast.undo=null;node.classList.remove("has-undo","show");
       renderHistory();
-      const restored=$$(".history-item:not(.history-motion-ghost)").find(entry=>entry.dataset.record===String(record.id));
-      if(restored){
-        // Expand inside normal flow instead of FLIP-moving the cards below it.
-        // That keeps cards from overlapping, which otherwise exposes a bright
-        // border/background flash while their composited layers cross.
-        const computed=getComputedStyle(restored);
+      const restoredIds=new Set(restored.map(entry=>String(entry.id)));
+      const restoredEntries=$$(".history-item:not(.history-motion-ghost)").filter(entry=>restoredIds.has(entry.dataset.record)).map(entry=>{
+        const computed=getComputedStyle(entry);
         const expanded={
-          height:`${restored.getBoundingClientRect().height}px`,
+          height:`${entry.getBoundingClientRect().height}px`,
           marginBottom:computed.marginBottom,
           paddingTop:computed.paddingTop,
           paddingBottom:computed.paddingBottom,
@@ -490,23 +566,23 @@
           opacity:0,
           transform:"translateX(-20px) scale(.99)"
         };
-        Object.assign(restored.style,{boxSizing:"border-box",overflow:"hidden",...collapsed});
-        const animation=restored.animate([collapsed,expanded],{duration:300,easing:"cubic-bezier(.22,1,.36,1)",fill:"forwards"});
-        animation.finished.catch(()=>{}).then(()=>{
-          restored.style.boxSizing="";
-          restored.style.overflow="";
-          restored.style.height="";
-          restored.style.marginBottom="";
-          restored.style.paddingTop="";
-          restored.style.paddingBottom="";
-          restored.style.borderTopWidth="";
-          restored.style.borderBottomWidth="";
-          restored.style.opacity="";
-          restored.style.transform="";
-        });
-      }
+        return {entry,expanded,collapsed};
+      });
+      restoredEntries.forEach(({entry,expanded,collapsed})=>{
+        Object.assign(entry.style,{boxSizing:"border-box",overflow:"hidden",...collapsed});
+        const animation=entry.animate([collapsed,expanded],{duration:300,easing:"cubic-bezier(.22,1,.36,1)",fill:"forwards"});
+        activeHistoryRestoreAnimations.set(entry,animation);
+        animation.finished.then(
+          ()=>finishHistoryRestoreAnimation(entry,animation),
+          ()=>{
+            if(activeHistoryRestoreAnimations.get(entry)!==animation)return;
+            clearHistoryRestoreStyles(entry);
+            activeHistoryRestoreAnimations.delete(entry);
+          }
+        );
+      });
     };
-    toast.undo={record,undo};undoButton.addEventListener("click",undo,{once:true});
+    batch.undo=undo;toast.undo=batch;undoButton.addEventListener("click",undo,{once:true});
     clearTimeout(toast.timer);
     toast.timer=setTimeout(()=>{toast.undo=null;node.classList.remove("has-undo","show");},5000);
   }
@@ -514,35 +590,44 @@
   async function deleteHistoryRecord(item,record,button){
     if(item.dataset.deleting)return;
     item.dataset.deleting="true";button.disabled=true;
-    const recordIndex=state.history.indexOf(record);
-    const previous=state.history[recordIndex-1]||null;
-    const next=state.history[recordIndex+1]||null;
+    settleHistoryLayoutAnimations();
+    const originalHistory=toast.undo?.type==="history-delete"?toast.undo.originalHistory:state.history.slice();
     const title=historyPresentation(record).title;
     const container=$("#historyContainer");
+    const overlay=getHistoryDeleteOverlay();
     const group=item.closest(".history-group");
+    const scrollPage=item.closest(".page");
+    const previousScrollTop=scrollPage?.scrollTop||0;
+    const previousMaxScroll=scrollPage?Math.max(0,scrollPage.scrollHeight-scrollPage.clientHeight):0;
+    const wasAtBottom=!!scrollPage&&previousMaxScroll-previousScrollTop<=2;
     const cardPositions=new Map($$(".history-item:not(.history-motion-ghost)").map(entry=>[entry.dataset.record,entry.getBoundingClientRect()]));
     const itemRect=item.getBoundingClientRect();
-    const containerRect=container.getBoundingClientRect();
     const ghost=item.cloneNode(true);
     ghost.classList.add("history-motion-ghost");
-    container.style.position="relative";
-    ghost.style.cssText+=`;position:absolute;z-index:2;pointer-events:none;top:${itemRect.top-containerRect.top}px;left:${itemRect.left-containerRect.left}px;width:${itemRect.width}px;height:${itemRect.height}px;margin:0`;
+    ghost.style.cssText+=`;top:${itemRect.top}px;left:${itemRect.left}px;width:${itemRect.width}px;height:${itemRect.height}px;margin:0`;
     ghost.querySelectorAll("button").forEach(node=>node.disabled=true);
-    container.appendChild(ghost);
+    overlay.appendChild(ghost);
     const exitFrames=[{opacity:1,transform:"translateX(0) scale(1)"},{opacity:0,transform:"translateX(-56px) scale(.985)"}];
     state.history=state.history.filter(entry=>entry!==record);saveState();
     item.remove();
     if(group&&!group.querySelector(".history-item"))group.remove();
+    if(!container.querySelector(".history-item"))renderHistory();
+    if(scrollPage){
+      const nextMaxScroll=Math.max(0,scrollPage.scrollHeight-scrollPage.clientHeight);
+      scrollPage.scrollTop=wasAtBottom?nextMaxScroll:Math.min(previousScrollTop,nextMaxScroll);
+      void scrollPage.offsetHeight;
+    }
     animateHistoryListShift(cardPositions,record);
-    showHistoryUndo(record,title,previous,next);
+    showHistoryUndo(record,title,originalHistory);
     const exit=ghost.animate(exitFrames,{duration:250,easing:"cubic-bezier(.4,0,.2,1)",fill:"forwards"});
     await exit.finished.catch(()=>{});
+    exit.cancel();
     ghost.remove();
-    if(!container.querySelector(".history-item"))renderHistory();
   }
 
   function reuseRecord(record){
-    state.calculator=record.kind;state.mode=record.mode;state.direction=record.direction||"back";
+    state.calculator=record.kind;state.mode=record.mode;
+    if(record.mode==="shift"&&["back","forward"].includes(record.direction))state.direction=record.direction;
     setPage("calculator");renderCalculator();
     if(record.kind==="time"&&record.mode==="diff"){setTimeInput("start",record.start);setTimeInput("end",record.end);}
     else if(record.kind==="time"){setTimeInput("base",record.base);$("#shiftHours").value=Math.floor(record.amountMinutes/60);$("#shiftMinutes").value=record.amountMinutes%60;}

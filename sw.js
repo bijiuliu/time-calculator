@@ -1,4 +1,4 @@
-const CACHE_NAME="time-calculator-2.0.48-no-local-font";
+const CACHE_NAME="time-calculator-2.0.58-stable-history-delete-motion";
 const CORE_ASSETS=[
   "./",
   "./index.html",
