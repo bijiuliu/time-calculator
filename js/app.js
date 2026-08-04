@@ -5,6 +5,7 @@
   const OLD_TIME_HISTORY_KEY="timeCalculatorHistoryV3";
   const OLD_DATE_HISTORY_KEY="dateCalculatorHistoryV1";
   const OLD_SETTINGS_KEY="calculatorSettingsV1";
+  const HISTORY_DELETE_TITLE_LIMIT=20;
   const DEFAULT_SETTINGS={inputMode:"numeric",defaultCalculator:"time",defaultMode:"diff",appearance:"light",accumulation:true,vibration:true,historyLimit:10,compact:false};
   const state={page:"calculator",calculator:"time",mode:"diff",direction:"back",displayMode:"hm",filter:"all",current:null,drafts:{},results:{},history:[],settings:{...DEFAULT_SETTINGS}};
   const activeHistoryRestoreAnimations=new Map();
@@ -279,6 +280,12 @@
   function normalizeMinutes(total){return ((total%1440)+1440)%1440;}
   function minutesToTime(total){const value=normalizeMinutes(total);return `${pad(Math.floor(value/60))}:${pad(value%60)}`;}
   function formatDuration(total){const hours=Math.floor(total/60),minutes=total%60;return `${hours?`${hours}小时`:""}${minutes?`${minutes}分`:""}`||"0分";}
+  function formatShiftDuration(result){
+    const hasOriginalInput=result.inputHours!==undefined||result.inputMinutes!==undefined;
+    if(!hasOriginalInput)return formatDuration(result.amountMinutes);
+    const hours=String(result.inputHours??"").trim(),minutes=String(result.inputMinutes??"").trim();
+    return `${hours!==""?`${hours}小时`:""}${minutes!==""?`${minutes}分钟`:""}`||formatDuration(result.amountMinutes);
+  }
   function dateToIso(date){return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`;}
   function formatDate(date){return `${date.getFullYear()}年${pad(date.getMonth()+1)}月${pad(date.getDate())}日`;}
   function dateDiffDays(start,end){return Math.round((Date.UTC(end.getFullYear(),end.getMonth(),end.getDate())-Date.UTC(start.getFullYear(),start.getMonth(),start.getDate()))/86400000);}
@@ -315,12 +322,13 @@
   function calculateTimeShift(){
     const base=readTime("base","基准时间");
     if(!base.ok)return showValidation(base.message);
-    const hours=Number($("#shiftHours")?.value||0),minutes=Number($("#shiftMinutes")?.value||0);
+    const inputHours=$("#shiftHours")?.value||"",inputMinutes=$("#shiftMinutes")?.value||"";
+    const hours=Number(inputHours||0),minutes=Number(inputMinutes||0);
     if(hours<0||minutes<0)return showValidation("推算时长不能小于0");
     const total=hours*60+minutes;
     if(total===0)return showValidation("请输入往前或往后的时长");
     const raw=state.direction==="back"?base.minutes-total:base.minutes+total,result=minutesToTime(raw),crossedDay=raw<0||raw>=1440;
-    state.current={kind:"time",mode:"shift",base:base.text,direction:state.direction,amountMinutes:total,result,crossedDay};
+    state.current={kind:"time",mode:"shift",base:base.text,direction:state.direction,inputHours,inputMinutes,amountMinutes:total,result,crossedDay};
     rememberCurrentResult();
     addHistory({...state.current,id:Date.now()});
     renderCurrentResult();
@@ -373,7 +381,7 @@
       $("#resultLabel").textContent="目标时间";$("#resultStatus").textContent=result.crossedDay?"跨天":"当天";
       const [hour,minute]=result.result.split(":");
       $("#resultValue").innerHTML=`<span class="time-parts"><span class="time-part"><b>${hour}</b><small>时</small></span><span class="time-part"><b>${minute}</b><small>分</small></span></span>`;
-      $("#resultDescription").innerHTML=`${result.base} ${word} <b>${formatDuration(result.amountMinutes)}</b>`;
+      $("#resultDescription").innerHTML=`${result.base} ${word} <b>${escapeHtml(formatShiftDuration(result))}</b>`;
     }else if(result.mode==="diff"){
       $("#resultLabel").textContent="日期差";$("#resultStatus").textContent="日期间隔";
       $("#resultValue").innerHTML=`<span class="date-result"><b>${result.totalDays}</b><small>天</small></span>`;
@@ -389,7 +397,7 @@
   function resultCopyText(result){
     if(!result)return "";
     if(result.kind==="time"&&result.mode==="diff")return `${result.start} → ${result.end}\n时间差：${formatDuration(result.totalMinutes)} / ${result.totalMinutes}分钟${result.crossedDay?"（跨天）":""}`;
-    if(result.kind==="time"){const word=result.direction==="back"?"往前推算":"往后推算";return `${result.base} ${word} ${formatDuration(result.amountMinutes)}\n结果时间：${result.result}`;}
+    if(result.kind==="time"){const word=result.direction==="back"?"往前推算":"往后推算";return `${result.base} ${word} ${formatShiftDuration(result)}\n结果时间：${result.result}`;}
     if(result.mode==="diff")return `${result.startText} → ${result.endText}\n日期差：${result.totalDays}天`;
     const word=result.direction==="back"?"往前推算":"往后推算";return `${result.baseText} ${word} ${result.amountDays}天\n结果日期：${result.resultText}`;
   }
@@ -406,7 +414,7 @@
 
   function historyPresentation(item){
     if(item.kind==="time"&&item.mode==="diff")return {title:`${item.start} → ${item.end}`,sub:`时间差：${formatDuration(item.totalMinutes)} / ${item.totalMinutes}分钟${item.crossedDay?"（跨天）":""}`};
-    if(item.kind==="time"){const word=item.direction==="back"?"往前推算":"往后推算";return {title:`${item.base} ${word} ${formatDuration(item.amountMinutes)}`,sub:`结果时间：${item.result}`};}
+    if(item.kind==="time"){const word=item.direction==="back"?"往前推算":"往后推算";return {title:`${item.base} ${word} ${formatShiftDuration(item)}`,sub:`结果时间：${item.result}`};}
     if(item.mode==="diff")return {title:`${item.startText} → ${item.endText}`,sub:`日期差：${item.totalDays}天`};
     const word=item.direction==="back"?"往前推算":"往后推算";return {title:`${item.baseText} ${word} ${item.amountDays}天`,sub:`结果日期：${item.resultText}`};
   }
@@ -519,14 +527,19 @@
   }
 
   function showHistoryUndo(record,title,originalHistory){
-    const node=$("#toast"),undoButton=document.createElement("button");
+    const node=$("#toast"),messageNode=document.createElement("span"),undoButton=document.createElement("button");
+    messageNode.className="toast-message";
     undoButton.type="button";undoButton.className="undo-button";undoButton.textContent="撤销";
     const batch=toast.undo?.type==="history-delete"
       ?toast.undo
       :{type:"history-delete",originalHistory,records:[]};
     batch.records.push(record);
-    const message=batch.records.length===1?`已删除「${title}」`:`已删除 ${batch.records.length} 条记录`;
-    node.replaceChildren(document.createTextNode(message),undoButton);
+    const titleCharacters=Array.from(title);
+    const shortenedTitle=titleCharacters.length>HISTORY_DELETE_TITLE_LIMIT
+      ?`${titleCharacters.slice(0,HISTORY_DELETE_TITLE_LIMIT).join("")}…`
+      :title;
+    messageNode.textContent=batch.records.length===1?`已删除「${shortenedTitle}」`:`已删除 ${batch.records.length} 条记录`;
+    node.replaceChildren(messageNode,undoButton);
     node.classList.add("has-undo","show");
     const undo=()=>{
       if(toast.undo!==batch)return;
@@ -630,7 +643,11 @@
     if(record.mode==="shift"&&["back","forward"].includes(record.direction))state.direction=record.direction;
     setPage("calculator");renderCalculator();
     if(record.kind==="time"&&record.mode==="diff"){setTimeInput("start",record.start);setTimeInput("end",record.end);}
-    else if(record.kind==="time"){setTimeInput("base",record.base);$("#shiftHours").value=Math.floor(record.amountMinutes/60);$("#shiftMinutes").value=record.amountMinutes%60;}
+    else if(record.kind==="time"){
+      setTimeInput("base",record.base);
+      $("#shiftHours").value=record.inputHours!==undefined?record.inputHours:Math.floor(record.amountMinutes/60);
+      $("#shiftMinutes").value=record.inputMinutes!==undefined?record.inputMinutes:record.amountMinutes%60;
+    }
     else if(record.mode==="diff"){setDateInput("startDate",record.start);setDateInput("endDate",record.end);}
     else{setDateInput("baseDate",record.base);$("#shiftDays").value=record.amountDays;}
     toast("已重新带入计算");

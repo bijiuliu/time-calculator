@@ -1,4 +1,4 @@
-const CACHE_NAME="time-calculator-2.0.58-stable-history-delete-motion";
+const CACHE_NAME="time-calculator-2.0.62-preserve-shift-input-display";
 const CORE_ASSETS=[
   "./",
   "./index.html",
