@@ -1,14 +1,17 @@
-const CACHE_NAME="time-calculator-2.0.62-preserve-shift-input-display";
+const CACHE_PREFIX="time-calculator-";
+const CACHE_NAME="time-calculator-2.0.63-icon-isolation";
 const CORE_ASSETS=[
   "./",
   "./index.html",
   "./css/style.css",
   "./js/app.js",
   "./manifest.webmanifest",
-  "./assets/icons/icon-192.png",
-  "./assets/icons/icon-192-dark.png",
-  "./assets/icons/icon-512.png",
-  "./assets/icons/apple-touch-icon.png"
+  "./assets/icons/icon-192.png?v=time-calculator-20260907",
+  "./assets/icons/icon-192-dark.png?v=time-calculator-20260907",
+  "./assets/icons/icon-512.png?v=time-calculator-20260907",
+  "./assets/icons/icon-1024.png?v=time-calculator-20260907",
+  "./assets/icons/favicon-32.png?v=time-calculator-20260907",
+  "./assets/icons/apple-touch-icon.png?v=time-calculator-20260907"
 ];
 
 self.addEventListener("install",event=>{
@@ -17,15 +20,16 @@ self.addEventListener("install",event=>{
 });
 
 self.addEventListener("activate",event=>{
-  event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE_NAME).map(key=>caches.delete(key)))));
+  event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith(CACHE_PREFIX)&&key!==CACHE_NAME).map(key=>caches.delete(key)))));
   self.clients.claim();
 });
 
 self.addEventListener("fetch",event=>{
-  if(event.request.method!=="GET")return;
-  event.respondWith(caches.match(event.request).then(cached=>cached||fetch(event.request).then(response=>{
+  const requestUrl=new URL(event.request.url);
+  if(event.request.method!=="GET"||requestUrl.origin!==self.location.origin||!requestUrl.pathname.startsWith(self.registration.scope.replace(self.location.origin,"")))return;
+  event.respondWith(caches.open(CACHE_NAME).then(cache=>cache.match(event.request).then(cached=>cached||fetch(event.request).then(response=>{
     const copy=response.clone();
-    caches.open(CACHE_NAME).then(cache=>cache.put(event.request,copy));
+    cache.put(event.request,copy);
     return response;
-  }).catch(()=>caches.match("./index.html"))));
+  }).catch(()=>cache.match("./index.html")))));
 });
