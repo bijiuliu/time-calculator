@@ -35,9 +35,10 @@ npx serve .
 
 ## 图标规范
 
-- 本项目只引用 `assets/icons/` 下的时间计算器图标，所有 URL 都使用相对路径，禁止引用其他仓库资源。
-- Web App Manifest 使用独立的 `id`，避免浏览器把它与同一账号下的其他 PWA 识别成同一应用。
-- 图标 URL 带项目专属版本号；替换图标时必须同时更新版本号和 Service Worker 的 `CACHE_NAME`。
+- Safari 兼容入口固定为仓库子路径下的 `favicon.ico` 与 `apple-touch-icon.png`，页面同时显式声明 32px 和 192px PNG。
+- PWA 图标固定使用 `assets/icons/time-calculator-pwa-{192,512,1024}.png`，页面品牌图只使用 `time-calculator-brand.png`，二者不能混用。
+- 所有 URL 使用相对路径，禁止以 `/` 开头或引用其他仓库；Manifest 保持独立的 `id`、`start_url` 与 `scope`。
+- 替换图标时必须同步更新 URL 版本号、Service Worker 的 `CACHE_NAME`，并运行 `node scripts/check-icons.mjs`。
 - Service Worker 只能清理 `time-calculator-` 前缀的缓存，不能删除同域其他项目的缓存。
 
 ## 版本

@@ -1,17 +1,18 @@
 const CACHE_PREFIX="time-calculator-";
-const CACHE_NAME="time-calculator-2.0.63-icon-isolation";
+const CACHE_NAME="time-calculator-2.0.64-safari-icons";
 const CORE_ASSETS=[
   "./",
   "./index.html",
   "./css/style.css",
   "./js/app.js",
   "./manifest.webmanifest",
-  "./assets/icons/icon-192.png?v=time-calculator-20260907",
-  "./assets/icons/icon-192-dark.png?v=time-calculator-20260907",
-  "./assets/icons/icon-512.png?v=time-calculator-20260907",
-  "./assets/icons/icon-1024.png?v=time-calculator-20260907",
-  "./assets/icons/favicon-32.png?v=time-calculator-20260907",
-  "./assets/icons/apple-touch-icon.png?v=time-calculator-20260907"
+  "./favicon.ico?v=time-calculator-20260908",
+  "./apple-touch-icon.png?v=time-calculator-20260908",
+  "./assets/icons/time-calculator-favicon-32.png?v=time-calculator-20260908",
+  "./assets/icons/time-calculator-brand.png?v=time-calculator-20260908",
+  "./assets/icons/time-calculator-pwa-192.png?v=time-calculator-20260908",
+  "./assets/icons/time-calculator-pwa-512.png?v=time-calculator-20260908",
+  "./assets/icons/time-calculator-pwa-1024.png?v=time-calculator-20260908"
 ];
 
 self.addEventListener("install",event=>{
