@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title">
+  <rect width="1024" height="1024" fill="#fff"/>
+  <title id="title">时间计算器：时钟与日历</title>
+  <defs>
+    <linearGradient id="calendar" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop stop-color="#0456df"/>
+      <stop offset=".58" stop-color="#1683f4"/>
+      <stop offset="1" stop-color="#46baf5"/>
+    </linearGradient>
+    <linearGradient id="tabs" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop stop-color="#4ac6f5"/>
+      <stop offset=".55" stop-color="#1889f2"/>
+      <stop offset="1" stop-color="#064ddb"/>
+    </linearGradient>
+    <linearGradient id="face" x1="0%" y1="92%" x2="100%" y2="92%">
+      <stop stop-color="#0751ea"/>
+      <stop offset=".46" stop-color="#1688f3"/>
+      <stop offset="1" stop-color="#43c6f5"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop stop-color="#f7f9ff"/>
+      <stop offset="1" stop-color="#edf5ff"/>
+    </linearGradient>
+    <linearGradient id="day" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop stop-color="#b9d7ff"/>
+      <stop offset="1" stop-color="#83b4f7"/>
+    </linearGradient>
+  </defs>
+  <rect x="288" y="190" width="638" height="536" rx="124" fill="url(#calendar)"/>
+  <rect x="455" y="128" width="76" height="136" rx="38" fill="url(#tabs)"/>
+  <rect x="721" y="128" width="76" height="136" rx="38" fill="url(#tabs)"/>
+  <path d="M288 346h514c68 0 124 55 124 124v119c0 75-54 136-129 136H412c-69 0-124-55-124-124Z" fill="url(#panel)"/>
+  <g fill="url(#day)">
+    <rect x="643" y="413" width="77" height="80" rx="20"/>
+    <rect x="768" y="413" width="77" height="80" rx="20"/>
+    <rect x="643" y="540" width="77" height="79" rx="20"/>
+    <rect x="768" y="540" width="77" height="79" rx="20"/>
+  </g>
+  <path d="M328 297c125-14 213 57 256 165 19 47 29 95 49 140 28 64 68 111 133 121 58 10 111-16 160-95-11 98-96 194-226 194H359C205 822 88 719 88 563c0-141 92-248 240-266Z" fill="url(#face)"/>
+  <path d="M328 297c125-14 213 57 256 165 19 47 29 95 49 140 28 64 68 111 133 121 58 10 111-16 160-95" fill="none" stroke="#eff9ff" stroke-width="5" stroke-linecap="round"/>
+  <path d="M315 575V424m0 151 158-60" fill="none" stroke="#fff" stroke-width="35" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="315" cy="575" r="42" fill="#fff"/>
+</svg>

@@ -35,18 +35,19 @@ npx serve .
 
 ## Logo 资源
 
-`assets/icons/icon-1024.png` 是带背景的方形母版。浏览器标签页、iPhone 主屏幕和 PWA 安装图标均由它等比缩小导出；各文件名中的数字必须与实际像素尺寸一致。
+`assets/icons/logo.svg` 是唯一可编辑的矢量母版，使用透明背景。页眉直接使用它。`logo-app.svg` 由母版加白色背景生成，供浏览器图标和支持 SVG 的 PWA 使用。PNG 文件是兼容 iPhone 主屏幕和其他 PWA 安装环境的导出版本，不能单独修改。
 
 | 文件 | 尺寸 | 用途 |
 | --- | --- | --- |
+| `logo.svg` | 任意 | 透明矢量母版、网页页眉 |
+| `logo-app.svg` | 任意 | 带背景的矢量图标、浏览器图标与 PWA |
 | `favicon-32.png` | 32 × 32 | 浏览器标签页 |
 | `apple-touch-icon.png` | 180 × 180 | iPhone 主屏幕 |
 | `icon-192.png` | 192 × 192 | PWA 安装图标 |
 | `icon-512.png` | 512 × 512 | PWA 安装图标 |
-| `icon-1024.png` | 1024 × 1024 | 方形母版 |
-| `logo-transparent.png` | 1254 × 1254 | 网页页眉的透明 Logo |
+| `icon-1024.png` | 1024 × 1024 | 高分辨率 PNG 导出 |
 
-页眉 Logo 与安装图标保持同一图形。透明版不用于 PWA 安装图标，方形版不直接用于深色页眉。更新母版后，需要重新导出各尺寸并更新 `sw.js` 的缓存版本，保证离线用户能拿到新资源。
+修改 `logo.svg` 后，在安装 Inkscape 的环境运行 `node scripts/build-logo-assets.mjs`，重新生成方形 SVG 与全部 PNG。发布时更新 `sw.js` 的缓存版本，保证离线用户能拿到新资源。
 
 ## 版本
 
