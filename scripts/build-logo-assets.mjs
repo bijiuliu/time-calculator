@@ -7,8 +7,16 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const icons = resolve(root, "assets/icons");
 const mark = readFileSync(resolve(icons, "logo.svg"), "utf8");
 const app = mark.replace(/(<svg\b[^>]*>)/, '$1\n  <rect width="1024" height="1024" fill="#fff"/>');
+const pagePath = resolve(root, "index.html");
+const page = readFileSync(pagePath, "utf8");
+const start = "<!-- logo:inline:start -->";
+const end = "<!-- logo:inline:end -->";
+const block = new RegExp(`(${start})[\\s\\S]*?(${end})`);
 
 if (app === mark) throw new Error("Could not find the SVG root element");
+if (!block.test(page)) throw new Error("Could not find the inline logo markers in index.html");
+const inline = mark.trim().split("\n").map(line => `          ${line}`).join("\n");
+writeFileSync(pagePath, page.replace(block, (_, open, close) => `${open}\n${inline}\n          ${close}`));
 writeFileSync(resolve(icons, "logo-app.svg"), app);
 
 for (const [name, size] of [

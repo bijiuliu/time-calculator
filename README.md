@@ -35,11 +35,11 @@ npx serve .
 
 ## Logo 资源
 
-`assets/icons/logo.svg` 是唯一可编辑的矢量母版，使用透明背景。页眉直接使用它。`logo-app.svg` 由母版加白色背景生成，供浏览器图标和支持 SVG 的 PWA 使用。PNG 文件是兼容 iPhone 主屏幕和其他 PWA 安装环境的导出版本，不能单独修改。
+`assets/icons/logo.svg` 是唯一可编辑的矢量母版，使用透明背景。页眉图形直接内联在 `index.html`，随 HTML 一起加载，无需请求独立 Logo 文件。`logo-app.svg` 由母版加白色背景生成，供浏览器图标和支持 SVG 的 PWA 使用。PNG 文件是兼容 iPhone 主屏幕和其他 PWA 安装环境的导出版本，不能单独修改。
 
 | 文件 | 尺寸 | 用途 |
 | --- | --- | --- |
-| `logo.svg` | 任意 | 透明矢量母版、网页页眉 |
+| `logo.svg` | 任意 | 透明矢量母版，生成页眉内联代码 |
 | `logo-app.svg` | 任意 | 带背景的矢量图标、浏览器图标与 PWA |
 | `favicon-32.png` | 32 × 32 | 浏览器标签页 |
 | `apple-touch-icon.png` | 180 × 180 | iPhone 主屏幕 |
@@ -47,7 +47,7 @@ npx serve .
 | `icon-512.png` | 512 × 512 | PWA 安装图标 |
 | `icon-1024.png` | 1024 × 1024 | 高分辨率 PNG 导出 |
 
-修改 `logo.svg` 后，在安装 Inkscape 的环境运行 `node scripts/build-logo-assets.mjs`，重新生成方形 SVG 与全部 PNG。发布时更新 `sw.js` 的缓存版本，保证离线用户能拿到新资源。
+修改 `logo.svg` 后，在安装 Inkscape 的环境运行 `node scripts/build-logo-assets.mjs`，同步页眉内联 SVG，并重新生成方形 SVG 与全部 PNG。发布时更新 `sw.js` 的缓存版本，保证离线用户能拿到新资源。
 
 ## 版本
 
