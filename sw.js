@@ -1,6 +1,6 @@
 const CACHE_PREFIX = "time-calculator-";
 const SCOPE_URL = new URL(self.registration.scope);
-const CACHE_NAME = `${CACHE_PREFIX}${SCOPE_URL.pathname}-v2.0.63-network-first`;
+const CACHE_NAME = `${CACHE_PREFIX}${SCOPE_URL.pathname}-v2.0.66-inline-brand-icon`;
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -9,10 +9,12 @@ const CORE_ASSETS = [
   "./js/app.js",
   "./manifest.webmanifest",
   "./assets/icons/favicon-32.png",
+  "./assets/icons/icon.svg",
   "./assets/icons/icon-192.png",
-  "./assets/icons/icon-192-dark.png",
   "./assets/icons/icon-512.png",
   "./assets/icons/icon-1024.png",
+  "./assets/icons/icon-maskable-192.png",
+  "./assets/icons/icon-maskable-512.png",
   "./assets/icons/apple-touch-icon.png"
 ].map(path => new URL(path, SCOPE_URL).href);
 const CORE_URLS = new Set(CORE_ASSETS);
