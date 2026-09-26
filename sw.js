@@ -1,11 +1,15 @@
 const CACHE_PREFIX = "time-calculator-";
 const SCOPE_URL = new URL(self.registration.scope);
-const CACHE_NAME = `${CACHE_PREFIX}${SCOPE_URL.pathname}-v2.0.66-inline-brand-icon`;
+const CACHE_NAME = `${CACHE_PREFIX}${SCOPE_URL.pathname}-v2.0.68-structured-code`;
 const CORE_ASSETS = [
   "./",
   "./index.html",
   "./css/style.css",
   "./css/typography.css",
+  "./js/logic.js",
+  "./js/storage.js",
+  "./js/history.js",
+  "./js/calculator.js",
   "./js/app.js",
   "./manifest.webmanifest",
   "./assets/icons/favicon-32.png",

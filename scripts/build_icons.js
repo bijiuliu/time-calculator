@@ -45,7 +45,6 @@ async function png(filename, size, options, opaque = false) {
 async function main() {
   const iconSvg = variant({ ...regular, outputSize: 1024 });
   fs.writeFileSync(path.join(iconsDir, 'icon.svg'), iconSvg);
-  fs.writeFileSync(path.join(iconsDir, 'icon-maskable.svg'), variant({ ...maskable, outputSize: 512 }));
   await png('favicon-32.png', 32, { box: [165, 165, 924, 924] });
   await png('icon-192.png', 192, install, true);
   await png('icon-512.png', 512, install, true);

@@ -18,8 +18,6 @@
   --font-size-label: 14px;
   --font-size-body: 16px;
   --font-size-title: 20px;
-  --font-size-display: 32px;
-  --font-size-time: 44px;
 
   --line-height-caption: 1.45;
   --line-height-label: 1.45;
@@ -42,7 +40,7 @@ button, input, select, textarea { font-family: inherit; }
 .nav-button { font-size: var(--font-size-caption); font-weight: var(--font-weight-medium); line-height: var(--line-height-caption); }
 
 /* Primary controls */
-.type-button, .mode-button, .direction button, .filter-button, .segmented button { font-size: var(--font-size-label); font-weight: var(--font-weight-medium); line-height: var(--line-height-label); }
+.type-button, .mode-button, .direction button, .filter-button { font-size: var(--font-size-label); font-weight: var(--font-weight-medium); line-height: var(--line-height-label); }
 .clear-button, .calculate-button { font-size: var(--font-size-body); font-weight: var(--font-weight-semibold); line-height: var(--line-height-body); }
 .calculate-button { font-weight: var(--font-weight-bold); }
 
@@ -67,9 +65,3 @@ button, input, select, textarea { font-family: inherit; }
 .empty-state { font-size: var(--font-size-label); font-weight: var(--font-weight-medium); line-height: var(--line-height-label); }
 .sheet-header h2, .confirm-dialog h2 { font-size: var(--font-size-title); font-weight: var(--font-weight-bold); line-height: var(--line-height-title); }
 .about-content h3 { font-size: var(--font-size-label); font-weight: var(--font-weight-semibold); }
-
-/* Utilities for future views */
-.type-caption { font-size: var(--font-size-caption); font-weight: var(--font-weight-medium); line-height: var(--line-height-caption); }
-.type-label { font-size: var(--font-size-label); font-weight: var(--font-weight-medium); line-height: var(--line-height-label); }
-.type-body { font-size: var(--font-size-body); font-weight: var(--font-weight-regular); line-height: var(--line-height-body); }
-.type-title { font-size: var(--font-size-title); font-weight: var(--font-weight-bold); line-height: var(--line-height-title); }
